@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../auth/screens/login_screen.dart';
@@ -25,7 +26,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _logout() async {
     if (isLoggingOut) return;
 
-    setState(() => isLoggingOut = true);
+    setState(() {
+      isLoggingOut = true;
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', false);
 
     try {
       await FirebaseAuth.instance.signOut();
@@ -35,8 +41,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (!mounted) return;
 
-    Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => const LoginScreen(),
+      ),
       (route) => false,
     );
   }

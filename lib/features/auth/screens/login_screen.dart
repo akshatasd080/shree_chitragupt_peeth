@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../home/screens/home_screen.dart';
@@ -30,25 +31,35 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _goToHome() {
+  Future<void> _goToHome() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool('isLoggedIn', true);
+
+    if (!mounted) return;
+
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      MaterialPageRoute(
+        builder: (_) => const HomeScreen(),
+      ),
     );
   }
 
-  void _login() {
+  void _login() async {
     if (_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login Successful')),
+        const SnackBar(
+          content: Text('Login Successful'),
+        ),
       );
 
-      _goToHome();
+      await _goToHome();
     }
   }
 
-  void _skipAsGuest() {
-    _goToHome();
+  void _skipAsGuest() async {
+    await _goToHome();
   }
 
   @override
@@ -57,17 +68,23 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
+
+          /// Background Image
           Positioned.fill(
             child: Image.asset(
               LoginScreen._bgImage,
               fit: BoxFit.cover,
             ),
           ),
+
+          /// Dark Overlay
           Positioned.fill(
             child: Container(
               color: Colors.black.withOpacity(0.65),
             ),
           ),
+
+          /// Main UI
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -75,6 +92,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+
+                    /// Title
                     Text(
                       'SHREE CHITRAGUPT PEETH',
                       style: TextStyle(
@@ -98,6 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     SizedBox(height: 30.h),
 
+                    /// Login Card
                     Container(
                       padding: EdgeInsets.all(22.w),
                       decoration: BoxDecoration(
@@ -111,6 +131,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         key: _formKey,
                         child: Column(
                           children: [
+
+                            /// Name
                             _LoginField(
                               controller: _nameController,
                               hint: 'Name',
@@ -122,18 +144,24 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ],
                               validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
+                                if (value == null ||
+                                    value.trim().isEmpty) {
                                   return 'Please enter name';
                                 }
-                                if (!_nameRegex.hasMatch(value.trim())) {
+
+                                if (!_nameRegex.hasMatch(
+                                  value.trim(),
+                                )) {
                                   return 'Only alphabets allowed';
                                 }
+
                                 return null;
                               },
                             ),
 
                             SizedBox(height: 14.h),
 
+                            /// Mobile
                             _LoginField(
                               controller: _mobileController,
                               hint: 'Mobile Number',
@@ -145,21 +173,25 @@ class _LoginScreenState extends State<LoginScreen> {
                                 LengthLimitingTextInputFormatter(10),
                               ],
                               validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
+                                if (value == null ||
+                                    value.trim().isEmpty) {
                                   return 'Please enter mobile number';
                                 }
+
                                 if (value.trim().length != 10) {
                                   return 'Mobile number must be 10 digits';
                                 }
+
                                 return null;
                               },
                             ),
 
                             SizedBox(height: 20.h),
 
+                            /// Login Button
                             SizedBox(
                               width: double.infinity,
-                              height: 50.h,
+                              height: 52.h,
                               child: ElevatedButton(
                                 onPressed: _login,
                                 child: Text(
@@ -174,22 +206,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
                             SizedBox(height: 12.h),
 
+                            /// Guest
                             TextButton(
                               onPressed: _skipAsGuest,
                               child: const Text(
                                 'Skip as Guest',
-                                style: TextStyle(color: Colors.white70),
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                ),
                               ),
                             ),
 
                             SizedBox(height: 6.h),
 
+                            /// Signup
                             TextButton(
                               onPressed: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => const SignupScreen(),
+                                    builder: (_) =>
+                                        const SignupScreen(),
                                   ),
                                 );
                               },
@@ -250,13 +287,18 @@ class _LoginField extends StatelessWidget {
         counterText: '',
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.white70),
-        prefixIcon: Icon(icon, color: AppColors.goldLight),
+        prefixIcon: Icon(
+          icon,
+          color: AppColors.goldLight,
+        ),
         filled: true,
         fillColor: Colors.white.withOpacity(0.1),
         errorStyle: const TextStyle(color: Colors.redAccent),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.24)),
+          borderSide: BorderSide(
+            color: Colors.white.withOpacity(0.24),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
@@ -267,7 +309,9 @@ class _LoginField extends StatelessWidget {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
-          borderSide: const BorderSide(color: Colors.redAccent),
+          borderSide: const BorderSide(
+            color: Colors.redAccent,
+          ),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.r),
