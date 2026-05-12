@@ -25,9 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _logout() async {
     if (isLoggingOut) return;
 
-    setState(() {
-      isLoggingOut = true;
-    });
+    setState(() => isLoggingOut = true);
 
     try {
       await FirebaseAuth.instance.signOut();
@@ -38,9 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!mounted) return;
 
     Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (_) => const LoginScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
       (route) => false,
     );
   }
@@ -49,6 +45,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final result = await Navigator.push<Map<String, String>>(
       context,
       MaterialPageRoute(
+        fullscreenDialog: true,
         builder: (_) => EditProfileScreen(
           name: name,
           email: email,
@@ -81,11 +78,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
-                  colors: [
-                    AppColors.saffron,
-                    AppColors.gold,
-                  ],
+                  colors: [AppColors.saffron, AppColors.gold],
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.saffron.withOpacity(0.35),
+                    blurRadius: 22,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Icon(
                 Icons.person_rounded,
@@ -93,9 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 size: 60.sp,
               ),
             ),
-
             SizedBox(height: 18.h),
-
             Text(
               'जय श्री चित्रगुप्त जी की जय 🙏',
               textAlign: TextAlign.center,
@@ -105,9 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontWeight: FontWeight.w900,
               ),
             ),
-
             SizedBox(height: 8.h),
-
             Text(
               'Welcome to Shree Chitragupt Peeth App',
               textAlign: TextAlign.center,
@@ -116,50 +113,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontSize: 13.sp,
               ),
             ),
-
             SizedBox(height: 24.h),
-
             _ProfileCard(
               icon: Icons.person_outline_rounded,
               title: 'Name',
               value: name,
             ),
-
             SizedBox(height: 12.h),
-
             _ProfileCard(
               icon: Icons.email_outlined,
               title: 'Email',
               value: email,
             ),
-
             SizedBox(height: 12.h),
-
             _ProfileCard(
               icon: Icons.phone_outlined,
               title: 'Mobile',
               value: mobile,
             ),
-
             SizedBox(height: 12.h),
-
             _ProfileCard(
               icon: Icons.verified_user_outlined,
               title: 'Account Type',
               value: accountType,
             ),
-
             SizedBox(height: 24.h),
-
             _ProfileButton(
               icon: Icons.edit_rounded,
               title: 'Edit Profile',
               color: AppColors.saffron,
               onTap: _editProfile,
             ),
-
             SizedBox(height: 12.h),
-
             _ProfileButton(
               icon: Icons.logout_rounded,
               title: isLoggingOut ? 'Logging out...' : 'Logout',
@@ -216,87 +201,140 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void _saveProfile() {
-    Navigator.pop(context, {
-      'name': nameController.text.trim(),
-      'email': emailController.text.trim(),
-      'mobile': mobileController.text.trim(),
-      'accountType': accountTypeController.text.trim(),
-    });
+    Navigator.pop(
+      context,
+      {
+        'name': nameController.text.trim(),
+        'email': emailController.text.trim(),
+        'mobile': mobileController.text.trim(),
+        'accountType': accountTypeController.text.trim(),
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF090400),
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        backgroundColor: Colors.transparent,
         centerTitle: true,
-        backgroundColor: AppColors.saffron,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: AppColors.goldLight,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Edit Profile',
+          style: TextStyle(
+            color: AppColors.goldLight,
+            fontSize: 20.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      body: _PageBackground(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(18.w),
-          child: Column(
-            children: [
-              _EditField(
-                controller: nameController,
-                label: 'Name',
-                icon: Icons.person_outline_rounded,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              ProfileScreen._bgImage,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.72),
+            ),
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.orange.withOpacity(0.08),
+                    Colors.black.withOpacity(0.45),
+                    Colors.black.withOpacity(0.95),
+                  ],
+                ),
               ),
-
-              SizedBox(height: 14.h),
-
-              _EditField(
-                controller: emailController,
-                label: 'Email',
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-              ),
-
-              SizedBox(height: 14.h),
-
-              _EditField(
-                controller: mobileController,
-                label: 'Mobile',
-                icon: Icons.phone_outlined,
-                keyboardType: TextInputType.phone,
-              ),
-
-              SizedBox(height: 14.h),
-
-              _EditField(
-                controller: accountTypeController,
-                label: 'Account Type',
-                icon: Icons.verified_user_outlined,
-              ),
-
-              SizedBox(height: 28.h),
-
-              SizedBox(
-                width: double.infinity,
-                height: 56.h,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.saffron,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.r),
-                    ),
-                  ),
-                  onPressed: _saveProfile,
-                  icon: const Icon(Icons.save_rounded, color: Colors.white),
-                  label: Text(
-                    'Save Profile',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
+            ),
+          ),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(20.w, 90.h, 20.w, 40.h),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _EditField(
+                        controller: nameController,
+                        label: 'Name',
+                        icon: Icons.person_outline_rounded,
+                      ),
+                      SizedBox(height: 18.h),
+                      _EditField(
+                        controller: emailController,
+                        label: 'Email',
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      SizedBox(height: 18.h),
+                      _EditField(
+                        controller: mobileController,
+                        label: 'Mobile',
+                        icon: Icons.phone_outlined,
+                        keyboardType: TextInputType.phone,
+                      ),
+                      SizedBox(height: 18.h),
+                      _EditField(
+                        controller: accountTypeController,
+                        label: 'Account Type',
+                        icon: Icons.verified_user_outlined,
+                      ),
+                      SizedBox(height: 35.h),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 60.h,
+                        child: ElevatedButton.icon(
+                          onPressed: _saveProfile,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.saffron,
+                            elevation: 10,
+                            shadowColor: AppColors.saffron.withOpacity(0.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(22.r),
+                            ),
+                          ),
+                          icon: const Icon(
+                            Icons.save_rounded,
+                            color: Colors.white,
+                          ),
+                          label: Text(
+                            'Save Profile',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 17.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20.h),
+                    ],
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -320,20 +358,39 @@ class _EditField extends StatelessWidget {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w600,
+      ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: AppColors.goldLight),
-        prefixIcon: Icon(icon, color: AppColors.goldLight),
+        labelStyle: TextStyle(
+          color: AppColors.goldLight,
+          fontSize: 13.sp,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: AppColors.goldLight,
+        ),
         filled: true,
         fillColor: Colors.white.withOpacity(0.105),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 18.w,
+          vertical: 18.h,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18.r),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.16)),
+          borderSide: BorderSide(
+            color: Colors.white.withOpacity(0.16),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18.r),
-          borderSide: BorderSide(color: AppColors.goldLight),
+          borderSide: BorderSide(
+            color: AppColors.goldLight,
+            width: 1.4,
+          ),
         ),
       ),
     );
@@ -358,6 +415,21 @@ class _PageBackground extends StatelessWidget {
         Positioned.fill(
           child: Container(
             color: Colors.black.withOpacity(0.70),
+          ),
+        ),
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.saffron.withOpacity(0.16),
+                  Colors.black.withOpacity(0.25),
+                  Colors.black.withOpacity(0.92),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
           ),
         ),
         child,
@@ -391,7 +463,11 @@ class _ProfileCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: AppColors.goldLight, size: 28.sp),
+          Icon(
+            icon,
+            color: AppColors.goldLight,
+            size: 28.sp,
+          ),
           SizedBox(width: 14.w),
           Expanded(
             child: Column(
@@ -443,12 +519,17 @@ class _ProfileButton extends StatelessWidget {
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18.r),
           ),
         ),
         onPressed: onTap,
-        icon: Icon(icon, color: Colors.white),
+        icon: Icon(
+          icon,
+          color: Colors.white,
+          size: 22.sp,
+        ),
         label: Text(
           title,
           style: TextStyle(

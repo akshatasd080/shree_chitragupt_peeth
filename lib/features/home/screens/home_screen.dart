@@ -3,8 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../aarti/screens/aarti_screen.dart';
 import '../../contact/screens/contact_screen.dart';
 import '../../profile/screens/profile_screen.dart';
+import '../../videos/screens/videos_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,23 +28,19 @@ class _HomeScreenState extends State<HomeScreen> {
     'Profile',
   ];
 
-  Future<void> _openUrl(String url) async {
-    final Uri uri = Uri.parse(url);
+  Future<void> _openDonatePage() async {
+    final uri = Uri.parse('https://www.shreechitraguptpeeth.org/donation');
 
-    final bool launched = await launchUrl(
+    final launched = await launchUrl(
       uri,
       mode: LaunchMode.externalApplication,
     );
 
     if (!launched && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Link open nahi ho paaya.')),
+        const SnackBar(content: Text('Donation page open nahi ho paaya.')),
       );
     }
-  }
-
-  Future<void> _openDonatePage() async {
-    await _openUrl('https://www.shreechitraguptpeeth.org/donation');
   }
 
   @override
@@ -87,8 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
               });
             },
           ),
-          const _AartiTab(),
-          const _VideosTab(),
+          const AartiScreen(),
+          const VideosScreen(),
           const ContactScreen(),
           const ProfileScreen(),
         ],
@@ -104,8 +102,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       AppColors.saffron,
                       AppColors.gold,
                     ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -141,9 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: Colors.black,
           border: Border(
-            top: BorderSide(
-              color: AppColors.goldLight.withOpacity(0.18),
-            ),
+            top: BorderSide(color: AppColors.goldLight.withOpacity(0.18)),
           ),
         ),
         child: Padding(
@@ -240,6 +234,7 @@ class _HomeTabState extends State<_HomeTab> {
             SizedBox(height: 26.h),
 
             const _StatsGrid(),
+
             SizedBox(height: 28.h),
 
             const _CreamSection(
@@ -256,6 +251,7 @@ class _HomeTabState extends State<_HomeTab> {
               subtitle: 'Tap to open app sections',
               icon: Icons.grid_view_rounded,
             ),
+
             SizedBox(height: 14.h),
 
             GridView.count(
@@ -335,8 +331,6 @@ class _HomeHero extends StatelessWidget {
             AppColors.gold.withOpacity(0.74),
             const Color(0xFF4A1600).withOpacity(0.92),
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
@@ -355,9 +349,7 @@ class _HomeHero extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.14),
               shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withOpacity(0.28),
-              ),
+              border: Border.all(color: Colors.white.withOpacity(0.28)),
             ),
             child: Icon(
               Icons.temple_hindu_rounded,
@@ -366,7 +358,6 @@ class _HomeHero extends StatelessWidget {
             ),
           ),
           SizedBox(height: 22.h),
-
           Text(
             'श्री चित्रगुप्त पीठ वृंदावन',
             style: TextStyle(
@@ -376,9 +367,7 @@ class _HomeHero extends StatelessWidget {
               height: 1.25,
             ),
           ),
-
           SizedBox(height: 14.h),
-
           Text(
             'World\'s First Chitragupt Peeth · Vrindavan, UP',
             style: TextStyle(
@@ -388,9 +377,7 @@ class _HomeHero extends StatelessWidget {
               height: 1.45,
             ),
           ),
-
           SizedBox(height: 14.h),
-
           Text(
             'संसार की प्रथम श्री चित्रगुप्त पीठ — वृंदावन में भव्य रूप से स्थापित हो रही है। बुद्धि विधाता, लेखनी दाता, धर्मराज भगवान श्री चित्रगुप्त जी की कृपा से एक दिव्य तीर्थ की स्थापना।',
             style: TextStyle(
@@ -400,9 +387,7 @@ class _HomeHero extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-
           SizedBox(height: 22.h),
-
           Row(
             children: [
               Expanded(
@@ -447,10 +432,7 @@ class _HeroButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: filled ? Colors.white : Colors.transparent,
-          side: BorderSide(
-            color: Colors.white.withOpacity(0.9),
-            width: 1.4,
-          ),
+          side: BorderSide(color: Colors.white.withOpacity(0.9), width: 1.4),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.r),
           ),
@@ -475,162 +457,11 @@ class _WhoIsChitraguptSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(22.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF6DD).withOpacity(0.96),
-        borderRadius: BorderRadius.circular(26.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.22),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'WHO IS CHITRAGUPT',
-            style: TextStyle(
-              color: AppColors.saffron,
-              fontSize: 12.sp,
-              letterSpacing: 4,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          SizedBox(height: 10.h),
-          Text(
-            'भगवान श्री चित्रगुप्त जी का परिचय',
-            style: TextStyle(
-              color: const Color(0xFF7A1E1E),
-              fontSize: 22.sp,
-              fontWeight: FontWeight.w900,
-              height: 1.35,
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Container(
-            height: 4.h,
-            width: 75.w,
-            decoration: BoxDecoration(
-              color: AppColors.saffron,
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-          ),
-          SizedBox(height: 20.h),
-          Text(
-            'भगवान श्री चित्रगुप्त जी — बुद्धि विधाता, लेखनी दाता, समस्त ग्रह-नक्षत्रों के स्वामी हैं। वे संसार के समस्त प्राणियों के कर्मों का लेखा-जोखा रखते हैं और उनके कर्मों के आधार पर फल प्रदान करते हैं।\n\nहिंदू पुराणों के अनुसार, ब्रह्मा जी ने 11,000 वर्षों की गहन साधना के बाद अपनी काया से भगवान श्री चित्रगुप्त जी को प्रकट किया। इसलिए वे कायस्थ समुदाय के आदि पूर्वज और ईष्ट देव माने जाते हैं।\n\nवे हाथ में कलम, दवात और पुस्तक धारण करते हैं। न्याय के देवता यमराज की सहायता से वे सभी जीवों के पाप-पुण्य का हिसाब रखते हैं। उनकी आराधना से बुद्धि, विद्या और धर्म की प्राप्ति होती है।',
-            style: TextStyle(
-              color: const Color(0xFF2D1A00),
-              fontSize: 15.sp,
-              height: 1.9,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: 22.h),
-
-          const _ChitraguptInfoCard(
-            icon: '🖊️',
-            title: 'लेखनी दाता',
-            text: 'विद्या, बुद्धि और कलम के देवता — ज्ञान के प्रदाता।',
-          ),
-          SizedBox(height: 12.h),
-
-          const _ChitraguptInfoCard(
-            icon: '⚖️',
-            title: 'कर्म के न्यायाधीश',
-            text: 'समस्त प्राणियों के कर्मों का सटीक लेखा-जोखा रखते हैं।',
-          ),
-          SizedBox(height: 12.h),
-
-          const _ChitraguptInfoCard(
-            icon: '🌟',
-            title: 'ग्रह-नक्षत्र स्वामी',
-            text: 'समस्त ग्रहों और नक्षत्रों के अधिपति देवता।',
-          ),
-          SizedBox(height: 12.h),
-
-          const _ChitraguptInfoCard(
-            icon: '🙏',
-            title: 'कायस्थ कुलदेव',
-            text: 'कायस्थ समुदाय के आदि पूर्वज और परम ईष्ट देव।',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ChitraguptInfoCard extends StatelessWidget {
-  const _ChitraguptInfoCard({
-    required this.icon,
-    required this.title,
-    required this.text,
-  });
-
-  final String icon;
-  final String title;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(15.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border(
-          left: BorderSide(
-            color: AppColors.saffron,
-            width: 4,
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            icon,
-            style: TextStyle(fontSize: 24.sp),
-          ),
-          SizedBox(width: 10.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: const Color(0xFF7A1E1E),
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                SizedBox(height: 5.h),
-                Text(
-                  text,
-                  style: TextStyle(
-                    color: const Color(0xFF6E5738),
-                    fontSize: 13.sp,
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return _CreamSection(
+      label: 'WHO IS CHITRAGUPT',
+      title: 'भगवान श्री चित्रगुप्त जी का परिचय',
+      text:
+          'भगवान श्री चित्रगुप्त जी — बुद्धि विधाता, लेखनी दाता, समस्त ग्रह-नक्षत्रों के स्वामी हैं। वे संसार के समस्त प्राणियों के कर्मों का लेखा-जोखा रखते हैं और उनके कर्मों के आधार पर फल प्रदान करते हैं।\n\nवे हाथ में कलम, दवात और पुस्तक धारण करते हैं। उनकी आराधना से बुद्धि, विद्या और धर्म की प्राप्ति होती है।',
     );
   }
 }
@@ -646,8 +477,6 @@ class _StatsGrid extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         childAspectRatio: 1.65,
-        crossAxisSpacing: 8.w,
-        mainAxisSpacing: 8.h,
         children: const [
           _StatItem(value: '1 करोड़+', label: 'मंत्र लेखन'),
           _StatItem(value: '3', label: 'तल्लीय मंदिर'),
@@ -660,10 +489,7 @@ class _StatsGrid extends StatelessWidget {
 }
 
 class _StatItem extends StatelessWidget {
-  const _StatItem({
-    required this.value,
-    required this.label,
-  });
+  const _StatItem({required this.value, required this.label});
 
   final String value;
   final String label;
@@ -686,10 +512,7 @@ class _StatItem extends StatelessWidget {
         Text(
           label,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 12.sp,
-          ),
+          style: TextStyle(color: Colors.white70, fontSize: 12.sp),
         ),
       ],
     );
@@ -715,13 +538,6 @@ class _CreamSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFFF6DD).withOpacity(0.94),
         borderRadius: BorderRadius.circular(26.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.22),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -776,15 +592,10 @@ class _CreamFeatureSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final features = [
-      _FeatureData('🛕', 'तीन तल्लीय मंदिर', 'भव्य तीन मंजिला मंदिर का निर्माण — प्रभु के दिव्य दर्शन के लिए।'),
-      _FeatureData('💧', 'जल परिक्रमा', 'जल के साथ पवित्र परिक्रमा पथ — आत्मशुद्धि का माध्यम।'),
-      _FeatureData('🌸', 'नक्षत्र वाटिका', '27 नक्षत्रों के अनुसार वृक्षों की वाटिका — प्राकृतिक आरोग्य केंद्र।'),
-      _FeatureData('📖', 'गुरुकुल विद्यापीठ', 'वैदिक शिक्षा, संस्कृत और सनातन परंपरा का केंद्र।'),
-      _FeatureData('🏠', 'घर आँगन', 'बुजुर्ग माता-पिता के लिए आवासीय परिसर।'),
-      _FeatureData('🛏️', 'श्री चित्रगुप्त निवास', 'अतिथि गृह एवं भोजनालय की सुविधा।'),
-      _FeatureData('🌿', 'आयुर्वेदिक औषधालय', 'पंचकर्म एवं आयुर्वेदिक चिकित्सा सेवा।'),
-      _FeatureData('🧘', 'ध्यान केंद्र', 'योग, प्राणायाम और ध्यान साधना का स्थान।'),
-      _FeatureData('✍️', 'मंत्र लेखन बैंक', 'चित्रगुप्त मंत्र लेखन एवं शोध-चिंतन संस्थान।'),
+      ['🛕', 'तीन तल्लीय मंदिर', 'भव्य तीन मंजिला मंदिर का निर्माण।'],
+      ['💧', 'जल परिक्रमा', 'जल के साथ पवित्र परिक्रमा पथ।'],
+      ['🌸', 'नक्षत्र वाटिका', '27 नक्षत्रों के अनुसार वृक्षों की वाटिका।'],
+      ['📖', 'गुरुकुल विद्यापीठ', 'वैदिक शिक्षा और सनातन परंपरा।'],
     ];
 
     return Container(
@@ -815,81 +626,44 @@ class _CreamFeatureSection extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(height: 12.h),
-          Container(
-            height: 4.h,
-            width: 72.w,
-            decoration: BoxDecoration(
-              color: AppColors.saffron,
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-          ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 18.h),
           ...features.map(
-            (item) => Padding(
-              padding: EdgeInsets.only(bottom: 14.h),
-              child: _WhiteFeatureCard(item: item),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FeatureData {
-  final String icon;
-  final String title;
-  final String text;
-
-  _FeatureData(this.icon, this.title, this.text);
-}
-
-class _WhiteFeatureCard extends StatelessWidget {
-  const _WhiteFeatureCard({required this.item});
-
-  final _FeatureData item;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(18.w),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.96),
-        borderRadius: BorderRadius.circular(22.r),
-        border: Border(
-          top: BorderSide(
-            color: AppColors.saffron,
-            width: 3,
-          ),
-        ),
-      ),
-      child: Column(
-        children: [
-          Text(
-            item.icon,
-            style: TextStyle(fontSize: 34.sp),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            item.title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: const Color(0xFF7A1E1E),
-              fontSize: 17.sp,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            item.text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: const Color(0xFF6E5738),
-              fontSize: 13.sp,
-              height: 1.5,
-              fontWeight: FontWeight.w500,
+            (item) => Container(
+              width: double.infinity,
+              margin: EdgeInsets.only(bottom: 14.h),
+              padding: EdgeInsets.all(18.w),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.96),
+                borderRadius: BorderRadius.circular(22.r),
+                border: Border(
+                  top: BorderSide(color: AppColors.saffron, width: 3),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Text(item[0], style: TextStyle(fontSize: 34.sp)),
+                  SizedBox(height: 8.h),
+                  Text(
+                    item[1],
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: const Color(0xFF7A1E1E),
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    item[2],
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: const Color(0xFF6E5738),
+                      fontSize: 13.sp,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -904,10 +678,9 @@ class _MissionSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final missions = [
-      _MissionData('01', 'महिमा प्रचार', 'भगवान श्री चित्रगुप्त जी की महिमा का वर्णन और प्रचार-प्रसार करना।'),
-      _MissionData('02', 'गुरुकुल परंपरा', 'भारतीय वैदिक सनातनी गुरुकुल परंपरा को पुनः स्थापित करना।'),
-      _MissionData('03', 'धर्म रक्षा', 'सनातन धर्म का प्रचार कर धर्म की रक्षा एवं राष्ट्र को सशक्त बनाना।'),
-      _MissionData('04', 'प्रामाणिक जानकारी', 'वेद और पुराणों पर आधारित सटीक एवं प्रामाणिक जानकारी देना।'),
+      ['01', 'महिमा प्रचार', 'भगवान श्री चित्रगुप्त जी की महिमा का प्रचार।'],
+      ['02', 'गुरुकुल परंपरा', 'वैदिक सनातनी गुरुकुल परंपरा को पुनः स्थापित करना।'],
+      ['03', 'धर्म रक्षा', 'सनातन धर्म का प्रचार और रक्षा।'],
     ];
 
     return Container(
@@ -916,9 +689,7 @@ class _MissionSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF240800).withOpacity(0.90),
         borderRadius: BorderRadius.circular(26.r),
-        border: Border.all(
-          color: AppColors.gold.withOpacity(0.22),
-        ),
+        border: Border.all(color: AppColors.gold.withOpacity(0.22)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -941,80 +712,48 @@ class _MissionSection extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(height: 12.h),
-          Container(
-            height: 4.h,
-            width: 72.w,
-            decoration: BoxDecoration(
-              color: AppColors.saffron,
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-          ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 18.h),
           ...missions.map(
-            (item) => Padding(
-              padding: EdgeInsets.only(bottom: 14.h),
-              child: _MissionCard(item: item),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MissionData {
-  final String number;
-  final String title;
-  final String text;
-
-  _MissionData(this.number, this.title, this.text);
-}
-
-class _MissionCard extends StatelessWidget {
-  const _MissionCard({required this.item});
-
-  final _MissionData item;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(18.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFF3A1309).withOpacity(0.76),
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: AppColors.gold.withOpacity(0.35),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            item.number,
-            style: TextStyle(
-              color: AppColors.goldLight,
-              fontSize: 30.sp,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            item.title,
-            style: TextStyle(
-              color: AppColors.saffron,
-              fontSize: 17.sp,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          SizedBox(height: 10.h),
-          Text(
-            item.text,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.78),
-              fontSize: 13.sp,
-              height: 1.65,
+            (item) => Container(
+              width: double.infinity,
+              margin: EdgeInsets.only(bottom: 14.h),
+              padding: EdgeInsets.all(18.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFF3A1309).withOpacity(0.76),
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(color: AppColors.gold.withOpacity(0.35)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item[0],
+                    style: TextStyle(
+                      color: AppColors.goldLight,
+                      fontSize: 30.sp,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    item[1],
+                    style: TextStyle(
+                      color: AppColors.saffron,
+                      fontSize: 17.sp,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+                  Text(
+                    item[2],
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.78),
+                      fontSize: 13.sp,
+                      height: 1.65,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -1028,229 +767,13 @@ class _FooterSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(22.w),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.78),
-        borderRadius: BorderRadius.circular(26.r),
-        border: Border.all(
-          color: AppColors.gold.withOpacity(0.16),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '🕉️ SHREE CHITRAGUPT PEETH',
-            style: TextStyle(
-              color: AppColors.goldLight,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          SizedBox(height: 12.h),
-          Text(
-            'सम्पूर्ण भारत में भगवान श्री चित्रगुप्त जी के बहुत से मंदिर हैं, परंतु उनके बारे में सभी जानकारी एक स्थान से प्राप्त हो — इसी उद्देश्य से श्री चित्रगुप्त पीठ की स्थापना की गई है।',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 13.sp,
-              height: 1.7,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            '📞 +91-7065013874',
-            style: TextStyle(
-              color: Colors.white60,
-              fontSize: 13.sp,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            '✉️ shreechitraguptpeeth@gmail.com',
-            style: TextStyle(
-              color: Colors.white60,
-              fontSize: 13.sp,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AartiTab extends StatelessWidget {
-  const _AartiTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return _PageBackground(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(18.w, 110.h, 18.w, 90.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _SectionTitle(
-              title: 'भगवान चित्रगुप्त जी की आरती',
-              subtitle: 'Daily prayer',
-              icon: Icons.menu_book_rounded,
-            ),
-            SizedBox(height: 12.h),
-            const _InfoCard(
-              text:
-                  'ॐ जय चित्रगुप्त हरे,\n'
-                  'स्वामी जय चित्रगुप्त हरे।\n'
-                  'भक्त जनों के संकट,\n'
-                  'क्षण में दूर करे॥\n\n'
-                  'जय देव जय देव,\n'
-                  'श्री चित्रगुप्त देवा।\n'
-                  'सुख संपत्ति दाता,\n'
-                  'सबके भाग्य विधाता॥\n\n'
-                  'हे प्रभु चित्रगुप्त भगवान,\n'
-                  'हम सब पर अपनी कृपा बनाए रखें।',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _VideosTab extends StatelessWidget {
-  const _VideosTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return _PageBackground(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(18.w, 110.h, 18.w, 90.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _SectionTitle(
-              title: 'YouTube Videos',
-              subtitle: 'Bhajan, Aarti & Updates',
-              icon: Icons.play_circle_rounded,
-            ),
-            SizedBox(height: 12.h),
-            const _VideoCard(
-              title: 'Shree Chitragupt Peeth Video 1',
-              subtitle: 'YouTube video player yaha add hoga',
-            ),
-            SizedBox(height: 12.h),
-            const _VideoCard(
-              title: 'Shree Chitragupt Peeth Video 2',
-              subtitle: 'youtube_player_flutter package use karenge',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileTab extends StatelessWidget {
-  const _ProfileTab();
-
-  @override
-  Widget build(BuildContext context) {
-    return _PageBackground(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(18.w, 110.h, 18.w, 90.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _SectionTitle(
-              title: 'My Profile',
-              subtitle: 'Welcome devotee',
-              icon: Icons.person_rounded,
-            ),
-            SizedBox(height: 20.h),
-            Center(
-              child: Container(
-                height: 108.w,
-                width: 108.w,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.saffron,
-                      AppColors.gold,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Icon(
-                  Icons.person_rounded,
-                  color: Colors.white,
-                  size: 60.sp,
-                ),
-              ),
-            ),
-            SizedBox(height: 18.h),
-            Center(
-              child: Text(
-                'जय श्री चित्रगुप्त जी की जय 🙏',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.goldLight,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-            SizedBox(height: 8.h),
-            Center(
-              child: Text(
-                'Welcome to Shree Chitragupt Peeth App',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 13.sp,
-                  height: 1.4,
-                ),
-              ),
-            ),
-            SizedBox(height: 24.h),
-            const _ContactCard(
-              icon: Icons.person_outline_rounded,
-              title: 'Name',
-              value: 'Guest User',
-            ),
-            SizedBox(height: 12.h),
-            const _ContactCard(
-              icon: Icons.email_outlined,
-              title: 'Email',
-              value: 'user@example.com',
-            ),
-            SizedBox(height: 12.h),
-            const _ContactCard(
-              icon: Icons.phone_outlined,
-              title: 'Mobile',
-              value: '+91 XXXXX XXXXX',
-            ),
-            SizedBox(height: 12.h),
-            const _ContactCard(
-              icon: Icons.verified_user_outlined,
-              title: 'Account Type',
-              value: 'Devotee Account',
-            ),
-            SizedBox(height: 22.h),
-            _ProfileActionButton(
-              icon: Icons.edit_rounded,
-              title: 'Edit Profile',
-              onTap: () {},
-            ),
-            SizedBox(height: 12.h),
-            _ProfileActionButton(
-              icon: Icons.logout_rounded,
-              title: 'Logout',
-              isLogout: true,
-              onTap: () {},
-            ),
-          ],
+    return _GlassCard(
+      child: Text(
+        '🕉️ SHREE CHITRAGUPT PEETH\n\nसम्पूर्ण भारत में भगवान श्री चित्रगुप्त जी के बहुत से मंदिर हैं, परंतु उनके बारे में सभी जानकारी एक स्थान से प्राप्त हो — इसी उद्देश्य से श्री चित्रगुप्त पीठ की स्थापना की गई है।\n\n📞 +91-7065013874\n✉️ shreechitraguptpeeth@gmail.com',
+        style: TextStyle(
+          color: Colors.white70,
+          fontSize: 13.sp,
+          height: 1.7,
         ),
       ),
     );
@@ -1267,15 +790,10 @@ class _PageBackground extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset(
-            HomeScreen._bgImage,
-            fit: BoxFit.cover,
-          ),
+          child: Image.asset(HomeScreen._bgImage, fit: BoxFit.cover),
         ),
         Positioned.fill(
-          child: Container(
-            color: Colors.black.withOpacity(0.70),
-          ),
+          child: Container(color: Colors.black.withOpacity(0.70)),
         ),
         Positioned.fill(
           child: DecoratedBox(
@@ -1320,11 +838,7 @@ class _SectionTitle extends StatelessWidget {
             color: AppColors.goldLight.withOpacity(0.14),
             borderRadius: BorderRadius.circular(15.r),
           ),
-          child: Icon(
-            icon,
-            color: AppColors.goldLight,
-            size: 24.sp,
-          ),
+          child: Icon(icon, color: AppColors.goldLight, size: 24.sp),
         ),
         SizedBox(width: 12.w),
         Expanded(
@@ -1342,35 +856,12 @@ class _SectionTitle extends StatelessWidget {
               SizedBox(height: 3.h),
               Text(
                 subtitle,
-                style: TextStyle(
-                  color: Colors.white60,
-                  fontSize: 12.sp,
-                ),
+                style: TextStyle(color: Colors.white60, fontSize: 12.sp),
               ),
             ],
           ),
         ),
       ],
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  const _InfoCard({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return _GlassCard(
-      child: Text(
-        text,
-        style: TextStyle(
-          color: Colors.white.withOpacity(0.88),
-          fontSize: 14.sp,
-          height: 1.75,
-        ),
-      ),
     );
   }
 }
@@ -1399,11 +890,7 @@ class _QuickActionCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                icon,
-                color: AppColors.goldLight,
-                size: 30.sp,
-              ),
+              Icon(icon, color: AppColors.goldLight, size: 30.sp),
               const Spacer(),
               Text(
                 title,
@@ -1416,174 +903,9 @@ class _QuickActionCard extends StatelessWidget {
               SizedBox(height: 4.h),
               Text(
                 subtitle,
-                style: TextStyle(
-                  color: Colors.white60,
-                  fontSize: 12.sp,
-                ),
+                style: TextStyle(color: Colors.white60, fontSize: 12.sp),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _VideoCard extends StatelessWidget {
-  const _VideoCard({
-    required this.title,
-    required this.subtitle,
-  });
-
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return _GlassCard(
-      child: Row(
-        children: [
-          Container(
-            height: 76.h,
-            width: 96.w,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.saffron.withOpacity(0.95),
-                  AppColors.gold.withOpacity(0.75),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(18.r),
-            ),
-            child: Icon(
-              Icons.play_arrow_rounded,
-              color: Colors.white,
-              size: 42.sp,
-            ),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(height: 6.h),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: Colors.white60,
-                    fontSize: 12.sp,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ContactCard extends StatelessWidget {
-  const _ContactCard({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
-
-  final IconData icon;
-  final String title;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return _GlassCard(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            icon,
-            color: AppColors.goldLight,
-            size: 25.sp,
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: AppColors.goldLight,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(height: 5.h),
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.88),
-                    fontSize: 13.sp,
-                    height: 1.45,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProfileActionButton extends StatelessWidget {
-  const _ProfileActionButton({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-    this.isLogout = false,
-  });
-
-  final IconData icon;
-  final String title;
-  final VoidCallback onTap;
-  final bool isLogout;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52.h,
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          backgroundColor:
-              isLogout ? Colors.redAccent.withOpacity(0.88) : AppColors.saffron,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-        ),
-        onPressed: onTap,
-        icon: Icon(
-          icon,
-          color: Colors.white,
-          size: 22.sp,
-        ),
-        label: Text(
-          title,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 15.sp,
-            fontWeight: FontWeight.bold,
           ),
         ),
       ),
@@ -1604,16 +926,7 @@ class _GlassCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.105),
         borderRadius: BorderRadius.circular(22.r),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.16),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.18),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        border: Border.all(color: Colors.white.withOpacity(0.16)),
       ),
       child: child,
     );
