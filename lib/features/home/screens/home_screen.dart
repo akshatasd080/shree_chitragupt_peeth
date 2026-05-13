@@ -20,14 +20,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final List<String> _titles = const [
-    'श्री चित्रगुप्त पीठ',
-    'आरती',
-    'Videos',
-    'Contact',
-    'Profile',
-  ];
-
   Future<void> _openDonatePage() async {
     final uri = Uri.parse('https://www.shreechitraguptpeeth.org/donation');
 
@@ -49,32 +41,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF090400),
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(
-          _titles[_currentIndex],
-          style: TextStyle(
-            color: AppColors.goldLight,
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.black.withOpacity(0.20),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.saffron.withOpacity(0.95),
-                Colors.black.withOpacity(0.10),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-        ),
-      ),
+      extendBody: true,
+
+      // Top AppBar/header removed. Baaki code same rakha hai.
+      appBar: null,
+
       body: IndexedStack(
         index: _currentIndex,
         children: [
@@ -91,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const ProfileScreen(),
         ],
       ),
+
       floatingActionButton: showDonateButton
           ? Padding(
               padding: EdgeInsets.only(bottom: 12.h, right: 6.w),
@@ -132,7 +104,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             )
           : null,
+
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.black,
@@ -206,7 +180,7 @@ class _HomeTabState extends State<_HomeTab> {
   Widget build(BuildContext context) {
     return _PageBackground(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(18.w, 110.h, 18.w, 110.h),
+        padding: EdgeInsets.fromLTRB(18.w, 55.h, 18.w, 120.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -343,21 +317,6 @@ class _HomeHero extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 66.w,
-            width: 66.w,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.14),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withOpacity(0.28)),
-            ),
-            child: Icon(
-              Icons.temple_hindu_rounded,
-              color: Colors.white,
-              size: 36.sp,
-            ),
-          ),
-          SizedBox(height: 22.h),
           Text(
             'श्री चित्रगुप्त पीठ वृंदावन',
             style: TextStyle(
@@ -392,7 +351,7 @@ class _HomeHero extends StatelessWidget {
             children: [
               Expanded(
                 child: _HeroButton(
-                  text: isExpanded ? 'कम करें ↑' : 'जानें और / Know More',
+                  text: isExpanded ? 'कम करें ↑' : 'जानें / Know More',
                   filled: true,
                   onTap: onKnowMoreTap,
                 ),
@@ -427,10 +386,11 @@ class _HeroButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 52.h,
+      height: 54.h,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           elevation: 0,
+          padding: EdgeInsets.symmetric(horizontal: 8.w),
           backgroundColor: filled ? Colors.white : Colors.transparent,
           side: BorderSide(color: Colors.white.withOpacity(0.9), width: 1.4),
           shape: RoundedRectangleBorder(
@@ -438,13 +398,17 @@ class _HeroButton extends StatelessWidget {
           ),
         ),
         onPressed: onTap,
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: filled ? AppColors.saffron : Colors.white,
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w900,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            text,
+            maxLines: 1,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: filled ? AppColors.saffron : Colors.white,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ),
       ),
@@ -457,11 +421,155 @@ class _WhoIsChitraguptSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _CreamSection(
-      label: 'WHO IS CHITRAGUPT',
-      title: 'भगवान श्री चित्रगुप्त जी का परिचय',
-      text:
-          'भगवान श्री चित्रगुप्त जी — बुद्धि विधाता, लेखनी दाता, समस्त ग्रह-नक्षत्रों के स्वामी हैं। वे संसार के समस्त प्राणियों के कर्मों का लेखा-जोखा रखते हैं और उनके कर्मों के आधार पर फल प्रदान करते हैं।\n\nवे हाथ में कलम, दवात और पुस्तक धारण करते हैं। उनकी आराधना से बुद्धि, विद्या और धर्म की प्राप्ति होती है।',
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(22.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF6DD).withOpacity(0.97),
+        borderRadius: BorderRadius.circular(26.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.10),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'WHO IS CHITRAGUPT',
+            style: TextStyle(
+              color: AppColors.saffron,
+              fontSize: 12.sp,
+              letterSpacing: 4,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Text(
+            'भगवान श्री चित्रगुप्त जी का परिचय',
+            style: TextStyle(
+              color: const Color(0xFF7A1E1E),
+              fontSize: 22.sp,
+              fontWeight: FontWeight.w900,
+              height: 1.35,
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Container(
+            height: 4.h,
+            width: 75.w,
+            decoration: BoxDecoration(
+              color: AppColors.saffron,
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+          ),
+          SizedBox(height: 22.h),
+          Text(
+            'भगवान श्री चित्रगुप्त जी — बुद्धि विधाता, लेखनी दाता, समस्त ग्रह-नक्षत्रों के स्वामी हैं। वे संसार के समस्त प्राणियों के कर्मों का लेखा-जोखा रखते हैं और उनके कर्मों के आधार पर फल प्रदान करते हैं।\n\n'
+            'हिंदू पुराणों के अनुसार, ब्रह्मा जी ने 11,000 वर्षों की गहन साधना के बाद अपनी काया से भगवान श्री चित्रगुप्त जी को प्रकट किया। इसलिए वे कायस्थ समुदाय के आदि पूर्वज और ईष्ट देव माने जाते हैं।\n\n'
+            'वे हाथ में कलम, दवात और पुस्तक धारण करते हैं। न्याय के देवता यमराज की सहायता से वे सभी जीवों के पाप-पुण्य का हिसाब रखते हैं। उनकी आराधना से बुद्धि, विद्या और धर्म की प्राप्ति होती है।',
+            style: TextStyle(
+              color: const Color(0xFF2D1A00),
+              fontSize: 15.sp,
+              height: 1.85,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 24.h),
+          const _InfoCard(
+            icon: '🖊️',
+            title: 'लेखनी दाता',
+            subtitle: 'विद्या, बुद्धि और कलम के देवता — ज्ञान के प्रदाता।',
+          ),
+          SizedBox(height: 14.h),
+          const _InfoCard(
+            icon: '⚖️',
+            title: 'कर्म के न्यायाधीश',
+            subtitle: 'समस्त प्राणियों के कर्मों का सटीक लेखा-जोखा रखते हैं।',
+          ),
+          SizedBox(height: 14.h),
+          const _InfoCard(
+            icon: '🌟',
+            title: 'ग्रह-नक्षत्र स्वामी',
+            subtitle: 'समस्त ग्रहों और नक्षत्रों के अधिपति देवता।',
+          ),
+          SizedBox(height: 14.h),
+          const _InfoCard(
+            icon: '🙏',
+            title: 'कायस्थ कुलदेव',
+            subtitle: 'कायस्थ समुदाय के आदि पूर्वज और परम ईष्ट देव।',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final String icon;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.96),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border(
+          left: BorderSide(color: AppColors.saffron, width: 4.w),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.07),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(icon, style: TextStyle(fontSize: 22.sp)),
+          SizedBox(width: 10.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: const Color(0xFF7A1E1E),
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: const Color(0xFF6E5738),
+                    fontSize: 13.sp,
+                    height: 1.45,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

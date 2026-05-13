@@ -1,4 +1,4 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -7,8 +7,9 @@ import '../../../core/constants/app_colors.dart';
 class ContactScreen extends StatelessWidget {
   const ContactScreen({super.key});
 
+  static const String _bgImage = 'assets/images/chitragupt_bhagwan.jpg';
+
   static const String phoneNumber1 = '+917065013874';
-  static const String phoneNumber2 = '+917065013871';
   static const String displayPhone1 = '+91-7065013874';
   static const String displayPhone2 = '+91-7065013871';
   static const String whatsappNumber = '917065013874';
@@ -26,10 +27,7 @@ class ContactScreen extends StatelessWidget {
       'Shree Chitragupt Peeth Brij Shanti Kunj GGWF+2R6 Junhaidi Vrindavan Govardhan Marg Uttar Pradesh 281504';
 
   Future<void> _launch(BuildContext context, Uri uri) async {
-    final launched = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
     if (!launched && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -45,8 +43,8 @@ class ContactScreen extends StatelessWidget {
     await _launch(context, uri);
   }
 
-  Future<void> _openDialer(BuildContext context, String number) async {
-    await _launch(context, Uri(scheme: 'tel', path: number));
+  Future<void> _openDialer(BuildContext context) async {
+    await _launch(context, Uri(scheme: 'tel', path: phoneNumber1));
   }
 
   Future<void> _openWhatsApp(BuildContext context) async {
@@ -94,277 +92,266 @@ class ContactScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFFDF6E3),
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20.w, 110.h, 20.w, 28.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Text(
-                '📍',
-                style: TextStyle(fontSize: 46.sp),
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Image.asset(_bgImage, fit: BoxFit.cover),
+        ),
+        Positioned.fill(
+          child: Container(color: Colors.black.withOpacity(0.64)),
+        ),
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.black.withOpacity(0.18),
+                  const Color(0xFF2B0D00).withOpacity(0.62),
+                  Colors.black.withOpacity(0.88),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
-            SizedBox(height: 8.h),
-
-            Center(
-              child: Text(
-                'संपर्क करें',
-                style: TextStyle(
-                  color: const Color(0xFF6B1A1A),
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-
-            SizedBox(height: 8.h),
-
-            Center(
-              child: Text(
-                'CONTACT & LOCATION — SHREE CHITRAGUPT PEETH',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.gold,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 2,
-                  height: 1.4,
-                ),
-              ),
-            ),
-
-            SizedBox(height: 34.h),
-
-            Text(
-              'CONTACT US',
-              style: TextStyle(
-                color: AppColors.saffron.withOpacity(0.75),
-                fontSize: 13.sp,
-                letterSpacing: 5,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-
-            SizedBox(height: 8.h),
-
-            Text(
-              'पता एवं सम्पर्क विवरण',
-              style: TextStyle(
-                color: const Color(0xFF7A1E1E),
-                fontSize: 25.sp,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-
-            SizedBox(height: 10.h),
-
-            Container(
-              height: 4.h,
-              width: 85.w,
-              decoration: BoxDecoration(
-                color: AppColors.saffron,
-                borderRadius: BorderRadius.circular(20.r),
-              ),
-            ),
-
-            SizedBox(height: 28.h),
-
-            _InfoRow(
-              iconText: '📍',
-              title: 'ADDRESS / पता',
-              value: address,
-              buttonText: 'Google Maps पर देखें',
-              onTap: () => _openMap(context),
-            ),
-
-            SizedBox(height: 24.h),
-
-            _InfoRow(
-              iconText: '📞',
-              title: 'PHONE / फोन',
-              value: '$displayPhone1\n$displayPhone2',
-              buttonText: 'Call Now',
-              onTap: () => _openDialer(context, phoneNumber1),
-            ),
-
-            SizedBox(height: 24.h),
-
-            _InfoRow(
-              iconText: '✉️',
-              title: 'EMAIL / ईमेल',
-              value: email,
-              buttonText: 'Send Email',
-              onTap: () => _openEmail(context),
-            ),
-
-            SizedBox(height: 24.h),
-
-            _InfoRow(
-              iconText: '🌐',
-              title: 'WEBSITE / वेबसाइट',
-              value: displayWebsite,
-              buttonText: 'Open Website',
-              onTap: () => _openWebsite(context),
-            ),
-
-            SizedBox(height: 24.h),
-
-            Row(
+          ),
+        ),
+        SafeArea(
+          top: true,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(18.w, 10.h, 18.w, 115.h),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _IconBox(iconText: '🔗'),
-                SizedBox(width: 18.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SmallTitle('SOCIAL MEDIA'),
-                      SizedBox(height: 12.h),
-                      Wrap(
-                        spacing: 10.w,
-                        runSpacing: 10.h,
+                _SectionHeading(
+                  label: 'CONTACT US',
+                  title: 'पता एवं सम्पर्क विवरण',
+                ),
+
+                SizedBox(height: 16.h),
+
+                _InfoCard(
+                  iconText: '📍',
+                  title: 'ADDRESS / पता',
+                  value: address,
+                  buttonText: 'Google Maps पर देखें',
+                  onTap: () => _openMap(context),
+                ),
+
+                SizedBox(height: 14.h),
+
+                _InfoCard(
+                  iconText: '📞',
+                  title: 'PHONE / फोन',
+                  value: '$displayPhone1\n$displayPhone2',
+                  buttonText: 'Call Now',
+                  onTap: () => _openDialer(context),
+                ),
+
+                SizedBox(height: 14.h),
+
+                _InfoCard(
+                  iconText: '✉️',
+                  title: 'EMAIL / ईमेल',
+                  value: email,
+                  buttonText: 'Send Email',
+                  onTap: () => _openEmail(context),
+                ),
+
+                SizedBox(height: 14.h),
+
+                _InfoCard(
+                  iconText: '🌐',
+                  title: 'WEBSITE / वेबसाइट',
+                  value: displayWebsite,
+                  buttonText: 'Open Website',
+                  onTap: () => _openWebsite(context),
+                ),
+
+                SizedBox(height: 14.h),
+
+                _SocialMediaCard(
+                  onYoutubeTap: () => _openYoutube(context),
+                  onInstagramTap: () => _openInstagram(context),
+                  onWhatsAppTap: () => _openWhatsApp(context),
+                ),
+
+                SizedBox(height: 18.h),
+
+                GestureDetector(
+                  onTap: () => _openMap(context),
+                  child: Container(
+                    height: 210.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(22.r),
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xFFEAF2F6),
+                          Color(0xFFD7E3EA),
+                        ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.28),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(22.r),
+                      child: Stack(
                         children: [
-                          _SocialButton(
-                            text: '▶ YouTube',
-                            color: Colors.red,
-                            onTap: () => _openYoutube(context),
+                          Positioned.fill(
+                            child: CustomPaint(
+                              painter: _SimpleMapPainter(),
+                            ),
                           ),
-                          _SocialButton(
-                            text: '📷 Instagram',
-                            color: const Color(0xFFC13584),
-                            onTap: () => _openInstagram(context),
+                          Positioned(
+                            top: 12.h,
+                            left: 12.w,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
+                                vertical: 8.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10.r),
+                              ),
+                              child: Text(
+                                'Open in Maps ↗',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
                           ),
-                          _SocialButton(
-                            text: '💬 WhatsApp',
-                            color: const Color(0xFF25D366),
-                            onTap: () => _openWhatsApp(context),
+                          Center(
+                            child: Text(
+                              '📍',
+                              style: TextStyle(fontSize: 46.sp),
+                            ),
+                          ),
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: Container(
+                              padding: EdgeInsets.all(13.w),
+                              color: const Color(0xFF7A1E1E),
+                              child: Text(
+                                'Brij Shanti Kunj, Vrindavan-Govardhan Marg, UP 281504',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.sp,
+                                  height: 1.35,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            SizedBox(height: 30.h),
-
-            GestureDetector(
-              onTap: () => _openMap(context),
-              child: Container(
-                height: 260.h,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24.r),
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFFEAF2F6),
-                      Color(0xFFD7E3EA),
-                    ],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.14),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
                     ),
-                  ],
+                  ),
                 ),
-                child: Stack(
+
+                SizedBox(height: 14.h),
+
+                Row(
                   children: [
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter: _SimpleMapPainter(),
+                    Expanded(
+                      child: _LargeActionButton(
+                        text: '🗺️ Google Maps',
+                        filled: true,
+                        onTap: () => _openMap(context),
                       ),
                     ),
-                    Positioned(
-                      top: 16.h,
-                      left: 16.w,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 14.w,
-                          vertical: 10.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        child: Text(
-                          'Open in Maps ↗',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        '📍',
-                        style: TextStyle(fontSize: 54.sp),
-                      ),
-                    ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        padding: EdgeInsets.all(16.w),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF7A1E1E),
-                          borderRadius: BorderRadius.vertical(
-                            bottom: Radius.circular(24.r),
-                          ),
-                        ),
-                        child: Text(
-                          'Brij Shanti Kunj, Vrindavan-Govardhan Marg, UP 281504',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13.sp,
-                            height: 1.4,
-                          ),
-                        ),
+                    SizedBox(width: 10.w),
+                    Expanded(
+                      child: _LargeActionButton(
+                        text: '📌 Full Map',
+                        filled: false,
+                        onTap: () => _openMap(context),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
-
-            SizedBox(height: 18.h),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _LargeActionButton(
-                    text: '🗺️ Google Maps पर देखें',
-                    filled: true,
-                    onTap: () => _openMap(context),
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: _LargeActionButton(
-                    text: '📌 Full Map',
-                    filled: false,
-                    onTap: () => _openMap(context),
-                  ),
-                ),
               ],
             ),
-          ],
+          ),
         ),
+      ],
+    );
+  }
+}
+
+class _SectionHeading extends StatelessWidget {
+  const _SectionHeading({
+    required this.label,
+    required this.title,
+  });
+
+  final String label;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(18.w, 16.h, 18.w, 18.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF6DD).withOpacity(0.94),
+        borderRadius: BorderRadius.circular(22.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.22),
+            blurRadius: 14,
+            offset: const Offset(0, 7),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: AppColors.saffron.withOpacity(0.78),
+              fontSize: 12.sp,
+              letterSpacing: 4,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            title,
+            style: TextStyle(
+              color: const Color(0xFF7A1E1E),
+              fontSize: 22.sp,
+              fontWeight: FontWeight.w900,
+              height: 1.25,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Container(
+            height: 4.h,
+            width: 78.w,
+            decoration: BoxDecoration(
+              color: AppColors.saffron,
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({
     required this.iconText,
     required this.title,
     required this.value,
@@ -380,38 +367,126 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(18.r),
-      onTap: onTap,
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(22.r),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22.r),
+        onTap: onTap,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(14.w),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF6DD).withOpacity(0.94),
+            borderRadius: BorderRadius.circular(22.r),
+            border: Border.all(color: Colors.white.withOpacity(0.16)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.22),
+                blurRadius: 14,
+                offset: const Offset(0, 7),
+              ),
+            ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _IconBox(iconText: iconText),
+              SizedBox(width: 13.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _SmallTitle(title),
+                    SizedBox(height: 6.h),
+                    Text(
+                      value,
+                      style: TextStyle(
+                        color: const Color(0xFF2D1A00),
+                        fontSize: 13.5.sp,
+                        height: 1.42,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 6.h),
+                    Text(
+                      buttonText,
+                      style: TextStyle(
+                        color: AppColors.saffron,
+                        fontSize: 11.5.sp,
+                        fontWeight: FontWeight.w900,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SocialMediaCard extends StatelessWidget {
+  const _SocialMediaCard({
+    required this.onYoutubeTap,
+    required this.onInstagramTap,
+    required this.onWhatsAppTap,
+  });
+
+  final VoidCallback onYoutubeTap;
+  final VoidCallback onInstagramTap;
+  final VoidCallback onWhatsAppTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF6DD).withOpacity(0.94),
+        borderRadius: BorderRadius.circular(22.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.22),
+            blurRadius: 14,
+            offset: const Offset(0, 7),
+          ),
+        ],
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _IconBox(iconText: iconText),
-          SizedBox(width: 18.w),
+          const _IconBox(iconText: '🔗'),
+          SizedBox(width: 13.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _SmallTitle(title),
-                SizedBox(height: 8.h),
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: const Color(0xFF2D1A00),
-                    fontSize: 15.sp,
-                    height: 1.55,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  buttonText,
-                  style: TextStyle(
-                    color: AppColors.saffron,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w900,
-                    decoration: TextDecoration.underline,
-                  ),
+                const _SmallTitle('SOCIAL MEDIA'),
+                SizedBox(height: 10.h),
+                Wrap(
+                  spacing: 8.w,
+                  runSpacing: 8.h,
+                  children: [
+                    _SocialButton(
+                      text: '▶ YouTube',
+                      color: Colors.red,
+                      onTap: onYoutubeTap,
+                    ),
+                    _SocialButton(
+                      text: '📷 Instagram',
+                      color: const Color(0xFFC13584),
+                      onTap: onInstagramTap,
+                    ),
+                    _SocialButton(
+                      text: '💬 WhatsApp',
+                      color: const Color(0xFF25D366),
+                      onTap: onWhatsAppTap,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -430,8 +505,8 @@ class _IconBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 58.w,
-      width: 58.w,
+      height: 48.w,
+      width: 48.w,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -441,12 +516,12 @@ class _IconBox extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: Center(
         child: Text(
           iconText,
-          style: TextStyle(fontSize: 25.sp),
+          style: TextStyle(fontSize: 22.sp),
         ),
       ),
     );
@@ -464,9 +539,9 @@ class _SmallTitle extends StatelessWidget {
       text,
       style: TextStyle(
         color: const Color(0xFF7A5C3A),
-        fontSize: 13.sp,
+        fontSize: 12.sp,
         fontWeight: FontWeight.w900,
-        letterSpacing: 1.4,
+        letterSpacing: 1.2,
       ),
     );
   }
@@ -489,18 +564,22 @@ class _SocialButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         elevation: 0,
-        padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 9.h),
+        minimumSize: Size(0, 36.h),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.r),
+          borderRadius: BorderRadius.circular(9.r),
         ),
       ),
       onPressed: onTap,
-      child: Text(
-        text,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 13.sp,
-          fontWeight: FontWeight.w900,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          text,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w900,
+          ),
         ),
       ),
     );
@@ -521,27 +600,30 @@ class _LargeActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 54.h,
+      height: 46.h,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: filled ? AppColors.saffron : const Color(0xFFFDF6E3),
+          backgroundColor: filled ? AppColors.saffron : Colors.white,
           side: BorderSide(
             color: filled ? Colors.transparent : AppColors.gold,
-            width: 1.5,
+            width: 1.3,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(12.r),
           ),
         ),
         onPressed: onTap,
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: filled ? Colors.white : AppColors.gold,
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w900,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: filled ? Colors.white : AppColors.gold,
+              fontSize: 11.5.sp,
+              fontWeight: FontWeight.w900,
+            ),
           ),
         ),
       ),
@@ -597,4 +679,4 @@ class _SimpleMapPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+}
