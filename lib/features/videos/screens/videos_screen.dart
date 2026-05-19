@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -14,16 +15,41 @@ class VideosScreen extends StatefulWidget {
   State<VideosScreen> createState() => _VideosScreenState();
 }
 
-class _VideosScreenState extends State<VideosScreen> {
+class _VideosScreenState extends State<VideosScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
   late Future<List<Video>> _videosFuture;
+  late Future<List<Video>> _shortsFuture;
+  late Future<List<Video>> _liveFuture;
+  late Future<List<Video>> _podcastFuture;
+
+  final List<String> _tabs = const [
+    'Videos',
+    'Shorts',
+    'Live',
+    'Podcasts',
+  ];
 
   @override
   void initState() {
     super.initState();
-    _videosFuture = _loadRecentVideos();
+
+    _tabController = TabController(length: _tabs.length, vsync: this);
+
+    _videosFuture = _loadChannelVideos();
+    _shortsFuture = _searchVideos('Shree Chitragupt Peeth shorts');
+    _liveFuture = _searchVideos('Shree Chitragupt Peeth live');
+    _podcastFuture = _searchVideos('Shree Chitragupt Peeth podcast story katha');
   }
 
-  Future<List<Video>> _loadRecentVideos() async {
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<List<Video>> _loadChannelVideos() async {
     final yt = YoutubeExplode();
 
     try {
@@ -34,21 +60,24 @@ class _VideosScreenState extends State<VideosScreen> {
 
         final videos = await yt.channels
             .getUploads(channel.id)
-            .take(15)
+            .take(100)
             .toList();
 
-        if (videos.isNotEmpty) {
-          return videos;
-        }
-      } catch (_) {
-        // Fallback below
-      }
+        if (videos.isNotEmpty) return videos;
+      } catch (_) {}
 
-      final searchResult = await yt.search.search('Shree Chitragupt Peeth');
+      return _searchVideos('Shree Chitragupt Peeth latest videos');
+    } finally {
+      yt.close();
+    }
+  }
 
-      final searchVideos = searchResult.whereType<Video>().take(15).toList();
+  Future<List<Video>> _searchVideos(String query) async {
+    final yt = YoutubeExplode();
 
-      return searchVideos;
+    try {
+      final result = await yt.search.search(query);
+      return result.whereType<Video>().take(100).toList();
     } finally {
       yt.close();
     }
@@ -56,23 +85,36 @@ class _VideosScreenState extends State<VideosScreen> {
 
   Future<void> _refreshVideos() async {
     setState(() {
-      _videosFuture = _loadRecentVideos();
+      _videosFuture = _loadChannelVideos();
+      _shortsFuture = _searchVideos('Shree Chitragupt Peeth shorts');
+      _liveFuture = _searchVideos('Shree Chitragupt Peeth live');
+      _podcastFuture =
+          _searchVideos('Shree Chitragupt Peeth podcast story katha');
     });
+  }
 
-    await _videosFuture;
+  Future<List<Video>> _futureByTab(int index) {
+    switch (index) {
+      case 1:
+        return _shortsFuture;
+      case 2:
+        return _liveFuture;
+      case 3:
+        return _podcastFuture;
+      default:
+        return _videosFuture;
+    }
   }
 
   void _openVideo(Video video) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.black,
-      isScrollControlled: true,
-      builder: (_) {
-        return _YoutubePlayerSheet(
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => YoutubeVideoPlayerScreen(
           videoId: video.id.value,
           title: video.title,
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -101,49 +143,87 @@ class _VideosScreenState extends State<VideosScreen> {
                   icon: Icons.play_circle_rounded,
                 ),
                 SizedBox(height: 16.h),
-                FutureBuilder<List<Video>>(
-                  future: _videosFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Padding(
-                        padding: EdgeInsets.only(top: 80.h),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.goldLight,
-                          ),
-                        ),
-                      );
-                    }
 
-                    if (snapshot.hasError) {
-                      return const _MessageBox(
-                        text:
-                            'Videos load nahi ho paayi. Internet connection check karo aur pull down karke refresh karo.',
-                      );
-                    }
+                Container(
+                  height: 46.h,
+                  padding: EdgeInsets.all(5.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.10),
+                    borderRadius: BorderRadius.circular(18.r),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.14),
+                    ),
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    isScrollable: true,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    labelColor: Colors.black,
+                    unselectedLabelColor: Colors.white70,
+                    indicator: BoxDecoration(
+                      color: AppColors.goldLight,
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                    labelStyle: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w800,
+                    ),
+                    tabs: _tabs.map((tab) => Tab(text: tab)).toList(),
+                  ),
+                ),
 
-                    final videos = snapshot.data ?? [];
+                SizedBox(height: 16.h),
 
-                    if (videos.isEmpty) {
-                      return const _MessageBox(
-                        text: 'Abhi koi video available nahi hai.',
-                      );
-                    }
+                AnimatedBuilder(
+                  animation: _tabController,
+                  builder: (context, _) {
+                    return FutureBuilder<List<Video>>(
+                      future: _futureByTab(_tabController.index),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Padding(
+                            padding: EdgeInsets.only(top: 80.h),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.goldLight,
+                              ),
+                            ),
+                          );
+                        }
 
-                    return Column(
-                      children: videos.map((video) {
-                        final videoId = video.id.value;
+                        if (snapshot.hasError) {
+                          return const _MessageBox(
+                            text:
+                                'Videos load nahi ho paayi. Internet check karo aur refresh karo.',
+                          );
+                        }
 
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: 14.h),
-                          child: _VideoCard(
-                            title: video.title,
-                            subtitle: video.author,
-                            thumbnailUrl: _thumbnailUrl(videoId),
-                            onTap: () => _openVideo(video),
-                          ),
+                        final videos = snapshot.data ?? [];
+
+                        if (videos.isEmpty) {
+                          return _MessageBox(
+                            text:
+                                '${_tabs[_tabController.index]} section me video nahi mili.',
+                          );
+                        }
+
+                        return Column(
+                          children: videos.map((video) {
+                            final videoId = video.id.value;
+
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: 14.h),
+                              child: _VideoCard(
+                                title: video.title,
+                                subtitle: video.author,
+                                thumbnailUrl: _thumbnailUrl(videoId),
+                                onTap: () => _openVideo(video),
+                              ),
+                            );
+                          }).toList(),
                         );
-                      }).toList(),
+                      },
                     );
                   },
                 ),
@@ -156,8 +236,9 @@ class _VideosScreenState extends State<VideosScreen> {
   }
 }
 
-class _YoutubePlayerSheet extends StatefulWidget {
-  const _YoutubePlayerSheet({
+class YoutubeVideoPlayerScreen extends StatefulWidget {
+  const YoutubeVideoPlayerScreen({
+    super.key,
     required this.videoId,
     required this.title,
   });
@@ -166,10 +247,11 @@ class _YoutubePlayerSheet extends StatefulWidget {
   final String title;
 
   @override
-  State<_YoutubePlayerSheet> createState() => _YoutubePlayerSheetState();
+  State<YoutubeVideoPlayerScreen> createState() =>
+      _YoutubeVideoPlayerScreenState();
 }
 
-class _YoutubePlayerSheetState extends State<_YoutubePlayerSheet> {
+class _YoutubeVideoPlayerScreenState extends State<YoutubeVideoPlayerScreen> {
   late final YoutubePlayerController _controller;
 
   @override
@@ -182,6 +264,7 @@ class _YoutubePlayerSheetState extends State<_YoutubePlayerSheet> {
         autoPlay: true,
         mute: false,
         enableCaption: true,
+        forceHD: false,
       ),
     );
   }
@@ -190,36 +273,55 @@ class _YoutubePlayerSheetState extends State<_YoutubePlayerSheet> {
   void dispose() {
     _controller.pause();
     _controller.dispose();
+
+    SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 20.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            YoutubePlayer(
-              controller: _controller,
-              showVideoProgressIndicator: true,
-              progressIndicatorColor: AppColors.goldLight,
+    return YoutubePlayerBuilder(
+      player: YoutubePlayer(
+        controller: _controller,
+        showVideoProgressIndicator: true,
+        progressIndicatorColor: AppColors.goldLight,
+        onEnded: (_) {
+          _controller.pause();
+        },
+      ),
+      builder: (context, player) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            iconTheme: const IconThemeData(color: Colors.white),
+            title: Text(
+              widget.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: Colors.white),
             ),
-            Padding(
-              padding: EdgeInsets.all(14.w),
-              child: Text(
-                widget.title,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15.sp,
-                  fontWeight: FontWeight.w800,
+          ),
+          body: Column(
+            children: [
+              player,
+              Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Text(
+                  widget.title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -336,13 +438,6 @@ class _VideoCard extends StatelessWidget {
           color: Colors.white.withOpacity(0.105),
           borderRadius: BorderRadius.circular(22.r),
           border: Border.all(color: Colors.white.withOpacity(0.16)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.22),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
-            ),
-          ],
         ),
         child: Row(
           children: [

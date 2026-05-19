@@ -13,9 +13,17 @@ class ContactScreen extends StatelessWidget {
   static const String displayPhone1 = '+91-7065013874';
   static const String displayPhone2 = '+91-7065013871';
   static const String whatsappNumber = '917065013874';
+
   static const String email = 'shreechitraguptpeeth@gmail.com';
+
   static const String website = 'https://www.shreechitraguptpeeth.org/';
   static const String displayWebsite = 'www.shreechitraguptpeeth.org';
+
+  static const String youtubeUrl =
+      'https://www.youtube.com/@shreechitraguptpeeth3940';
+
+  static const String instagramUrl =
+      'https://www.instagram.com/dr.swamisachidanand_chitragupt?igsh=MThkMTJnN2ZtZGZ3aQ==';
 
   static const String address =
       'Shree Chitragupt Peeth (Brij Shanti Kunj)\n'
@@ -27,11 +35,16 @@ class ContactScreen extends StatelessWidget {
       'Shree Chitragupt Peeth Brij Shanti Kunj GGWF+2R6 Junhaidi Vrindavan Govardhan Marg Uttar Pradesh 281504';
 
   Future<void> _launch(BuildContext context, Uri uri) async {
-    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final launched = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
 
     if (!launched && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Unable to open. Please try again.')),
+        const SnackBar(
+          content: Text('Unable to open. Please try again.'),
+        ),
       );
     }
   }
@@ -40,6 +53,7 @@ class ContactScreen extends StatelessWidget {
     final uri = Uri.parse(
       'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(mapQuery)}',
     );
+
     await _launch(context, uri);
   }
 
@@ -77,17 +91,11 @@ class ContactScreen extends StatelessWidget {
   }
 
   Future<void> _openYoutube(BuildContext context) async {
-    await _launch(
-      context,
-      Uri.parse('https://www.youtube.com/@shreechitraguptpeeth3940'),
-    );
+    await _launch(context, Uri.parse(youtubeUrl));
   }
 
   Future<void> _openInstagram(BuildContext context) async {
-    await _launch(
-      context,
-      Uri.parse('https://www.instagram.com/shreechitraguptpeeth'),
-    );
+    await _launch(context, Uri.parse(instagramUrl));
   }
 
   @override
@@ -122,13 +130,11 @@ class ContactScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _SectionHeading(
+                const _SectionHeading(
                   label: 'CONTACT US',
                   title: 'पता एवं सम्पर्क विवरण',
                 ),
-
                 SizedBox(height: 16.h),
-
                 _InfoCard(
                   iconText: '📍',
                   title: 'ADDRESS / पता',
@@ -136,9 +142,7 @@ class ContactScreen extends StatelessWidget {
                   buttonText: 'Google Maps पर देखें',
                   onTap: () => _openMap(context),
                 ),
-
                 SizedBox(height: 14.h),
-
                 _InfoCard(
                   iconText: '📞',
                   title: 'PHONE / फोन',
@@ -146,9 +150,7 @@ class ContactScreen extends StatelessWidget {
                   buttonText: 'Call Now',
                   onTap: () => _openDialer(context),
                 ),
-
                 SizedBox(height: 14.h),
-
                 _InfoCard(
                   iconText: '✉️',
                   title: 'EMAIL / ईमेल',
@@ -156,9 +158,7 @@ class ContactScreen extends StatelessWidget {
                   buttonText: 'Send Email',
                   onTap: () => _openEmail(context),
                 ),
-
                 SizedBox(height: 14.h),
-
                 _InfoCard(
                   iconText: '🌐',
                   title: 'WEBSITE / वेबसाइट',
@@ -166,17 +166,13 @@ class ContactScreen extends StatelessWidget {
                   buttonText: 'Open Website',
                   onTap: () => _openWebsite(context),
                 ),
-
                 SizedBox(height: 14.h),
-
                 _SocialMediaCard(
                   onYoutubeTap: () => _openYoutube(context),
                   onInstagramTap: () => _openInstagram(context),
                   onWhatsAppTap: () => _openWhatsApp(context),
                 ),
-
                 SizedBox(height: 18.h),
-
                 GestureDetector(
                   onTap: () => _openMap(context),
                   child: Container(
@@ -257,9 +253,7 @@ class ContactScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 SizedBox(height: 14.h),
-
                 Row(
                   children: [
                     Expanded(
