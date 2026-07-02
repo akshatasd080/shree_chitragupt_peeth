@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,50 +17,63 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-
-  final _nameController = TextEditingController();
   final _mobileController = TextEditingController();
 
-  final RegExp _nameRegex = RegExp(r'^[a-zA-Z ]+$');
+  late AnimationController _glowController;
+  late Animation<double> _glowAnimation;
+  late AnimationController _flickerController;
+  late Animation<double> _flickerAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _glowController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _glowAnimation = Tween<double>(begin: 0.3, end: 0.7).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
+
+    _flickerController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _flickerAnimation = Tween<double>(begin: 0.9, end: 1.0).animate(
+      CurvedAnimation(parent: _flickerController, curve: Curves.easeInOut),
+    );
+  }
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _glowController.dispose();
+    _flickerController.dispose();
     _mobileController.dispose();
     super.dispose();
   }
 
   Future<void> _goToHome() async {
     final prefs = await SharedPreferences.getInstance();
-
     await prefs.setBool('isLoggedIn', true);
-
     if (!mounted) return;
-
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (_) => const HomeScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
     );
   }
 
   void _login() async {
     if (_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login Successful'),
-        ),
+        const SnackBar(content: Text('Login Successful')),
       );
-
       await _goToHome();
     }
-  }
-
-  void _skipAsGuest() async {
-    await _goToHome();
   }
 
   @override
@@ -68,100 +82,99 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-
-          /// Background Image
           Positioned.fill(
             child: Image.asset(
               LoginScreen._bgImage,
               fit: BoxFit.cover,
             ),
           ),
-
-          /// Dark Overlay
           Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.65),
+            child: AnimatedBuilder(
+              animation: _flickerAnimation,
+              builder: (context, child) {
+                return Container(
+                  color: Colors.black.withOpacity(0.65 * _flickerAnimation.value),
+                );
+              },
             ),
           ),
-
-          /// Main UI
+          AnimatedBuilder(
+            animation: _glowAnimation,
+            builder: (context, child) {
+              return Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      colors: [
+                        AppColors.gold.withOpacity(0.2 * _glowAnimation.value),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.7],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          _buildSparkles(),
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-
-                    /// Title
-                    Text(
-                      'SHREE CHITRAGUPT PEETH',
-                      style: TextStyle(
-                        color: AppColors.goldLight,
-                        fontSize: 17.sp,
-                        letterSpacing: 2,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    AnimatedBuilder(
+                      animation: _flickerAnimation,
+                      builder: (context, child) {
+                        return Transform.scale(
+                          scale: _flickerAnimation.value,
+                          child: Text(
+                            'SHREE CHITRAGUPT PEETH',
+                            style: TextStyle(
+                              color: AppColors.goldLight,
+                              fontSize: 22.sp,
+                              letterSpacing: 3,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  color: AppColors.gold.withOpacity(0.8),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 0),
+                                ),
+                                Shadow(
+                                  color: AppColors.gold.withOpacity(0.4),
+                                  blurRadius: 40,
+                                  offset: const Offset(0, 0),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
-
-                    SizedBox(height: 8.h),
-
-                    Text(
-                      'श्री चित्रगुप्त पीठ वृंदावन',
-                      style: TextStyle(
-                        color: AppColors.saffron,
-                        fontSize: 22.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    SizedBox(height: 30.h),
-
-                    /// Login Card
+                    SizedBox(height: 40.h),
                     Container(
-                      padding: EdgeInsets.all(22.w),
+                      padding: EdgeInsets.all(24.w),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.55),
-                        borderRadius: BorderRadius.circular(18.r),
+                        borderRadius: BorderRadius.circular(22.r),
                         border: Border.all(
-                          color: AppColors.gold.withOpacity(0.4),
+                          color: AppColors.gold.withOpacity(0.5),
+                          width: 1.5,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.gold.withOpacity(0.2),
+                            blurRadius: 30,
+                            spreadRadius: 2,
+                          ),
+                        ],
                       ),
                       child: Form(
                         key: _formKey,
                         child: Column(
                           children: [
-
-                            /// Name
-                            _LoginField(
-                              controller: _nameController,
-                              hint: 'Name',
-                              icon: Icons.person_outline,
-                              keyboardType: TextInputType.name,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'[a-zA-Z ]'),
-                                ),
-                              ],
-                              validator: (value) {
-                                if (value == null ||
-                                    value.trim().isEmpty) {
-                                  return 'Please enter name';
-                                }
-
-                                if (!_nameRegex.hasMatch(
-                                  value.trim(),
-                                )) {
-                                  return 'Only alphabets allowed';
-                                }
-
-                                return null;
-                              },
-                            ),
-
-                            SizedBox(height: 14.h),
-
-                            /// Mobile
                             _LoginField(
                               controller: _mobileController,
                               hint: 'Mobile Number',
@@ -173,60 +186,41 @@ class _LoginScreenState extends State<LoginScreen> {
                                 LengthLimitingTextInputFormatter(10),
                               ],
                               validator: (value) {
-                                if (value == null ||
-                                    value.trim().isEmpty) {
+                                if (value == null || value.trim().isEmpty) {
                                   return 'Please enter mobile number';
                                 }
-
                                 if (value.trim().length != 10) {
                                   return 'Mobile number must be 10 digits';
                                 }
-
                                 return null;
                               },
                             ),
-
-                            SizedBox(height: 20.h),
-
-                            /// Login Button
+                            SizedBox(height: 24.h),
                             SizedBox(
                               width: double.infinity,
-                              height: 52.h,
+                              height: 56.h,
                               child: ElevatedButton(
                                 onPressed: _login,
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 8,
+                                  shadowColor: AppColors.gold.withOpacity(0.5),
+                                ),
                                 child: Text(
                                   'Enter',
                                   style: TextStyle(
-                                    fontSize: 16.sp,
+                                    fontSize: 18.sp,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
                             ),
-
-                            SizedBox(height: 12.h),
-
-                            /// Guest
-                            TextButton(
-                              onPressed: _skipAsGuest,
-                              child: const Text(
-                                'Skip as Guest',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                ),
-                              ),
-                            ),
-
-                            SizedBox(height: 6.h),
-
-                            /// Signup
+                            SizedBox(height: 16.h),
                             TextButton(
                               onPressed: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) =>
-                                        const SignupScreen(),
+                                    builder: (_) => const SignupScreen(),
                                   ),
                                 );
                               },
@@ -234,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 'New user? Create Account',
                                 style: TextStyle(
                                   color: AppColors.goldLight,
-                                  fontSize: 14.sp,
+                                  fontSize: 15.sp,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -250,6 +244,112 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSparkles() {
+    return Stack(
+      children: List.generate(
+        20,
+        (index) => _Sparkle(
+          delay: Random().nextDouble() * 2,
+          duration: const Duration(seconds: 2),
+        ),
+      ),
+    );
+  }
+}
+
+class _Sparkle extends StatefulWidget {
+  const _Sparkle({required this.delay, required this.duration});
+
+  final double delay;
+  final Duration duration;
+
+  @override
+  State<_Sparkle> createState() => _SparkleState();
+}
+
+class _SparkleState extends State<_Sparkle>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _opacityAnimation;
+  late Animation<double> _scaleAnimation;
+  late double _top;
+  late double _left;
+  late double _size;
+
+  @override
+  void initState() {
+    super.initState();
+    final random = Random();
+    _top = random.nextDouble() * 1;
+    _left = random.nextDouble() * 1;
+    _size = random.nextDouble() * 8 + 4;
+
+    _controller = AnimationController(
+      duration: widget.duration,
+      vsync: this,
+    );
+
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+      ),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack),
+      ),
+    );
+
+    Future.delayed(Duration(milliseconds: (widget.delay * 1000).toInt()), () {
+      if (mounted) {
+        _controller.repeat(reverse: true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Positioned(
+          top: _top * MediaQuery.of(context).size.height,
+          left: _left * MediaQuery.of(context).size.width,
+          child: Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Opacity(
+              opacity: _opacityAnimation.value,
+              child: Container(
+                width: _size.w,
+                height: _size.w,
+                decoration: BoxDecoration(
+                  color: AppColors.goldLight,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.goldLight.withOpacity(0.8),
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

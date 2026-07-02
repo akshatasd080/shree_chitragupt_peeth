@@ -193,7 +193,6 @@ class _HomeTabState extends State<_HomeTab> {
               },
               onContactTap: () => widget.onTabChange(3),
             ),
-
             AnimatedSize(
               duration: const Duration(milliseconds: 350),
               curve: Curves.easeInOut,
@@ -204,30 +203,22 @@ class _HomeTabState extends State<_HomeTab> {
                     )
                   : const SizedBox.shrink(),
             ),
-
             SizedBox(height: 26.h),
-
             const _StatsGrid(),
-
             SizedBox(height: 28.h),
-
             const _CreamSection(
               label: 'ABOUT US',
               title: 'श्री चित्रगुप्त पीठ',
               text:
                   'श्री वृन्दावन धाम की पावन भूमि पर स्थापित श्री चित्रगुप्त पीठ भगवान श्री चित्रगुप्त जी की महिमा, सनातन धर्म के संरक्षण एवं भारतीय वैदिक संस्कृति के वैश्विक प्रचार-प्रसार हेतु समर्पित एक दिव्य आध्यात्मिक संस्थान है। यह पीठ धर्म, न्याय, संस्कार, सेवा, योग, शिक्षा एवं मानव कल्याण के माध्यम से समाज में आध्यात्मिक चेतना और नैतिक मूल्यों का जागरण करने के लिए निरंतर कार्यरत है।',
             ),
-
             SizedBox(height: 26.h),
-
             const _SectionTitle(
               title: 'Quick Access',
               subtitle: 'Tap to open app sections',
               icon: Icons.grid_view_rounded,
             ),
-
             SizedBox(height: 14.h),
-
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -262,17 +253,11 @@ class _HomeTabState extends State<_HomeTab> {
                 ),
               ],
             ),
-
             SizedBox(height: 30.h),
-
-            const _CreamFeatureSection(),
-
-            SizedBox(height: 30.h),
-
             const _MissionSection(),
-
             SizedBox(height: 30.h),
-
+            const _OurPurposeSection(),
+            SizedBox(height: 30.h),
             const _FooterSection(),
           ],
         ),
@@ -805,9 +790,7 @@ class _MissionSection extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-
           SizedBox(height: 10.h),
-
           Text(
             'हमारा उद्देश्य',
             style: TextStyle(
@@ -816,9 +799,7 @@ class _MissionSection extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ),
           ),
-
           SizedBox(height: 16.h),
-
           Container(
             width: 80.w,
             height: 4.h,
@@ -827,13 +808,11 @@ class _MissionSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(30),
             ),
           ),
-
           SizedBox(height: 22.h),
-
           Text(
             'भगवान श्री चित्रगुप्त जी के सत्य, न्याय, धर्म एवं कर्तव्य के '
             'शाश्वत संदेश को प्रत्येक व्यक्ति तक पहुँचाना हमारा परम उद्देश्य है। '
-            'श्री चित्रगुप्त पीठ सनातन संस्कृति, वैदिक शिक्षा, योग, ध्यान, '
+            'श्री चित్రगुप्त पीठ सनातन संस्कृति, वैदिक शिक्षा, योग, ध्यान, '
             'पर्यावरण संरक्षण तथा सेवा कार्यों के माध्यम से एक जागरूक, '
             'संस्कारित एवं समरस समाज के निर्माण हेतु निरंतर समर्पित है।\n\n'
             'हमारा लक्ष्य केवल एक धार्मिक स्थल का निर्माण नहीं, बल्कि आने वाली '
@@ -847,9 +826,7 @@ class _MissionSection extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-
           SizedBox(height: 24.h),
-
           Container(
             padding: EdgeInsets.all(18.w),
             decoration: BoxDecoration(
@@ -867,9 +844,7 @@ class _MissionSection extends StatelessWidget {
                   color: AppColors.goldLight,
                   size: 28.sp,
                 ),
-
                 SizedBox(width: 14.w),
-
                 Expanded(
                   child: Text(
                     '“धर्म, ज्ञान, सेवा और न्याय के पथ पर चलकर मानवता का कल्याण करना ही श्री चित्रगुप्त पीठ का संकल्प है।”',
@@ -880,6 +855,206 @@ class _MissionSection extends StatelessWidget {
                       height: 1.7,
                       fontWeight: FontWeight.w600,
                     ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OurPurposeSection extends StatelessWidget {
+  const _OurPurposeSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(24.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF6DD).withOpacity(0.94),
+        borderRadius: BorderRadius.circular(26.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '',
+            style: TextStyle(
+              color: AppColors.saffron,
+              fontSize: 12.sp,
+              letterSpacing: 5,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Text(
+            'Spiritual Activities',
+            style: TextStyle(
+              color: const Color(0xFF7A1E1E),
+              fontSize: 25.sp,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          SizedBox(height: 16.h),
+          Container(
+            width: 80.w,
+            height: 4.h,
+            decoration: BoxDecoration(
+              color: AppColors.saffron,
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+          SizedBox(height: 22.h),
+          Text(
+            'श्री चित्रगुप्त पीठ में नियमित रूप से वैदिक अनुष्ठान, यज्ञ, सत्संग, कथा, योग, ध्यान, आध्यात्मिक प्रवचन एवं धार्मिक उत्सवों का आयोजन किया जाता है। इन कार्यक्रमों का उद्देश्य समाज में धर्म, संस्कार, आत्मिक शांति एवं नैतिक जीवन मूल्यों का प्रसार करना है।',
+            style: TextStyle(
+              color: const Color(0xFF2D1A00),
+              fontSize: 15.sp,
+              height: 1.9,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SpiritualActivitiesSection extends StatelessWidget {
+  const _SpiritualActivitiesSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(24.w),
+      decoration: BoxDecoration(
+        color: const Color(0xffFFF8E6),
+        borderRadius: BorderRadius.circular(28.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(.08),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "SPIRITUAL ACTIVITIES",
+            style: TextStyle(
+              color: AppColors.saffron,
+              fontSize: 12.sp,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 5,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            "आध्यात्मिक गतिविधियाँ",
+            style: TextStyle(
+              color: AppColors.maroon,
+              fontSize: 28.sp,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 14.h),
+          Container(
+            width: 80.w,
+            height: 4.h,
+            decoration: BoxDecoration(
+              color: AppColors.saffron,
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          SizedBox(height: 22.h),
+          Text(
+            "श्री चित्रगुप्त पीठ में नियमित रूप से वैदिक अनुष्ठान, यज्ञ, सत्संग, कथा, योग, ध्यान, आध्यात्मिक प्रवचन एवं धार्मिक उत्सवों का आयोजन किया जाता है। इन कार्यक्रमों का उद्देश्य समाज में धर्म, संस्कार, आत्मिक शांति एवं नैतिक जीवन मूल्यों का प्रसार करना है।",
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: 15.sp,
+              height: 1.9,
+            ),
+          ),
+          SizedBox(height: 24.h),
+          _activityCard(
+            Icons.local_fire_department,
+            "वैदिक यज्ञ एवं अनुष्ठान",
+            "नियमित हवन, यज्ञ एवं वैदिक पूजन।",
+          ),
+          SizedBox(height: 14.h),
+          _activityCard(
+            Icons.menu_book,
+            "सत्संग एवं कथा",
+            "धार्मिक कथाओं एवं सत्संग के माध्यम से आध्यात्मिक जागृति।",
+          ),
+          SizedBox(height: 14.h),
+          _activityCard(
+            Icons.self_improvement,
+            "योग एवं ध्यान",
+            "मानसिक शांति एवं आत्मिक उन्नति के लिए योग और ध्यान।",
+          ),
+          SizedBox(height: 14.h),
+          _activityCard(
+            Icons.celebration,
+            "धार्मिक उत्सव",
+            "सनातन परंपरा के सभी प्रमुख पर्व एवं धार्मिक आयोजनों का भव्य उत्सव।",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _activityCard(
+    IconData icon,
+    String title,
+    String subtitle,
+  ) {
+    return Container(
+      padding: EdgeInsets.all(18.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(
+          color: AppColors.saffron.withOpacity(.25),
+        ),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24.r,
+            backgroundColor: AppColors.saffron.withOpacity(.12),
+            child: Icon(
+              icon,
+              color: AppColors.saffron,
+            ),
+          ),
+          SizedBox(width: 16.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: AppColors.maroon,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17.sp,
+                  ),
+                ),
+                SizedBox(height: 6.h),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 14.sp,
+                    height: 1.6,
                   ),
                 ),
               ],
