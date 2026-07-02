@@ -213,9 +213,9 @@ class _HomeTabState extends State<_HomeTab> {
 
             const _CreamSection(
               label: 'ABOUT US',
-              title: 'श्री चित्रगुप्त पीठ की स्थापना',
+              title: 'श्री चित्रगुप्त पीठ',
               text:
-                  'समस्त प्राणियों को उनके कर्मों के आधार पर फल देने वाले देवता — बुद्धि विधाता, लेखनी दाता, धर्मराज भगवान श्री चित्रगुप्त जी की संसार में प्रथम शक्तिपीठ वृंदावन में स्थापित हो रही है।\n\nसम्पूर्ण भारत में भगवान श्री चित्रगुप्त जी के बहुत से मंदिर हैं, परंतु उनके बारे में सभी जानकारी एक स्थान से प्राप्त हो — इसी उद्देश्य से श्री चित्रगुप्त पीठ की स्थापना की गई है।',
+                  'श्री वृन्दावन धाम की पावन भूमि पर स्थापित श्री चित्रगुप्त पीठ भगवान श्री चित्रगुप्त जी की महिमा, सनातन धर्म के संरक्षण एवं भारतीय वैदिक संस्कृति के वैश्विक प्रचार-प्रसार हेतु समर्पित एक दिव्य आध्यात्मिक संस्थान है। यह पीठ धर्म, न्याय, संस्कार, सेवा, योग, शिक्षा एवं मानव कल्याण के माध्यम से समाज में आध्यात्मिक चेतना और नैतिक मूल्यों का जागरण करने के लिए निरंतर कार्यरत है।',
             ),
 
             SizedBox(height: 26.h),
@@ -328,7 +328,7 @@ class _HomeHero extends StatelessWidget {
           ),
           SizedBox(height: 14.h),
           Text(
-            'World\'s First Chitragupt Peeth · Vrindavan, UP',
+            'भगवान श्री चित्रगुप्त जी की चवश्व की प्रथम चिव्य पीठ',
             style: TextStyle(
               color: Colors.white,
               fontSize: 15.sp,
@@ -338,7 +338,7 @@ class _HomeHero extends StatelessWidget {
           ),
           SizedBox(height: 14.h),
           Text(
-            'संसार की प्रथम श्री चित्रगुप्त पीठ — वृंदावन में भव्य रूप से स्थापित हो रही है। बुद्धि विधाता, लेखनी दाता, धर्मराज भगवान श्री चित्रगुप्त जी की कृपा से एक दिव्य तीर्थ की स्थापना।',
+            'वन्दावन धाम की पावन भूचम पर स्थाचपत हो रही श्री चित्रगुप्त पीठ भगवान श्री चित्रगुप्त जी को समचपित चवश्व की प्रथम आध्यात्मिक, साृंस्क चतक एवृं वैचदक पीठ है। यह के वल एक मृंचदर नहीृं, बत्मि धमि, न ् याय, चिक्षा, सृंस्कार, सेवा, योग, िोध एवृं मानव कल्याण का एक समग्र आध्यात्मिक कें द्र है, जहााँ सनातन सृंस्क चत की अमूल्य चवरासत को आने वाली पीच़ियोृं तक पहाँिाने का सृंकल्प चलया गया है।',
             style: TextStyle(
               color: Colors.white.withOpacity(0.90),
               fontSize: 14.sp,
@@ -785,19 +785,13 @@ class _MissionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final missions = [
-      ['01', 'महिमा प्रचार', 'भगवान श्री चित्रगुप्त जी की महिमा का प्रचार।'],
-      ['02', 'गुरुकुल परंपरा', 'वैदिक सनातनी गुरुकुल परंपरा को पुनः स्थापित करना।'],
-      ['03', 'धर्म रक्षा', 'सनातन धर्म का प्रचार और रक्षा।'],
-    ];
-
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(22.w),
+      padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
-        color: const Color(0xFF240800).withOpacity(0.90),
+        color: const Color(0xFF240800).withOpacity(0.92),
         borderRadius: BorderRadius.circular(26.r),
-        border: Border.all(color: AppColors.gold.withOpacity(0.22)),
+        border: Border.all(color: AppColors.gold.withOpacity(0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -811,57 +805,84 @@ class _MissionSection extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          SizedBox(height: 8.h),
+
+          SizedBox(height: 10.h),
+
           Text(
             'हमारा उद्देश्य',
             style: TextStyle(
               color: AppColors.goldLight,
-              fontSize: 24.sp,
+              fontSize: 25.sp,
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(height: 18.h),
-          ...missions.map(
-            (item) => Container(
-              width: double.infinity,
-              margin: EdgeInsets.only(bottom: 14.h),
-              padding: EdgeInsets.all(18.w),
-              decoration: BoxDecoration(
-                color: const Color(0xFF3A1309).withOpacity(0.76),
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: AppColors.gold.withOpacity(0.35)),
+
+          SizedBox(height: 16.h),
+
+          Container(
+            width: 80.w,
+            height: 4.h,
+            decoration: BoxDecoration(
+              color: AppColors.saffron,
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+
+          SizedBox(height: 22.h),
+
+          Text(
+            'भगवान श्री चित्रगुप्त जी के सत्य, न्याय, धर्म एवं कर्तव्य के '
+            'शाश्वत संदेश को प्रत्येक व्यक्ति तक पहुँचाना हमारा परम उद्देश्य है। '
+            'श्री चित्रगुप्त पीठ सनातन संस्कृति, वैदिक शिक्षा, योग, ध्यान, '
+            'पर्यावरण संरक्षण तथा सेवा कार्यों के माध्यम से एक जागरूक, '
+            'संस्कारित एवं समरस समाज के निर्माण हेतु निरंतर समर्पित है।\n\n'
+            'हमारा लक्ष्य केवल एक धार्मिक स्थल का निर्माण नहीं, बल्कि आने वाली '
+            'पीढ़ियों को भारतीय संस्कृति, नैतिक मूल्यों, कर्तव्यनिष्ठ जीवन और '
+            'आध्यात्मिक चेतना से जोड़कर एक सशक्त एवं आदर्श राष्ट्र के निर्माण में '
+            'अपना योगदान देना है।',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.90),
+              fontSize: 15.sp,
+              height: 1.9,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+
+          SizedBox(height: 24.h),
+
+          Container(
+            padding: EdgeInsets.all(18.w),
+            decoration: BoxDecoration(
+              color: const Color(0xFF3A1309),
+              borderRadius: BorderRadius.circular(18.r),
+              border: Border.all(
+                color: AppColors.gold.withOpacity(0.30),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item[0],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.auto_awesome,
+                  color: AppColors.goldLight,
+                  size: 28.sp,
+                ),
+
+                SizedBox(width: 14.w),
+
+                Expanded(
+                  child: Text(
+                    '“धर्म, ज्ञान, सेवा और न्याय के पथ पर चलकर मानवता का कल्याण करना ही श्री चित्रगुप्त पीठ का संकल्प है।”',
                     style: TextStyle(
-                      color: AppColors.goldLight,
-                      fontSize: 30.sp,
-                      fontWeight: FontWeight.w300,
+                      color: Colors.white,
+                      fontSize: 14.sp,
+                      fontStyle: FontStyle.italic,
+                      height: 1.7,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    item[1],
-                    style: TextStyle(
-                      color: AppColors.saffron,
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  SizedBox(height: 10.h),
-                  Text(
-                    item[2],
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.78),
-                      fontSize: 13.sp,
-                      height: 1.65,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
