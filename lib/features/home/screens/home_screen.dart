@@ -1,161 +1,373 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/constants/api_config.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/youtube_utils.dart';
+import '../../../data/models/content_models.dart';
+import '../../../data/services/content_service.dart';
+import '../../../shared/widgets/app_drawer.dart';
+import '../../../shared/widgets/page_background.dart';
 import '../../aarti/screens/aarti_screen.dart';
 import '../../contact/screens/contact_screen.dart';
+import '../../daily_thought/screens/daily_thought_screen.dart';
+import '../../donation/screens/donation_screen.dart';
+import '../../events/screens/events_screen.dart';
+import '../../gallery/screens/gallery_screens.dart';
+import '../../member/screens/member_screen.dart';
+import '../../news/screens/news_links_screen.dart';
+import '../../pooja/screens/pooja_booking_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../../videos/screens/videos_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  static const String _bgImage = 'assets/images/chitragupt_bhagwan.jpg';
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _currentIndex = 0;
 
-  Future<void> _openDonatePage() async {
-    final uri = Uri.parse('https://www.shreechitraguptpeeth.org/donation');
+  late final List<Widget> _pages = [
+    HomeTab(onOpenDrawerItem: _onSelect),
+    const VideosScreen(),
+    const NewsLinksScreen(),
+    const EventsScreen(),
+    const DailyThoughtScreen(),
+    const ContactScreen(),
+    const MemberScreen(),
+    const PoojaBookingScreen(),
+    const DonationScreen(),
+    const GalleryImagesScreen(),
+    const GalleryVideosScreen(),
+    const AartiScreen(),
+    const ProfileScreen(),
+  ];
 
-    final launched = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
-
-    if (!launched && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Donation page open nahi ho paaya.')),
-      );
-    }
+  void _onSelect(int index) {
+    setState(() => _currentIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool showDonateButton = _currentIndex == 0;
+    final title = AppDrawer.items[_currentIndex].label;
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: const Color(0xFF090400),
-      extendBody: true,
-
-      // Top AppBar/header removed. Baaki code same rakha hai.
-      appBar: null,
-
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          _HomeTab(
-            onTabChange: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-          ),
-          const AartiScreen(),
-          const VideosScreen(),
-          const ContactScreen(),
-          const ProfileScreen(),
-        ],
+      drawer: AppDrawer(
+        selectedIndex: _currentIndex,
+        onSelect: _onSelect,
       ),
-
-      floatingActionButton: showDonateButton
-          ? Padding(
-              padding: EdgeInsets.only(bottom: 12.h, right: 6.w),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(22.r),
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.saffron,
-                      AppColors.gold,
-                    ],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.saffron.withOpacity(0.45),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: FloatingActionButton.extended(
-                  heroTag: 'donateButton',
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  icon: const Icon(
-                    Icons.volunteer_activism_rounded,
-                    color: Colors.white,
-                  ),
-                  label: Text(
-                    'Donate',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  onPressed: _openDonatePage,
-                ),
-              ),
-            )
-          : null,
-
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.black,
-          border: Border(
-            top: BorderSide(color: AppColors.goldLight.withOpacity(0.18)),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0D1B2A),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.menu_rounded, color: Colors.white),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w800,
           ),
         ),
-        child: Padding(
-          padding: EdgeInsets.only(top: 6.h),
-          child: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            backgroundColor: Colors.transparent,
-            selectedItemColor: AppColors.goldLight,
-            unselectedItemColor: Colors.white54,
-            type: BottomNavigationBarType.fixed,
-            elevation: 0,
-            selectedFontSize: 11.sp,
-            unselectedFontSize: 10.sp,
-            onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined),
-                activeIcon: Icon(Icons.home_rounded),
-                label: 'Home',
+        centerTitle: true,
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 12.w),
+            child: ClipOval(
+              child: Image.asset(
+                'assets/images/logo.jpeg',
+                width: 34.w,
+                height: 34.w,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Icon(
+                  Icons.temple_hindu_rounded,
+                  color: Colors.white70,
+                  size: 26.sp,
+                ),
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.menu_book_outlined),
-                activeIcon: Icon(Icons.menu_book_rounded),
-                label: 'Aarti',
+            ),
+          ),
+        ],
+      ),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _pages,
+      ),
+    );
+  }
+}
+
+/// Home dashboard — loads hero, thought, YouTube & poojas from backend.
+class HomeTab extends StatefulWidget {
+  const HomeTab({super.key, required this.onOpenDrawerItem});
+
+  final ValueChanged<int> onOpenDrawerItem;
+
+  @override
+  State<HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<HomeTab> {
+  final _service = ContentService();
+
+  List<HeroSlide> _slides = [];
+  DailyThought? _thought;
+  List<YoutubeVideoItem> _videos = [];
+  List<PoojaItem> _poojas = [];
+
+  bool _loading = true;
+  String? _error;
+  int _slideIndex = 0;
+  bool _showKnowMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      final results = await Future.wait([
+        _service.fetchHeroSlides(),
+        _service.fetchTodayThought(),
+        _service.fetchYoutubeVideos(latest: true, limit: 6),
+        _service.fetchPoojas(),
+      ]);
+
+      if (!mounted) return;
+      setState(() {
+        _slides = results[0] as List<HeroSlide>;
+        _thought = results[1] as DailyThought?;
+        _videos = results[2] as List<YoutubeVideoItem>;
+        _poojas = results[3] as List<PoojaItem>;
+        _slideIndex = 0;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = e.toString();
+      });
+    }
+  }
+
+  void _openYoutube(YoutubeVideoItem video) {
+    final id = YoutubeUtils.extractVideoId(video.youtubeUrl);
+    if (id == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => YoutubeVideoPlayerScreen(
+          videoId: id,
+          title: video.title,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageBackground(
+      child: RefreshIndicator(
+        color: AppColors.goldLight,
+        onRefresh: _load,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(18.w, 16.h, 18.w, 40.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_loading) const LoadingCard(),
+              if (_error != null && !_loading)
+                EmptyStateCard(message: _error!, onRetry: _load),
+
+              // Hero slides from admin
+              if (!_loading) ...[
+                _HeroCarousel(
+                  slides: _slides,
+                  index: _slideIndex,
+                  onChanged: (i) => setState(() => _slideIndex = i),
+                ),
+                SizedBox(height: 20.h),
+              ],
+
+              // Intro (kept from existing design)
+              _HomeIntroCard(
+                isExpanded: _showKnowMore,
+                onKnowMoreTap: () {
+                  setState(() => _showKnowMore = !_showKnowMore);
+                },
+                onContactTap: () => widget.onOpenDrawerItem(5),
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.play_circle_outline),
-                activeIcon: Icon(Icons.play_circle_rounded),
-                label: 'Videos',
+              AnimatedSize(
+                duration: const Duration(milliseconds: 350),
+                curve: Curves.easeInOut,
+                child: _showKnowMore
+                    ? Padding(
+                        padding: EdgeInsets.only(top: 16.h),
+                        child: const _WhoIsChitraguptSection(),
+                      )
+                    : const SizedBox.shrink(),
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.location_on_outlined),
-                activeIcon: Icon(Icons.location_on_rounded),
-                label: 'Contact',
+
+              // Daily thought
+              if (_thought != null) ...[
+                SizedBox(height: 22.h),
+                const SectionTitle(
+                  title: 'Daily Thought',
+                  subtitle: 'आज का विचार',
+                  icon: Icons.lightbulb_outline_rounded,
+                ),
+                SizedBox(height: 12.h),
+                _ThoughtCard(
+                  thought: _thought!,
+                  onSeeAll: () => widget.onOpenDrawerItem(4),
+                ),
+              ],
+
+              // YouTube from admin
+              SizedBox(height: 22.h),
+              Row(
+                children: [
+                  const Expanded(
+                    child: SectionTitle(
+                      title: 'YouTube Videos',
+                      subtitle: 'From Admin Panel',
+                      icon: Icons.play_circle_rounded,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => widget.onOpenDrawerItem(1),
+                    child: const Text(
+                      'See All',
+                      style: TextStyle(color: AppColors.goldLight),
+                    ),
+                  ),
+                ],
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline_rounded),
-                activeIcon: Icon(Icons.person_rounded),
-                label: 'Profile',
+              SizedBox(height: 10.h),
+              if (_videos.isEmpty)
+                const EmptyStateCard(
+                  message: 'No YouTube videos yet. Add them in Admin Panel.',
+                )
+              else
+                SizedBox(
+                  height: 190.h,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _videos.length,
+                    separatorBuilder: (_, __) => SizedBox(width: 12.w),
+                    itemBuilder: (context, index) {
+                      final v = _videos[index];
+                      final id = YoutubeUtils.extractVideoId(v.youtubeUrl);
+                      final thumb =
+                          id != null ? YoutubeUtils.thumbnailUrl(id) : '';
+                      return _HomeVideoTile(
+                        title: v.title,
+                        thumbnailUrl: thumb,
+                        onTap: () => _openYoutube(v),
+                      );
+                    },
+                  ),
+                ),
+
+              // Poojas from admin
+              SizedBox(height: 22.h),
+              Row(
+                children: [
+                  const Expanded(
+                    child: SectionTitle(
+                      title: 'Pooja Seva',
+                      subtitle: 'Active poojas from Admin',
+                      icon: Icons.temple_hindu_rounded,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => widget.onOpenDrawerItem(7),
+                    child: const Text(
+                      'Book',
+                      style: TextStyle(color: AppColors.goldLight),
+                    ),
+                  ),
+                ],
               ),
+              SizedBox(height: 10.h),
+              if (_poojas.isEmpty)
+                const EmptyStateCard(
+                  message: 'No poojas available yet.',
+                )
+              else
+                ..._poojas.take(4).map(
+                      (p) => Padding(
+                        padding: EdgeInsets.only(bottom: 10.h),
+                        child: _PoojaTile(pooja: p),
+                      ),
+                    ),
+
+              // Quick access to drawer sections
+              SizedBox(height: 22.h),
+              const SectionTitle(
+                title: 'Quick Access',
+                subtitle: 'Open from menu',
+                icon: Icons.grid_view_rounded,
+              ),
+              SizedBox(height: 12.h),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 12.w,
+                mainAxisSpacing: 12.h,
+                childAspectRatio: 1.35,
+                children: [
+                  _QuickCard(
+                    icon: Icons.event_rounded,
+                    title: 'Events',
+                    onTap: () => widget.onOpenDrawerItem(3),
+                  ),
+                  _QuickCard(
+                    icon: Icons.photo_library_outlined,
+                    title: 'Gallery',
+                    onTap: () => widget.onOpenDrawerItem(9),
+                  ),
+                  _QuickCard(
+                    icon: Icons.volunteer_activism_rounded,
+                    title: 'Donation',
+                    onTap: () => widget.onOpenDrawerItem(8),
+                  ),
+                  _QuickCard(
+                    icon: Icons.person_add_alt_1_rounded,
+                    title: 'Member',
+                    onTap: () => widget.onOpenDrawerItem(6),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 24.h),
+              const _CreamSection(
+                label: 'ABOUT US',
+                title: 'श्री चित्रगुप्त पीठ',
+                text:
+                    'श्री वृन्दावन धाम की पावन भूमि पर स्थापित श्री चित्रगुप्त पीठ भगवान श्री चित्रगुप्त जी की महिमा, सनातन धर्म के संरक्षण एवं भारतीय वैदिक संस्कृति के वैश्विक प्रचार-प्रसार हेतु समर्पित एक दिव्य आध्यात्मिक संस्थान है।',
+              ),
+              SizedBox(height: 20.h),
+              const _FooterSection(),
             ],
           ),
         ),
@@ -164,110 +376,168 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _HomeTab extends StatefulWidget {
-  const _HomeTab({required this.onTabChange});
+class _HeroCarousel extends StatelessWidget {
+  const _HeroCarousel({
+    required this.slides,
+    required this.index,
+    required this.onChanged,
+  });
 
-  final void Function(int index) onTabChange;
-
-  @override
-  State<_HomeTab> createState() => _HomeTabState();
-}
-
-class _HomeTabState extends State<_HomeTab> {
-  bool _showKnowMore = false;
+  final List<HeroSlide> slides;
+  final int index;
+  final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return _PageBackground(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(18.w, 55.h, 18.w, 120.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _HomeHero(
-              isExpanded: _showKnowMore,
-              onKnowMoreTap: () {
-                setState(() {
-                  _showKnowMore = !_showKnowMore;
-                });
-              },
-              onContactTap: () => widget.onTabChange(3),
+    if (slides.isEmpty) {
+      return Container(
+        height: 190.h,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22.r),
+          gradient: LinearGradient(
+            colors: [
+              AppColors.saffron.withOpacity(0.9),
+              AppColors.gold.withOpacity(0.7),
+            ],
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Text(
+            'श्री चित्रगुप्त पीठ वृंदावन',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22.sp,
+              fontWeight: FontWeight.w900,
             ),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 350),
-              curve: Curves.easeInOut,
-              child: _showKnowMore
-                  ? Padding(
-                      padding: EdgeInsets.only(top: 18.h),
-                      child: const _WhoIsChitraguptSection(),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            SizedBox(height: 26.h),
-            const _StatsGrid(),
-            SizedBox(height: 28.h),
-            const _CreamSection(
-              label: 'ABOUT US',
-              title: 'श्री चित्रगुप्त पीठ',
-              text:
-                  'श्री वृन्दावन धाम की पावन भूमि पर स्थापित श्री चित्रगुप्त पीठ भगवान श्री चित्रगुप्त जी की महिमा, सनातन धर्म के संरक्षण एवं भारतीय वैदिक संस्कृति के वैश्विक प्रचार-प्रसार हेतु समर्पित एक दिव्य आध्यात्मिक संस्थान है। यह पीठ धर्म, न्याय, संस्कार, सेवा, योग, शिक्षा एवं मानव कल्याण के माध्यम से समाज में आध्यात्मिक चेतना और नैतिक मूल्यों का जागरण करने के लिए निरंतर कार्यरत है।',
-            ),
-            SizedBox(height: 26.h),
-            const _SectionTitle(
-              title: 'Quick Access',
-              subtitle: 'Tap to open app sections',
-              icon: Icons.grid_view_rounded,
-            ),
-            SizedBox(height: 14.h),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 12.w,
-              mainAxisSpacing: 12.h,
-              childAspectRatio: 1.18,
+          ),
+        ),
+      );
+    }
+
+    final slide = slides[index.clamp(0, slides.length - 1)];
+    final imageUrl = ApiConfig.heroImage(slide.imageFilename);
+
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(22.r),
+          child: SizedBox(
+            height: 200.h,
+            width: double.infinity,
+            child: Stack(
+              fit: StackFit.expand,
               children: [
-                _QuickActionCard(
-                  icon: Icons.menu_book_rounded,
-                  title: 'Aarti',
-                  subtitle: 'Daily prayer',
-                  onTap: () => widget.onTabChange(1),
+                if (imageUrl.isNotEmpty)
+                  CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    fit: BoxFit.cover,
+                    errorWidget: (_, __, ___) => Container(
+                      color: AppColors.saffron,
+                    ),
+                  )
+                else
+                  Container(color: AppColors.saffron),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.15),
+                        Colors.black.withOpacity(0.75),
+                      ],
+                    ),
+                  ),
                 ),
-                _QuickActionCard(
-                  icon: Icons.play_circle_rounded,
-                  title: 'Videos',
-                  subtitle: 'YouTube content',
-                  onTap: () => widget.onTabChange(2),
+                Positioned(
+                  left: 16.w,
+                  right: 16.w,
+                  bottom: 16.h,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        slide.title,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      if ((slide.subtitle ?? '').isNotEmpty) ...[
+                        SizedBox(height: 4.h),
+                        Text(
+                          slide.subtitle!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13.sp,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-                _QuickActionCard(
-                  icon: Icons.location_on_rounded,
-                  title: 'Contact',
-                  subtitle: 'Location & phone',
-                  onTap: () => widget.onTabChange(3),
-                ),
-                _QuickActionCard(
-                  icon: Icons.person_rounded,
-                  title: 'Profile',
-                  subtitle: 'User details',
-                  onTap: () => widget.onTabChange(4),
-                ),
+                if (slides.length > 1) ...[
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      onPressed: () {
+                        final next =
+                            index == 0 ? slides.length - 1 : index - 1;
+                        onChanged(next);
+                      },
+                      icon: const Icon(Icons.chevron_left, color: Colors.white),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      onPressed: () {
+                        final next =
+                            index == slides.length - 1 ? 0 : index + 1;
+                        onChanged(next);
+                      },
+                      icon:
+                          const Icon(Icons.chevron_right, color: Colors.white),
+                    ),
+                  ),
+                ],
               ],
             ),
-            SizedBox(height: 30.h),
-            const _MissionSection(),
-            SizedBox(height: 30.h),
-            const _OurPurposeSection(),
-            SizedBox(height: 30.h),
-            const _FooterSection(),
-          ],
+          ),
         ),
-      ),
+        if (slides.length > 1) ...[
+          SizedBox(height: 10.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(slides.length, (i) {
+              return Container(
+                width: i == index ? 18.w : 8.w,
+                height: 8.h,
+                margin: EdgeInsets.symmetric(horizontal: 3.w),
+                decoration: BoxDecoration(
+                  color: i == index
+                      ? AppColors.goldLight
+                      : Colors.white.withOpacity(0.35),
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+              );
+            }),
+          ),
+        ],
+      ],
     );
   }
 }
 
-class _HomeHero extends StatelessWidget {
-  const _HomeHero({
+class _HomeIntroCard extends StatelessWidget {
+  const _HomeIntroCard({
     required this.isExpanded,
     required this.onKnowMoreTap,
     required this.onContactTap,
@@ -281,9 +551,9 @@ class _HomeHero extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(24.w),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30.r),
+        borderRadius: BorderRadius.circular(24.r),
         gradient: LinearGradient(
           colors: [
             AppColors.saffron.withOpacity(0.94),
@@ -291,13 +561,6 @@ class _HomeHero extends StatelessWidget {
             const Color(0xFF4A1600).withOpacity(0.92),
           ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.saffron.withOpacity(0.30),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,32 +569,21 @@ class _HomeHero extends StatelessWidget {
             'श्री चित्रगुप्त पीठ वृंदावन',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 28.sp,
+              fontSize: 24.sp,
               fontWeight: FontWeight.w900,
-              height: 1.25,
             ),
           ),
-          SizedBox(height: 14.h),
+          SizedBox(height: 10.h),
           Text(
-            'भगवान श्री चित्रगुप्त जी की चवश्व की प्रथम चिव्य पीठ',
+            'भगवान श्री चित्रगुप्त जी की विश्व की प्रथम दिव्य पीठ',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 15.sp,
-              fontWeight: FontWeight.w900,
-              height: 1.45,
-            ),
-          ),
-          SizedBox(height: 14.h),
-          Text(
-            'वन्दावन धाम की पावन भूचम पर स्थाचपत हो रही श्री चित्रगुप्त पीठ भगवान श्री चित्रगुप्त जी को समचपित चवश्व की प्रथम आध्यात्मिक, साृंस्क चतक एवृं वैचदक पीठ है। यह के वल एक मृंचदर नहीृं, बत्मि धमि, न ् याय, चिक्षा, सृंस्कार, सेवा, योग, िोध एवृं मानव कल्याण का एक समग्र आध्यात्मिक कें द्र है, जहााँ सनातन सृंस्क चत की अमूल्य चवरासत को आने वाली पीच़ियोृं तक पहाँिाने का सृंकल्प चलया गया है।',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.90),
               fontSize: 14.sp,
-              height: 1.75,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w700,
+              height: 1.4,
             ),
           ),
-          SizedBox(height: 22.h),
+          SizedBox(height: 16.h),
           Row(
             children: [
               Expanded(
@@ -341,10 +593,10 @@ class _HomeHero extends StatelessWidget {
                   onTap: onKnowMoreTap,
                 ),
               ),
-              SizedBox(width: 12.w),
+              SizedBox(width: 10.w),
               Expanded(
                 child: _HeroButton(
-                  text: '💬 संपर्क करें',
+                  text: 'संपर्क करें',
                   filled: false,
                   onTap: onContactTap,
                 ),
@@ -371,30 +623,241 @@ class _HeroButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 54.h,
+      height: 48.h,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          padding: EdgeInsets.symmetric(horizontal: 8.w),
           backgroundColor: filled ? Colors.white : Colors.transparent,
           side: BorderSide(color: Colors.white.withOpacity(0.9), width: 1.4),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.r),
+            borderRadius: BorderRadius.circular(14.r),
           ),
         ),
         onPressed: onTap,
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            text,
-            maxLines: 1,
-            textAlign: TextAlign.center,
+        child: Text(
+          text,
+          style: TextStyle(
+            color: filled ? AppColors.saffron : Colors.white,
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ThoughtCard extends StatelessWidget {
+  const _ThoughtCard({required this.thought, required this.onSeeAll});
+
+  final DailyThought thought;
+  final VoidCallback onSeeAll;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF6DD).withOpacity(0.95),
+        borderRadius: BorderRadius.circular(18.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            thought.primaryText,
+            maxLines: 5,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: filled ? AppColors.saffron : Colors.white,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w900,
+              color: const Color(0xFF2D1A00),
+              fontSize: 14.sp,
+              height: 1.55,
+              fontWeight: FontWeight.w600,
             ),
           ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: onSeeAll,
+              child: const Text(
+                'View All',
+                style: TextStyle(color: AppColors.saffron),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeVideoTile extends StatelessWidget {
+  const _HomeVideoTile({
+    required this.title,
+    required this.thumbnailUrl,
+    required this.onTap,
+  });
+
+  final String title;
+  final String thumbnailUrl;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16.r),
+      child: SizedBox(
+        width: 220.w,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(14.r),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (thumbnailUrl.isEmpty)
+                    Container(
+                      height: 120.h,
+                      width: 220.w,
+                      color: Colors.white12,
+                    )
+                  else
+                    CachedNetworkImage(
+                      imageUrl: thumbnailUrl,
+                      height: 120.h,
+                      width: 220.w,
+                      fit: BoxFit.cover,
+                    ),
+                  Icon(
+                    Icons.play_circle_fill_rounded,
+                    color: Colors.white.withOpacity(0.92),
+                    size: 42.sp,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PoojaTile extends StatelessWidget {
+  const _PoojaTile({required this.pooja});
+
+  final PoojaItem pooja;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = ApiConfig.poojaImage(pooja.imageFilename);
+    return Container(
+      padding: EdgeInsets.all(12.w),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10.r),
+            child: imageUrl.isEmpty
+                ? Container(
+                    width: 64.w,
+                    height: 64.w,
+                    color: Colors.white12,
+                    child: const Icon(Icons.temple_hindu, color: Colors.white54),
+                  )
+                : CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    width: 64.w,
+                    height: 64.w,
+                    fit: BoxFit.cover,
+                  ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  pooja.title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                if ((pooja.day ?? '').isNotEmpty) ...[
+                  SizedBox(height: 4.h),
+                  Text(
+                    pooja.day == 'Everyday' ? 'Everyday' : 'Every ${pooja.day}',
+                    style: TextStyle(
+                      color: AppColors.goldLight,
+                      fontSize: 12.sp,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickCard extends StatelessWidget {
+  const _QuickCard({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18.r),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(18.r),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: AppColors.goldLight, size: 28.sp),
+            SizedBox(height: 8.h),
+            Text(
+              title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -408,17 +871,10 @@ class _WhoIsChitraguptSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(22.w),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF6DD).withOpacity(0.97),
-        borderRadius: BorderRadius.circular(26.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.10),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(22.r),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -428,186 +884,30 @@ class _WhoIsChitraguptSection extends StatelessWidget {
             style: TextStyle(
               color: AppColors.saffron,
               fontSize: 12.sp,
-              letterSpacing: 4,
+              letterSpacing: 3,
               fontWeight: FontWeight.w700,
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 8.h),
           Text(
             'भगवान श्री चित्रगुप्त जी का परिचय',
             style: TextStyle(
               color: const Color(0xFF7A1E1E),
-              fontSize: 22.sp,
+              fontSize: 20.sp,
               fontWeight: FontWeight.w900,
-              height: 1.35,
             ),
           ),
           SizedBox(height: 12.h),
-          Container(
-            height: 4.h,
-            width: 75.w,
-            decoration: BoxDecoration(
-              color: AppColors.saffron,
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-          ),
-          SizedBox(height: 22.h),
           Text(
-            'भगवान श्री चित्रगुप्त जी — बुद्धि विधाता, लेखनी दाता, समस्त ग्रह-नक्षत्रों के स्वामी हैं। वे संसार के समस्त प्राणियों के कर्मों का लेखा-जोखा रखते हैं और उनके कर्मों के आधार पर फल प्रदान करते हैं।\n\n'
-            'हिंदू पुराणों के अनुसार, ब्रह्मा जी ने 11,000 वर्षों की गहन साधना के बाद अपनी काया से भगवान श्री चित्रगुप्त जी को प्रकट किया। इसलिए वे कायस्थ समुदाय के आदि पूर्वज और ईष्ट देव माने जाते हैं।\n\n'
-            'वे हाथ में कलम, दवात और पुस्तक धारण करते हैं। न्याय के देवता यमराज की सहायता से वे सभी जीवों के पाप-पुण्य का हिसाब रखते हैं। उनकी आराधना से बुद्धि, विद्या और धर्म की प्राप्ति होती है।',
+            'भगवान श्री चित्रगुप्त जी — बुद्धि विधाता, लेखनी दाता, समस्त ग्रह-नक्षत्रों के स्वामी हैं। वे संसार के समस्त प्राणियों के कर्मों का लेखा-जोखा रखते हैं और उनके कर्मों के आधार पर फल प्रदान करते हैं।',
             style: TextStyle(
               color: const Color(0xFF2D1A00),
-              fontSize: 15.sp,
-              height: 1.85,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: 24.h),
-          const _InfoCard(
-            icon: '🖊️',
-            title: 'लेखनी दाता',
-            subtitle: 'विद्या, बुद्धि और कलम के देवता — ज्ञान के प्रदाता।',
-          ),
-          SizedBox(height: 14.h),
-          const _InfoCard(
-            icon: '⚖️',
-            title: 'कर्म के न्यायाधीश',
-            subtitle: 'समस्त प्राणियों के कर्मों का सटीक लेखा-जोखा रखते हैं।',
-          ),
-          SizedBox(height: 14.h),
-          const _InfoCard(
-            icon: '🌟',
-            title: 'ग्रह-नक्षत्र स्वामी',
-            subtitle: 'समस्त ग्रहों और नक्षत्रों के अधिपति देवता।',
-          ),
-          SizedBox(height: 14.h),
-          const _InfoCard(
-            icon: '🙏',
-            title: 'कायस्थ कुलदेव',
-            subtitle: 'कायस्थ समुदाय के आदि पूर्वज और परम ईष्ट देव।',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  const _InfoCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  final String icon;
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.96),
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border(
-          left: BorderSide(color: AppColors.saffron, width: 4.w),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(icon, style: TextStyle(fontSize: 22.sp)),
-          SizedBox(width: 10.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: const Color(0xFF7A1E1E),
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                SizedBox(height: 6.h),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: const Color(0xFF6E5738),
-                    fontSize: 13.sp,
-                    height: 1.45,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+              fontSize: 14.sp,
+              height: 1.7,
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _StatsGrid extends StatelessWidget {
-  const _StatsGrid();
-
-  @override
-  Widget build(BuildContext context) {
-    return _GlassCard(
-      child: GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        childAspectRatio: 1.65,
-        children: const [
-          _StatItem(value: '1 करोड़+', label: 'मंत्र लेखन'),
-          _StatItem(value: '3', label: 'तल्लीय मंदिर'),
-          _StatItem(value: '2023', label: 'भूमि पूजन'),
-          _StatItem(value: 'अखिल', label: 'भारतीय संस्था'),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatItem extends StatelessWidget {
-  const _StatItem({required this.value, required this.label});
-
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          value,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: AppColors.goldLight,
-            fontSize: 23.sp,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        SizedBox(height: 5.h),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white70, fontSize: 12.sp),
-        ),
-      ],
     );
   }
 }
@@ -627,10 +927,10 @@ class _CreamSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(22.w),
+      padding: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF6DD).withOpacity(0.94),
-        borderRadius: BorderRadius.circular(26.r),
+        borderRadius: BorderRadius.circular(22.r),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -640,424 +940,26 @@ class _CreamSection extends StatelessWidget {
             style: TextStyle(
               color: AppColors.saffron,
               fontSize: 12.sp,
-              letterSpacing: 4,
+              letterSpacing: 3,
               fontWeight: FontWeight.w700,
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 8.h),
           Text(
             title,
             style: TextStyle(
               color: const Color(0xFF7A1E1E),
-              fontSize: 22.sp,
+              fontSize: 20.sp,
               fontWeight: FontWeight.w900,
-              height: 1.35,
             ),
           ),
           SizedBox(height: 12.h),
-          Container(
-            height: 4.h,
-            width: 75.w,
-            decoration: BoxDecoration(
-              color: AppColors.saffron,
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-          ),
-          SizedBox(height: 20.h),
           Text(
             text,
             style: TextStyle(
               color: const Color(0xFF2D1A00),
-              fontSize: 15.sp,
-              height: 1.85,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CreamFeatureSection extends StatelessWidget {
-  const _CreamFeatureSection();
-
-  @override
-  Widget build(BuildContext context) {
-    final features = [
-      ['🛕', 'तीन तल्लीय मंदिर', 'भव्य तीन मंजिला मंदिर का निर्माण।'],
-      ['💧', 'जल परिक्रमा', 'जल के साथ पवित्र परिक्रमा पथ।'],
-      ['🌸', 'नक्षत्र वाटिका', '27 नक्षत्रों के अनुसार वृक्षों की वाटिका।'],
-      ['📖', 'गुरुकुल विद्यापीठ', 'वैदिक शिक्षा और सनातन परंपरा।'],
-    ];
-
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(22.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF1CF).withOpacity(0.95),
-        borderRadius: BorderRadius.circular(26.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'EXPLORE',
-            style: TextStyle(
-              color: AppColors.saffron,
-              fontSize: 12.sp,
-              letterSpacing: 5,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'पीठ की विशेषताएँ',
-            style: TextStyle(
-              color: const Color(0xFF7A1E1E),
-              fontSize: 24.sp,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          SizedBox(height: 18.h),
-          ...features.map(
-            (item) => Container(
-              width: double.infinity,
-              margin: EdgeInsets.only(bottom: 14.h),
-              padding: EdgeInsets.all(18.w),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.96),
-                borderRadius: BorderRadius.circular(22.r),
-                border: Border(
-                  top: BorderSide(color: AppColors.saffron, width: 3),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Text(item[0], style: TextStyle(fontSize: 34.sp)),
-                  SizedBox(height: 8.h),
-                  Text(
-                    item[1],
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: const Color(0xFF7A1E1E),
-                      fontSize: 17.sp,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    item[2],
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: const Color(0xFF6E5738),
-                      fontSize: 13.sp,
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MissionSection extends StatelessWidget {
-  const _MissionSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(24.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFF240800).withOpacity(0.92),
-        borderRadius: BorderRadius.circular(26.r),
-        border: Border.all(color: AppColors.gold.withOpacity(0.25)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'OUR MISSION',
-            style: TextStyle(
-              color: AppColors.goldLight,
-              fontSize: 12.sp,
-              letterSpacing: 5,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: 10.h),
-          Text(
-            'हमारा उद्देश्य',
-            style: TextStyle(
-              color: AppColors.goldLight,
-              fontSize: 25.sp,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Container(
-            width: 80.w,
-            height: 4.h,
-            decoration: BoxDecoration(
-              color: AppColors.saffron,
-              borderRadius: BorderRadius.circular(30),
-            ),
-          ),
-          SizedBox(height: 22.h),
-          Text(
-            'भगवान श्री चित्रगुप्त जी के सत्य, न्याय, धर्म एवं कर्तव्य के '
-            'शाश्वत संदेश को प्रत्येक व्यक्ति तक पहुँचाना हमारा परम उद्देश्य है। '
-            'श्री चित్రगुप्त पीठ सनातन संस्कृति, वैदिक शिक्षा, योग, ध्यान, '
-            'पर्यावरण संरक्षण तथा सेवा कार्यों के माध्यम से एक जागरूक, '
-            'संस्कारित एवं समरस समाज के निर्माण हेतु निरंतर समर्पित है।\n\n'
-            'हमारा लक्ष्य केवल एक धार्मिक स्थल का निर्माण नहीं, बल्कि आने वाली '
-            'पीढ़ियों को भारतीय संस्कृति, नैतिक मूल्यों, कर्तव्यनिष्ठ जीवन और '
-            'आध्यात्मिक चेतना से जोड़कर एक सशक्त एवं आदर्श राष्ट्र के निर्माण में '
-            'अपना योगदान देना है।',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.90),
-              fontSize: 15.sp,
-              height: 1.9,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: 24.h),
-          Container(
-            padding: EdgeInsets.all(18.w),
-            decoration: BoxDecoration(
-              color: const Color(0xFF3A1309),
-              borderRadius: BorderRadius.circular(18.r),
-              border: Border.all(
-                color: AppColors.gold.withOpacity(0.30),
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.auto_awesome,
-                  color: AppColors.goldLight,
-                  size: 28.sp,
-                ),
-                SizedBox(width: 14.w),
-                Expanded(
-                  child: Text(
-                    '“धर्म, ज्ञान, सेवा और न्याय के पथ पर चलकर मानवता का कल्याण करना ही श्री चित्रगुप्त पीठ का संकल्प है।”',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.sp,
-                      fontStyle: FontStyle.italic,
-                      height: 1.7,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OurPurposeSection extends StatelessWidget {
-  const _OurPurposeSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(24.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF6DD).withOpacity(0.94),
-        borderRadius: BorderRadius.circular(26.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '',
-            style: TextStyle(
-              color: AppColors.saffron,
-              fontSize: 12.sp,
-              letterSpacing: 5,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: 10.h),
-          Text(
-            'Spiritual Activities',
-            style: TextStyle(
-              color: const Color(0xFF7A1E1E),
-              fontSize: 25.sp,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Container(
-            width: 80.w,
-            height: 4.h,
-            decoration: BoxDecoration(
-              color: AppColors.saffron,
-              borderRadius: BorderRadius.circular(30),
-            ),
-          ),
-          SizedBox(height: 22.h),
-          Text(
-            'श्री चित्रगुप्त पीठ में नियमित रूप से वैदिक अनुष्ठान, यज्ञ, सत्संग, कथा, योग, ध्यान, आध्यात्मिक प्रवचन एवं धार्मिक उत्सवों का आयोजन किया जाता है। इन कार्यक्रमों का उद्देश्य समाज में धर्म, संस्कार, आत्मिक शांति एवं नैतिक जीवन मूल्यों का प्रसार करना है।',
-            style: TextStyle(
-              color: const Color(0xFF2D1A00),
-              fontSize: 15.sp,
-              height: 1.9,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SpiritualActivitiesSection extends StatelessWidget {
-  const _SpiritualActivitiesSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(24.w),
-      decoration: BoxDecoration(
-        color: const Color(0xffFFF8E6),
-        borderRadius: BorderRadius.circular(28.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.08),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "SPIRITUAL ACTIVITIES",
-            style: TextStyle(
-              color: AppColors.saffron,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 5,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            "आध्यात्मिक गतिविधियाँ",
-            style: TextStyle(
-              color: AppColors.maroon,
-              fontSize: 28.sp,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 14.h),
-          Container(
-            width: 80.w,
-            height: 4.h,
-            decoration: BoxDecoration(
-              color: AppColors.saffron,
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-          SizedBox(height: 22.h),
-          Text(
-            "श्री चित्रगुप्त पीठ में नियमित रूप से वैदिक अनुष्ठान, यज्ञ, सत्संग, कथा, योग, ध्यान, आध्यात्मिक प्रवचन एवं धार्मिक उत्सवों का आयोजन किया जाता है। इन कार्यक्रमों का उद्देश्य समाज में धर्म, संस्कार, आत्मिक शांति एवं नैतिक जीवन मूल्यों का प्रसार करना है।",
-            style: TextStyle(
-              color: Colors.black87,
-              fontSize: 15.sp,
-              height: 1.9,
-            ),
-          ),
-          SizedBox(height: 24.h),
-          _activityCard(
-            Icons.local_fire_department,
-            "वैदिक यज्ञ एवं अनुष्ठान",
-            "नियमित हवन, यज्ञ एवं वैदिक पूजन।",
-          ),
-          SizedBox(height: 14.h),
-          _activityCard(
-            Icons.menu_book,
-            "सत्संग एवं कथा",
-            "धार्मिक कथाओं एवं सत्संग के माध्यम से आध्यात्मिक जागृति।",
-          ),
-          SizedBox(height: 14.h),
-          _activityCard(
-            Icons.self_improvement,
-            "योग एवं ध्यान",
-            "मानसिक शांति एवं आत्मिक उन्नति के लिए योग और ध्यान।",
-          ),
-          SizedBox(height: 14.h),
-          _activityCard(
-            Icons.celebration,
-            "धार्मिक उत्सव",
-            "सनातन परंपरा के सभी प्रमुख पर्व एवं धार्मिक आयोजनों का भव्य उत्सव।",
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _activityCard(
-    IconData icon,
-    String title,
-    String subtitle,
-  ) {
-    return Container(
-      padding: EdgeInsets.all(18.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(
-          color: AppColors.saffron.withOpacity(.25),
-        ),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 24.r,
-            backgroundColor: AppColors.saffron.withOpacity(.12),
-            child: Icon(
-              icon,
-              color: AppColors.saffron,
-            ),
-          ),
-          SizedBox(width: 16.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: AppColors.maroon,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17.sp,
-                  ),
-                ),
-                SizedBox(height: 6.h),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 14.sp,
-                    height: 1.6,
-                  ),
-                ),
-              ],
+              fontSize: 14.sp,
+              height: 1.7,
             ),
           ),
         ],
@@ -1071,168 +973,31 @@ class _FooterSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _GlassCard(
-      child: Text(
-        '🕉️ SHREE CHITRAGUPT PEETH\n\nसम्पूर्ण भारत में भगवान श्री चित्रगुप्त जी के बहुत से मंदिर हैं, परंतु उनके बारे में सभी जानकारी एक स्थान से प्राप्त हो — इसी उद्देश्य से श्री चित्रगुप्त पीठ की स्थापना की गई है।\n\n📞 +91-7065013874\n✉️ shreechitraguptpeeth@gmail.com',
-        style: TextStyle(
-          color: Colors.white70,
-          fontSize: 13.sp,
-          height: 1.7,
-        ),
-      ),
-    );
-  }
-}
-
-class _PageBackground extends StatelessWidget {
-  const _PageBackground({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: Image.asset(HomeScreen._bgImage, fit: BoxFit.cover),
-        ),
-        Positioned.fill(
-          child: Container(color: Colors.black.withOpacity(0.70)),
-        ),
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.black.withOpacity(0.25),
-                  const Color(0xFF2B0D00).withOpacity(0.55),
-                  Colors.black.withOpacity(0.90),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-        ),
-        child,
-      ],
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          height: 48.w,
-          width: 48.w,
-          decoration: BoxDecoration(
-            color: AppColors.goldLight.withOpacity(0.14),
-            borderRadius: BorderRadius.circular(15.r),
-          ),
-          child: Icon(icon, color: AppColors.goldLight, size: 24.sp),
-        ),
-        SizedBox(width: 12.w),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  color: AppColors.goldLight,
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              SizedBox(height: 3.h),
-              Text(
-                subtitle,
-                style: TextStyle(color: Colors.white60, fontSize: 12.sp),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _QuickActionCard extends StatelessWidget {
-  const _QuickActionCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(22.r),
-        onTap: onTap,
-        child: _GlassCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, color: AppColors.goldLight, size: 30.sp),
-              const Spacer(),
-              Text(
-                title,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              SizedBox(height: 4.h),
-              Text(
-                subtitle,
-                style: TextStyle(color: Colors.white60, fontSize: 12.sp),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GlassCard extends StatelessWidget {
-  const _GlassCard({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(18.w),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.105),
-        borderRadius: BorderRadius.circular(22.r),
-        border: Border.all(color: Colors.white.withOpacity(0.16)),
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(16.r),
       ),
-      child: child,
+      child: Column(
+        children: [
+          Text(
+            'Shree Chitragupt Peeth',
+            style: TextStyle(
+              color: AppColors.goldLight,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          SizedBox(height: 6.h),
+          Text(
+            '+91-7065013874  ·  shreechitraguptpeeth@gmail.com',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white70, fontSize: 12.sp),
+          ),
+        ],
+      ),
     );
   }
 }
