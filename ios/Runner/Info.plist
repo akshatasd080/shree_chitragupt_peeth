@@ -70,5 +70,9 @@
 		<true/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Save gallery and news images to your photo library.</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Save downloaded images to your photo library.</string>
 	</dict>
 </plist>

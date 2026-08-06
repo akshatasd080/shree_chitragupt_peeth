@@ -7,10 +7,12 @@ class AppDrawer extends StatelessWidget {
     super.key,
     required this.selectedIndex,
     required this.onSelect,
+    this.onLogout,
   });
 
   final int selectedIndex;
   final ValueChanged<int> onSelect;
+  final VoidCallback? onLogout;
 
   static const Color drawerBg = Color(0xFF0D1B2A);
   static const Color iconTileBg = Color(0xFFE8E8E8);
@@ -33,6 +35,7 @@ class AppDrawer extends StatelessWidget {
         label: 'Gallery Videos', icon: Icons.ondemand_video_outlined),
     DrawerItemData(label: 'Aarti', icon: Icons.menu_book_rounded),
     DrawerItemData(label: 'Profile', icon: Icons.person_rounded),
+    DrawerItemData(label: 'Logout', icon: Icons.logout_rounded, isLogout: true),
   ];
 
   @override
@@ -82,14 +85,19 @@ class AppDrawer extends StatelessWidget {
                 itemCount: items.length,
                 itemBuilder: (context, index) {
                   final item = items[index];
-                  final selected = selectedIndex == index;
+                  final isLogout = item.isLogout;
+                  final selected = !isLogout && selectedIndex == index;
                   return Padding(
                     padding: EdgeInsets.only(bottom: 8.h),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12.r),
                       onTap: () {
                         Navigator.of(context).pop();
-                        onSelect(index);
+                        if (isLogout) {
+                          onLogout?.call();
+                        } else {
+                          onSelect(index);
+                        }
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(
@@ -97,20 +105,42 @@ class AppDrawer extends StatelessWidget {
                           vertical: 8.h,
                         ),
                         decoration: BoxDecoration(
-                          color: selected
-                              ? Colors.white.withOpacity(0.08)
-                              : Colors.transparent,
+                          color: isLogout
+                              ? Colors.redAccent.withOpacity(0.08)
+                              : (selected
+                                  ? Colors.white.withOpacity(0.08)
+                                  : Colors.transparent),
                           borderRadius: BorderRadius.circular(12.r),
+                          border: isLogout
+                              ? Border.all(
+                                  color: Colors.redAccent.withOpacity(0.25))
+                              : null,
                         ),
                         child: Row(
                           children: [
-                            _IconSquare(icon: item.icon),
+                            isLogout
+                                ? Container(
+                                    width: 42.w,
+                                    height: 42.w,
+                                    decoration: BoxDecoration(
+                                      color: Colors.redAccent.withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(10.r),
+                                    ),
+                                    child: Icon(
+                                      item.icon,
+                                      color: Colors.redAccent,
+                                      size: 22.sp,
+                                    ),
+                                  )
+                                : _IconSquare(icon: item.icon),
                             SizedBox(width: 14.w),
                             Expanded(
                               child: Text(
                                 item.label,
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: isLogout
+                                      ? Colors.redAccent
+                                      : Colors.white,
                                   fontSize: 15.sp,
                                   fontWeight: selected
                                       ? FontWeight.w800
@@ -134,10 +164,15 @@ class AppDrawer extends StatelessWidget {
 }
 
 class DrawerItemData {
-  const DrawerItemData({required this.label, required this.icon});
+  const DrawerItemData({
+    required this.label,
+    required this.icon,
+    this.isLogout = false,
+  });
 
   final String label;
   final IconData icon;
+  final bool isLogout;
 }
 
 class _IconSquare extends StatelessWidget {

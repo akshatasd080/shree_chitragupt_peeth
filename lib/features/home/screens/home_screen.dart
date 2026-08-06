@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -6,10 +7,12 @@ import '../../../core/constants/api_config.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/youtube_utils.dart';
 import '../../../data/models/content_models.dart';
+import '../../../data/services/auth_service.dart';
 import '../../../data/services/content_service.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/page_background.dart';
 import '../../aarti/screens/aarti_screen.dart';
+import '../../auth/screens/login_screen.dart';
 import '../../contact/screens/contact_screen.dart';
 import '../../daily_thought/screens/daily_thought_screen.dart';
 import '../../donation/screens/donation_screen.dart';
@@ -64,6 +67,20 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
   }
 
+  Future<void> _logout() async {
+    await AuthService.clearAuthData();
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (e) {
+      debugPrint('Logout error: $e');
+    }
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
   void _onSelect(int index) {
     setState(() => _currentIndex = index);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -98,7 +115,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = AppDrawer.items[_currentIndex].label;
+    final safeIndex = _currentIndex.clamp(0, _pages.length - 1);
+    final title = AppDrawer.items[safeIndex].label;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -106,6 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: AppDrawer(
         selectedIndex: _currentIndex,
         onSelect: _onSelect,
+        onLogout: _logout,
       ),
       appBar: AppBar(
         backgroundColor: const Color(0xFF0D1B2A),

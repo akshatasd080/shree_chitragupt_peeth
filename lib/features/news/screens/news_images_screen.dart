@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/constants/api_config.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/media_actions.dart';
 import '../../../data/models/content_models.dart';
 import '../../../data/services/content_service.dart';
 import '../../../shared/widgets/page_background.dart';
@@ -70,17 +69,6 @@ class _NewsImagesScreenState extends State<NewsImagesScreen>
           description: item.description,
         ),
       ),
-    );
-  }
-
-  Future<void> _download(NewsImageItem item) async {
-    final rawUrl = ApiConfig.newsImage(item.imageFilename);
-    if (rawUrl.isEmpty) return;
-    await MediaActions.downloadImage(
-      context,
-      rawUrl,
-      name:
-          'news_image_${item.id}_${DateTime.now().millisecondsSinceEpoch}.jpg',
     );
   }
 
@@ -155,7 +143,6 @@ class _NewsImagesScreenState extends State<NewsImagesScreen>
                             displayUrl: displayUrl,
                             description: item.description,
                             onPreviewTap: () => _openFullscreen(item),
-                            onDownloadTap: () => _download(item),
                           );
                         },
                         childCount: items.length,
@@ -175,14 +162,12 @@ class _NewsImageTile extends StatelessWidget {
   const _NewsImageTile({
     required this.displayUrl,
     required this.onPreviewTap,
-    required this.onDownloadTap,
     this.description,
   });
 
   final String displayUrl;
   final String? description;
   final VoidCallback onPreviewTap;
-  final VoidCallback onDownloadTap;
 
   @override
   Widget build(BuildContext context) {
@@ -193,85 +178,59 @@ class _NewsImageTile extends StatelessWidget {
         border: Border.all(color: Colors.white24),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Stack(
-        fit: StackFit.expand,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: onPreviewTap,
-                  child: displayUrl.isEmpty
-                      ? const Icon(Icons.image, color: Colors.white38)
-                      : CachedNetworkImage(
-                          imageUrl: displayUrl,
-                          fit: BoxFit.cover,
-                          errorWidget: (_, __, ___) => const Icon(
-                              Icons.broken_image,
-                              color: Colors.white38),
-                        ),
-                ),
-              ),
-              InkWell(
-                onTap: onPreviewTap,
-                child: Padding(
-                  padding: EdgeInsets.all(8.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          Expanded(
+            child: InkWell(
+              onTap: onPreviewTap,
+              child: displayUrl.isEmpty
+                  ? const Icon(Icons.image, color: Colors.white38)
+                  : CachedNetworkImage(
+                      imageUrl: displayUrl,
+                      fit: BoxFit.cover,
+                      errorWidget: (_, __, ___) =>
+                          const Icon(Icons.broken_image, color: Colors.white38),
+                    ),
+            ),
+          ),
+          InkWell(
+            onTap: onPreviewTap,
+            child: Padding(
+              padding: EdgeInsets.all(8.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if ((description ?? '').isNotEmpty)
+                    Text(
+                      description!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  Row(
                     children: [
-                      if ((description ?? '').isNotEmpty)
-                        Text(
-                          description!,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w700,
-                          ),
+                      Icon(
+                        Icons.zoom_out_map_rounded,
+                        size: 12.sp,
+                        color: AppColors.goldLight,
+                      ),
+                      SizedBox(width: 4.w),
+                      Text(
+                        'Preview',
+                        style: TextStyle(
+                          color: AppColors.goldLight,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w600,
                         ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.zoom_out_map_rounded,
-                            size: 12.sp,
-                            color: AppColors.goldLight,
-                          ),
-                          SizedBox(width: 4.w),
-                          Text(
-                            'Preview',
-                            style: TextStyle(
-                              color: AppColors.goldLight,
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
-                ),
-              ),
-            ],
-          ),
-          Positioned(
-            top: 6.w,
-            right: 6.w,
-            child: Material(
-              color: Colors.black54,
-              borderRadius: BorderRadius.circular(20),
-              child: InkWell(
-                onTap: onDownloadTap,
-                borderRadius: BorderRadius.circular(20),
-                child: Padding(
-                  padding: EdgeInsets.all(6.w),
-                  child: Icon(
-                    Icons.download_rounded,
-                    size: 16.sp,
-                    color: AppColors.goldLight,
-                  ),
-                ),
+                ],
               ),
             ),
           ),
@@ -313,17 +272,6 @@ class _FullscreenImageScreen extends StatelessWidget {
               );
             },
             icon: const Icon(Icons.fullscreen_rounded, color: Colors.white),
-          ),
-          IconButton(
-            tooltip: 'Download',
-            onPressed: () {
-              MediaActions.downloadImage(
-                context,
-                imageUrl,
-                name: 'news_image_${DateTime.now().millisecondsSinceEpoch}.jpg',
-              );
-            },
-            icon: const Icon(Icons.download_rounded, color: Colors.white),
           ),
           SizedBox(width: 4.w),
         ],
@@ -389,39 +337,20 @@ class _FullscreenImageScreen extends StatelessWidget {
             color: Colors.black87,
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.fullscreen_rounded,
-                    label: 'Preview',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => _ImmersiveViewer(imageUrl: imageUrl),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.download_rounded,
-                    label: 'Download',
-                    onTap: () {
-                      MediaActions.downloadImage(
-                        context,
-                        imageUrl,
-                        name:
-                            'news_image_${DateTime.now().millisecondsSinceEpoch}.jpg',
-                      );
-                    },
-                    highlighted: true,
-                  ),
-                ),
-              ],
+            child: SizedBox(
+              width: double.infinity,
+              child: _ActionButton(
+                icon: Icons.fullscreen_rounded,
+                label: 'Preview',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => _ImmersiveViewer(imageUrl: imageUrl),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],

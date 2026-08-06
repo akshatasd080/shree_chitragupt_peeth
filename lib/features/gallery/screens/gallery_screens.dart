@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/constants/api_config.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/media_actions.dart';
 import '../../../core/utils/youtube_utils.dart';
 import '../../../data/models/content_models.dart';
 import '../../../data/services/content_service.dart';
@@ -72,18 +71,6 @@ class _GalleryImagesScreenState extends State<GalleryImagesScreen>
           title: item.title,
         ),
       ),
-    );
-  }
-
-  Future<void> _download(GalleryImageItem item) async {
-    final rawUrl = ApiConfig.galleryImage(item.imageFilename);
-    if (rawUrl.isEmpty) return;
-    final safeTitle = item.title.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
-    await MediaActions.downloadImage(
-      context,
-      rawUrl,
-      name:
-          '${safeTitle}_${item.id}_${DateTime.now().millisecondsSinceEpoch}.jpg',
     );
   }
 
@@ -160,7 +147,6 @@ class _GalleryImagesScreenState extends State<GalleryImagesScreen>
                             displayUrl: displayUrl,
                             title: item.title,
                             onPreviewTap: () => _openFullscreen(item),
-                            onDownloadTap: () => _download(item),
                           );
                         },
                         childCount: items.length,
@@ -181,13 +167,11 @@ class _GalleryImageTile extends StatelessWidget {
     required this.displayUrl,
     required this.title,
     required this.onPreviewTap,
-    required this.onDownloadTap,
   });
 
   final String displayUrl;
   final String title;
   final VoidCallback onPreviewTap;
-  final VoidCallback onDownloadTap;
 
   @override
   Widget build(BuildContext context) {
@@ -198,85 +182,59 @@ class _GalleryImageTile extends StatelessWidget {
         border: Border.all(color: Colors.white24),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Stack(
-        fit: StackFit.expand,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: onPreviewTap,
-                  child: displayUrl.isEmpty
-                      ? const Icon(Icons.image, color: Colors.white38)
-                      : CachedNetworkImage(
-                          imageUrl: displayUrl,
-                          fit: BoxFit.cover,
-                          errorWidget: (_, __, ___) => const Icon(
-                              Icons.broken_image,
-                              color: Colors.white38),
-                        ),
-                ),
-              ),
-              InkWell(
-                onTap: onPreviewTap,
-                child: Padding(
-                  padding: EdgeInsets.all(8.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          Expanded(
+            child: InkWell(
+              onTap: onPreviewTap,
+              child: displayUrl.isEmpty
+                  ? const Icon(Icons.image, color: Colors.white38)
+                  : CachedNetworkImage(
+                      imageUrl: displayUrl,
+                      fit: BoxFit.cover,
+                      errorWidget: (_, __, ___) =>
+                          const Icon(Icons.broken_image, color: Colors.white38),
+                    ),
+            ),
+          ),
+          InkWell(
+            onTap: onPreviewTap,
+            child: Padding(
+              padding: EdgeInsets.all(8.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Row(
                     children: [
-                      Text(
-                        title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      Icon(
+                        Icons.zoom_out_map_rounded,
+                        size: 12.sp,
+                        color: AppColors.goldLight,
                       ),
-                      SizedBox(height: 2.h),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.zoom_out_map_rounded,
-                            size: 12.sp,
-                            color: AppColors.goldLight,
-                          ),
-                          SizedBox(width: 4.w),
-                          Text(
-                            'Preview',
-                            style: TextStyle(
-                              color: AppColors.goldLight,
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                      SizedBox(width: 4.w),
+                      Text(
+                        'Preview',
+                        style: TextStyle(
+                          color: AppColors.goldLight,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ),
-            ],
-          ),
-          Positioned(
-            top: 6.w,
-            right: 6.w,
-            child: Material(
-              color: Colors.black54,
-              borderRadius: BorderRadius.circular(20),
-              child: InkWell(
-                onTap: onDownloadTap,
-                borderRadius: BorderRadius.circular(20),
-                child: Padding(
-                  padding: EdgeInsets.all(6.w),
-                  child: Icon(
-                    Icons.download_rounded,
-                    size: 16.sp,
-                    color: AppColors.goldLight,
-                  ),
-                ),
+                ],
               ),
             ),
           ),
@@ -321,20 +279,6 @@ class _GalleryFullscreenImageScreen extends StatelessWidget {
             },
             icon: const Icon(Icons.fullscreen_rounded, color: Colors.white),
           ),
-          IconButton(
-            tooltip: 'Download',
-            onPressed: () {
-              final safeTitle =
-                  title.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
-              MediaActions.downloadImage(
-                context,
-                imageUrl,
-                name:
-                    '${safeTitle}_${DateTime.now().millisecondsSinceEpoch}.jpg',
-              );
-            },
-            icon: const Icon(Icons.download_rounded, color: Colors.white),
-          ),
           SizedBox(width: 4.w),
         ],
       ),
@@ -377,42 +321,21 @@ class _GalleryFullscreenImageScreen extends StatelessWidget {
             color: Colors.black87,
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _GalleryActionButton(
-                    icon: Icons.fullscreen_rounded,
-                    label: 'Preview',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              _GalleryImmersiveViewer(imageUrl: imageUrl),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: _GalleryActionButton(
-                    icon: Icons.download_rounded,
-                    label: 'Download',
-                    highlighted: true,
-                    onTap: () {
-                      final safeTitle =
-                          title.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
-                      MediaActions.downloadImage(
-                        context,
-                        imageUrl,
-                        name:
-                            '${safeTitle}_${DateTime.now().millisecondsSinceEpoch}.jpg',
-                      );
-                    },
-                  ),
-                ),
-              ],
+            child: SizedBox(
+              width: double.infinity,
+              child: _GalleryActionButton(
+                icon: Icons.fullscreen_rounded,
+                label: 'Preview',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          _GalleryImmersiveViewer(imageUrl: imageUrl),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -614,19 +537,6 @@ class _GalleryVideosScreenState extends State<GalleryVideosScreen>
     );
   }
 
-  Future<void> _downloadThumbnail(GalleryVideoItem item) async {
-    final id = YoutubeUtils.extractVideoId(item.youtubeUrl);
-    if (id == null) return;
-    final thumbUrl = YoutubeUtils.thumbnailUrl(id);
-    if (thumbUrl.isEmpty) return;
-    final safeTitle = item.title.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
-    await MediaActions.downloadImage(
-      context,
-      thumbUrl,
-      name: '${safeTitle}_thumb_${DateTime.now().millisecondsSinceEpoch}.jpg',
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return PageBackground(
@@ -744,43 +654,6 @@ class _GalleryVideosScreenState extends State<GalleryVideosScreen>
                                           ),
                                         ),
                                       ],
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  right: 10.w,
-                                  bottom: 10.h,
-                                  child: Material(
-                                    color: Colors.black54,
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    child: InkWell(
-                                      onTap: () => _downloadThumbnail(item),
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8.w,
-                                          vertical: 4.h,
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.download_rounded,
-                                              color: AppColors.goldLight,
-                                              size: 14.sp,
-                                            ),
-                                            SizedBox(width: 4.w),
-                                            Text(
-                                              'Save Thumbnail',
-                                              style: TextStyle(
-                                                color: AppColors.goldLight,
-                                                fontSize: 11.sp,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
                                     ),
                                   ),
                                 ),
