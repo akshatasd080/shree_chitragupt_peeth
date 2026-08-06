@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../data/services/auth_service.dart';
+import '../../../shared/widgets/page_background.dart';
 import '../../auth/screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -100,7 +101,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return _PageBackground(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(18.w, 110.h, 18.w, 90.h),
+        padding: EdgeInsets.fromLTRB(
+          18.w,
+          PageBackground.floatingHeaderInset(context) + 12.h,
+          18.w,
+          90.h,
+        ),
         child: Column(
           children: [
             Container(

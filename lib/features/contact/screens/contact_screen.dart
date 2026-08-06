@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../shared/widgets/page_background.dart';
 
 class ContactScreen extends StatelessWidget {
   const ContactScreen({super.key});
@@ -123,8 +124,10 @@ class ContactScreen extends StatelessWidget {
             ),
           ),
         ),
-        SafeArea(
-          top: true,
+        Padding(
+          padding: EdgeInsets.only(
+            top: PageBackground.floatingHeaderInset(context),
+          ),
           child: SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(18.w, 10.h, 18.w, 115.h),
             child: Column(

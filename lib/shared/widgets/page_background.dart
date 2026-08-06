@@ -9,10 +9,19 @@ class PageBackground extends StatelessWidget {
     super.key,
     required this.child,
     this.imageAsset = 'assets/images/chitragupt_bhagwan.jpg',
+    this.padForFloatingHeader = true,
   });
 
   final Widget child;
   final String imageAsset;
+
+  /// Leaves room under the floating menu + logo overlay on tab screens.
+  final bool padForFloatingHeader;
+
+  /// Status bar + floating toolbar height used by the shell overlay.
+  static double floatingHeaderInset(BuildContext context) {
+    return MediaQuery.paddingOf(context).top + 52.h;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,24 +33,33 @@ class PageBackground extends StatelessWidget {
             child: Image.asset(imageAsset, fit: BoxFit.cover),
           ),
           Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.72)),
+            child: Container(color: Colors.black.withOpacity(0.58)),
           ),
           Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.saffron.withOpacity(0.55),
-                    Colors.black.withOpacity(0.18),
-                    Colors.black.withOpacity(0.92),
+                    AppColors.saffron.withOpacity(0.72),
+                    AppColors.saffron.withOpacity(0.28),
+                    Colors.black.withOpacity(0.35),
+                    Colors.black.withOpacity(0.9),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
+                  stops: const [0.0, 0.18, 0.45, 1.0],
                 ),
               ),
             ),
           ),
-          child,
+          Padding(
+            padding: EdgeInsets.only(
+              top: padForFloatingHeader
+                  ? floatingHeaderInset(context)
+                  : 0,
+            ),
+            child: child,
+          ),
         ],
       ),
     );

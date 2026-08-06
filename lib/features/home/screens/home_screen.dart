@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/constants/api_config.dart';
@@ -116,54 +117,69 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final safeIndex = _currentIndex.clamp(0, _pages.length - 1);
-    final title = AppDrawer.items[safeIndex].label;
 
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: const Color(0xFF090400),
-      drawer: AppDrawer(
-        selectedIndex: _currentIndex,
-        onSelect: _onSelect,
-        onLogout: _logout,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0D1B2A),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu_rounded, color: Colors.white),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: const Color(0xFF090400),
+        drawer: AppDrawer(
+          selectedIndex: safeIndex,
+          onSelect: _onSelect,
+          onLogout: _logout,
         ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 12.w),
-            child: ClipOval(
-              child: Image.asset(
-                'assets/images/logo.jpeg',
-                width: 34.w,
-                height: 34.w,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Icon(
-                  Icons.temple_hindu_rounded,
-                  color: Colors.white70,
-                  size: 26.sp,
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: IndexedStack(
+                index: safeIndex,
+                children: _pages,
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(4.w, 4.h, 12.w, 4.h),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.menu_rounded,
+                          color: Colors.white,
+                          size: 28.sp,
+                        ),
+                        onPressed: () =>
+                            _scaffoldKey.currentState?.openDrawer(),
+                      ),
+                      const Spacer(),
+                      ClipOval(
+                        child: Image.asset(
+                          'assets/images/logo.jpeg',
+                          width: 36.w,
+                          height: 36.w,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Icon(
+                            Icons.temple_hindu_rounded,
+                            color: Colors.white70,
+                            size: 28.sp,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
+          ],
+        ),
       ),
     );
   }
@@ -246,31 +262,26 @@ class _HomeTabState extends State<HomeTab> {
 
   @override
   Widget build(BuildContext context) {
+    final topInset = PageBackground.floatingHeaderInset(context);
+
     return PageBackground(
+      padForFloatingHeader: false,
       child: RefreshIndicator(
         color: AppColors.goldLight,
         onRefresh: _load,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(18.w, 16.h, 18.w, 40.h),
+          padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 36.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: topInset),
+
               if (_loading) const LoadingCard(),
               if (_error != null && !_loading)
                 EmptyStateCard(message: _error!, onRetry: _load),
 
-              // Hero slides from admin
-              if (!_loading) ...[
-                _HeroCarousel(
-                  slides: _slides,
-                  index: _slideIndex,
-                  onChanged: (i) => setState(() => _slideIndex = i),
-                ),
-                SizedBox(height: 20.h),
-              ],
-
-              // Intro (kept from existing design)
+              // Brand hero first — fills the top under menu / logo
               _HomeIntroCard(
                 isExpanded: _showKnowMore,
                 onKnowMoreTap: () {
@@ -283,15 +294,23 @@ class _HomeTabState extends State<HomeTab> {
                 curve: Curves.easeInOut,
                 child: _showKnowMore
                     ? Padding(
-                        padding: EdgeInsets.only(top: 16.h),
+                        padding: EdgeInsets.only(top: 14.h),
                         child: const _WhoIsChitraguptSection(),
                       )
                     : const SizedBox.shrink(),
               ),
 
-              // Daily thought
+              if (!_loading) ...[
+                SizedBox(height: 18.h),
+                _HeroCarousel(
+                  slides: _slides,
+                  index: _slideIndex,
+                  onChanged: (i) => setState(() => _slideIndex = i),
+                ),
+              ],
+
               if (_thought != null) ...[
-                SizedBox(height: 22.h),
+                SizedBox(height: 24.h),
                 const SectionTitle(
                   title: 'Daily Thought',
                   subtitle: 'आज का विचार',
@@ -300,26 +319,33 @@ class _HomeTabState extends State<HomeTab> {
                 SizedBox(height: 12.h),
                 _ThoughtCard(
                   thought: _thought!,
-                  onSeeAll: () => widget.onOpenDrawerItem(4),
+                  onSeeAll: () => widget.onOpenDrawerItem(6),
                 ),
               ],
 
-              // YouTube from admin
-              SizedBox(height: 22.h),
+              SizedBox(height: 24.h),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Expanded(
                     child: SectionTitle(
                       title: 'YouTube Videos',
-                      subtitle: 'From Admin Panel',
+                      subtitle: 'Latest darshan & pravachan',
                       icon: Icons.play_circle_rounded,
                     ),
                   ),
                   TextButton(
                     onPressed: () => widget.onOpenDrawerItem(1),
-                    child: const Text(
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.goldLight,
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    ),
+                    child: Text(
                       'See All',
-                      style: TextStyle(color: AppColors.goldLight),
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ],
@@ -331,7 +357,7 @@ class _HomeTabState extends State<HomeTab> {
                 )
               else
                 SizedBox(
-                  height: 190.h,
+                  height: 168.h,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: _videos.length,
@@ -350,22 +376,29 @@ class _HomeTabState extends State<HomeTab> {
                   ),
                 ),
 
-              // Poojas from admin
-              SizedBox(height: 22.h),
+              SizedBox(height: 24.h),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Expanded(
                     child: SectionTitle(
                       title: 'Pooja Seva',
-                      subtitle: 'Active poojas from Admin',
+                      subtitle: 'Book temple seva',
                       icon: Icons.temple_hindu_rounded,
                     ),
                   ),
                   TextButton(
                     onPressed: () => widget.onOpenDrawerItem(9),
-                    child: const Text(
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.goldLight,
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    ),
+                    child: Text(
                       'Book',
-                      style: TextStyle(color: AppColors.goldLight),
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ],
@@ -383,8 +416,7 @@ class _HomeTabState extends State<HomeTab> {
                       ),
                     ),
 
-              // Quick access to drawer sections
-              SizedBox(height: 22.h),
+              SizedBox(height: 24.h),
               const SectionTitle(
                 title: 'Quick Access',
                 subtitle: 'Open from menu',
@@ -397,7 +429,7 @@ class _HomeTabState extends State<HomeTab> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 12.w,
                 mainAxisSpacing: 12.h,
-                childAspectRatio: 1.35,
+                childAspectRatio: 1.45,
                 children: [
                   _QuickCard(
                     icon: Icons.event_rounded,
@@ -429,7 +461,7 @@ class _HomeTabState extends State<HomeTab> {
                 text:
                     'श्री वृन्दावन धाम की पावन भूमि पर स्थापित श्री चित्रगुप्त पीठ भगवान श्री चित्रगुप्त जी की महिमा, सनातन धर्म के संरक्षण एवं भारतीय वैदिक संस्कृति के वैश्विक प्रचार-प्रसार हेतु समर्पित एक दिव्य आध्यात्मिक संस्थान है।',
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: 16.h),
               const _FooterSection(),
             ],
           ),
@@ -454,14 +486,17 @@ class _HeroCarousel extends StatelessWidget {
   Widget build(BuildContext context) {
     if (slides.isEmpty) {
       return Container(
-        height: 190.h,
+        height: 168.h,
         width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22.r),
-          gradient: LinearGradient(
+          borderRadius: BorderRadius.circular(20.r),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
-              AppColors.saffron.withOpacity(0.9),
-              AppColors.gold.withOpacity(0.7),
+              Color(0xFFFF7A2F),
+              Color(0xFFC9960C),
+              Color(0xFF5A1A00),
             ],
           ),
         ),
@@ -473,7 +508,7 @@ class _HeroCarousel extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 22.sp,
+              fontSize: 20.sp,
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -487,9 +522,9 @@ class _HeroCarousel extends StatelessWidget {
     return Column(
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.circular(22.r),
+          borderRadius: BorderRadius.circular(20.r),
           child: SizedBox(
-            height: 200.h,
+            height: 188.h,
             width: double.infinity,
             child: Stack(
               fit: StackFit.expand,
@@ -504,31 +539,34 @@ class _HeroCarousel extends StatelessWidget {
                   )
                 else
                   Container(color: AppColors.saffron),
-                Container(
+                DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.15),
-                        Colors.black.withOpacity(0.75),
+                        Colors.black.withOpacity(0.05),
+                        Colors.black.withOpacity(0.55),
                       ],
                     ),
                   ),
                 ),
                 Positioned(
-                  left: 16.w,
-                  right: 16.w,
-                  bottom: 16.h,
+                  left: 14.w,
+                  right: 14.w,
+                  bottom: 14.h,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         slide.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 18.sp,
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.w900,
+                          height: 1.25,
                         ),
                       ),
                       if ((slide.subtitle ?? '').isNotEmpty) ...[
@@ -538,8 +576,9 @@ class _HeroCarousel extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13.sp,
+                            color: Colors.white.withOpacity(0.85),
+                            fontSize: 12.sp,
+                            height: 1.3,
                           ),
                         ),
                       ],
@@ -549,23 +588,24 @@ class _HeroCarousel extends StatelessWidget {
                 if (slides.length > 1) ...[
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      onPressed: () {
-                        final next = index == 0 ? slides.length - 1 : index - 1;
+                    child: _CarouselArrow(
+                      icon: Icons.chevron_left_rounded,
+                      onTap: () {
+                        final next =
+                            index == 0 ? slides.length - 1 : index - 1;
                         onChanged(next);
                       },
-                      icon: const Icon(Icons.chevron_left, color: Colors.white),
                     ),
                   ),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: IconButton(
-                      onPressed: () {
-                        final next = index == slides.length - 1 ? 0 : index + 1;
+                    child: _CarouselArrow(
+                      icon: Icons.chevron_right_rounded,
+                      onTap: () {
+                        final next =
+                            index == slides.length - 1 ? 0 : index + 1;
                         onChanged(next);
                       },
-                      icon:
-                          const Icon(Icons.chevron_right, color: Colors.white),
                     ),
                   ),
                 ],
@@ -578,12 +618,14 @@ class _HeroCarousel extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(slides.length, (i) {
-              return Container(
-                width: i == index ? 18.w : 8.w,
-                height: 8.h,
+              final active = i == index;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                width: active ? 18.w : 7.w,
+                height: 7.h,
                 margin: EdgeInsets.symmetric(horizontal: 3.w),
                 decoration: BoxDecoration(
-                  color: i == index
+                  color: active
                       ? AppColors.goldLight
                       : Colors.white.withOpacity(0.35),
                   borderRadius: BorderRadius.circular(20.r),
@@ -593,6 +635,33 @@ class _HeroCarousel extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _CarouselArrow extends StatelessWidget {
+  const _CarouselArrow({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 6.w),
+      child: Material(
+        color: Colors.black.withOpacity(0.28),
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: SizedBox(
+            width: 34.w,
+            height: 34.w,
+            child: Icon(icon, color: Colors.white, size: 22.sp),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -612,16 +681,27 @@ class _HomeIntroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.fromLTRB(18.w, 20.h, 18.w, 18.h),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24.r),
-        gradient: LinearGradient(
+        borderRadius: BorderRadius.circular(22.r),
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [
-            AppColors.saffron.withOpacity(0.94),
-            AppColors.gold.withOpacity(0.74),
-            const Color(0xFF4A1600).withOpacity(0.92),
+            Color(0xFFFF8A2B),
+            Color(0xFFFF6B1A),
+            Color(0xFFB84A08),
+            Color(0xFF4A1600),
           ],
+          stops: [0.0, 0.35, 0.7, 1.0],
         ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFFF6B1A).withOpacity(0.28),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -630,18 +710,19 @@ class _HomeIntroCard extends StatelessWidget {
             'श्री चित्रगुप्त पीठ वृंदावन',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 24.sp,
+              fontSize: 22.sp,
               fontWeight: FontWeight.w900,
+              height: 1.25,
             ),
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 8.h),
           Text(
             'भगवान श्री चित्रगुप्त जी की विश्व की प्रथम दिव्य पीठ',
             style: TextStyle(
-              color: Colors.white,
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w700,
-              height: 1.4,
+              color: Colors.white.withOpacity(0.95),
+              fontSize: 13.sp,
+              fontWeight: FontWeight.w600,
+              height: 1.45,
             ),
           ),
           SizedBox(height: 16.h),
@@ -684,23 +765,28 @@ class _HeroButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 48.h,
+      height: 46.h,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: filled ? Colors.white : Colors.transparent,
-          side: BorderSide(color: Colors.white.withOpacity(0.9), width: 1.4),
+          shadowColor: Colors.transparent,
+          side: BorderSide(
+            color: Colors.white.withOpacity(filled ? 0 : 0.9),
+            width: 1.3,
+          ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(12.r),
           ),
         ),
         onPressed: onTap,
         child: Text(
           text,
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: filled ? AppColors.saffron : Colors.white,
             fontSize: 12.sp,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ),
@@ -718,10 +804,11 @@ class _ThoughtCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF6DD).withOpacity(0.95),
+        color: const Color(0xFFFFF8E8),
         borderRadius: BorderRadius.circular(18.r),
+        border: Border.all(color: Colors.white.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -741,9 +828,16 @@ class _ThoughtCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: onSeeAll,
-              child: const Text(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.saffron,
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
+              ),
+              child: Text(
                 'View All',
-                style: TextStyle(color: AppColors.saffron),
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
@@ -770,7 +864,7 @@ class _HomeVideoTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16.r),
       child: SizedBox(
-        width: 220.w,
+        width: 200.w,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -781,21 +875,29 @@ class _HomeVideoTile extends StatelessWidget {
                 children: [
                   if (thumbnailUrl.isEmpty)
                     Container(
-                      height: 120.h,
-                      width: 220.w,
+                      height: 112.h,
+                      width: 200.w,
                       color: Colors.white12,
                     )
                   else
                     CachedNetworkImage(
                       imageUrl: thumbnailUrl,
-                      height: 120.h,
-                      width: 220.w,
+                      height: 112.h,
+                      width: 200.w,
                       fit: BoxFit.cover,
                     ),
-                  Icon(
-                    Icons.play_circle_fill_rounded,
-                    color: Colors.white.withOpacity(0.92),
-                    size: 42.sp,
+                  Container(
+                    width: 40.w,
+                    height: 40.w,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.35),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.play_arrow_rounded,
+                      color: Colors.white.withOpacity(0.95),
+                      size: 26.sp,
+                    ),
                   ),
                 ],
               ),
@@ -807,8 +909,9 @@ class _HomeVideoTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 13.sp,
+                fontSize: 12.5.sp,
                 fontWeight: FontWeight.w700,
+                height: 1.3,
               ),
             ),
           ],
