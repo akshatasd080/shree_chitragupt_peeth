@@ -281,7 +281,18 @@ class _HomeTabState extends State<HomeTab> {
               if (_error != null && !_loading)
                 EmptyStateCard(message: _error!, onRetry: _load),
 
-              // Brand hero first — fills the top under menu / logo
+              // HREP / hero carousel first
+              if (!_loading) ...[
+                SizedBox(height: 18.h),
+                _HeroCarousel(
+                  slides: _slides,
+                  index: _slideIndex,
+                  onChanged: (i) => setState(() => _slideIndex = i),
+                ),
+              ],
+
+              // Brand intro with Know More button
+              SizedBox(height: 18.h),
               _HomeIntroCard(
                 isExpanded: _showKnowMore,
                 onKnowMoreTap: () {
@@ -300,15 +311,55 @@ class _HomeTabState extends State<HomeTab> {
                     : const SizedBox.shrink(),
               ),
 
-              if (!_loading) ...[
-                SizedBox(height: 18.h),
-                _HeroCarousel(
-                  slides: _slides,
-                  index: _slideIndex,
-                  onChanged: (i) => setState(() => _slideIndex = i),
-                ),
-              ],
+              // About Us section
+              SizedBox(height: 24.h),
+              const _CreamSection(
+                label: 'ABOUT US',
+                title: 'श्री चित्रगुप्त पीठ',
+                text:
+                    'श्री वृन्दावन धाम की पावन भूमि पर स्थापित श्री चित्रगुप्त पीठ भगवान श्री चित्रगुप्त जी की महिमा, सनातन धर्म के संरक्षण एवं भारतीय वैदिक संस्कृति के वैश्विक प्रचार-प्रसार हेतु समर्पित एक दिव्य आध्यात्मिक संस्थान है।',
+              ),
 
+              // Quick Access
+              SizedBox(height: 16.h),
+              const SectionTitle(
+                title: 'Quick Access',
+                subtitle: 'Open from menu',
+                icon: Icons.grid_view_rounded,
+              ),
+              SizedBox(height: 12.h),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 12.w,
+                mainAxisSpacing: 12.h,
+                childAspectRatio: 1.45,
+                children: [
+                  _QuickCard(
+                    icon: Icons.event_rounded,
+                    title: 'Events',
+                    onTap: () => widget.onOpenDrawerItem(5),
+                  ),
+                  _QuickCard(
+                    icon: Icons.photo_library_outlined,
+                    title: 'Gallery',
+                    onTap: () => widget.onOpenDrawerItem(11),
+                  ),
+                  _QuickCard(
+                    icon: Icons.volunteer_activism_rounded,
+                    title: 'Donation',
+                    onTap: () => widget.onOpenDrawerItem(10),
+                  ),
+                  _QuickCard(
+                    icon: Icons.person_add_alt_1_rounded,
+                    title: 'Member',
+                    onTap: () => widget.onOpenDrawerItem(8),
+                  ),
+                ],
+              ),
+
+              // Daily Thought
               if (_thought != null) ...[
                 SizedBox(height: 24.h),
                 const SectionTitle(
@@ -323,6 +374,48 @@ class _HomeTabState extends State<HomeTab> {
                 ),
               ],
 
+              // Pooja Seva
+              SizedBox(height: 24.h),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Expanded(
+                    child: SectionTitle(
+                      title: 'Pooja Seva',
+                      subtitle: 'Book temple seva',
+                      icon: Icons.temple_hindu_rounded,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => widget.onOpenDrawerItem(9),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.goldLight,
+                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                    ),
+                    child: Text(
+                      'Book',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10.h),
+              if (_poojas.isEmpty)
+                const EmptyStateCard(
+                  message: 'No poojas available yet.',
+                )
+              else
+                ..._poojas.take(4).map(
+                      (p) => Padding(
+                        padding: EdgeInsets.only(bottom: 10.h),
+                        child: _PoojaTile(pooja: p),
+                      ),
+                    ),
+
+              // YouTube Videos (last)
               SizedBox(height: 24.h),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,91 +469,6 @@ class _HomeTabState extends State<HomeTab> {
                   ),
                 ),
 
-              SizedBox(height: 24.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Expanded(
-                    child: SectionTitle(
-                      title: 'Pooja Seva',
-                      subtitle: 'Book temple seva',
-                      icon: Icons.temple_hindu_rounded,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => widget.onOpenDrawerItem(9),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.goldLight,
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    ),
-                    child: Text(
-                      'Book',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10.h),
-              if (_poojas.isEmpty)
-                const EmptyStateCard(
-                  message: 'No poojas available yet.',
-                )
-              else
-                ..._poojas.take(4).map(
-                      (p) => Padding(
-                        padding: EdgeInsets.only(bottom: 10.h),
-                        child: _PoojaTile(pooja: p),
-                      ),
-                    ),
-
-              SizedBox(height: 24.h),
-              const SectionTitle(
-                title: 'Quick Access',
-                subtitle: 'Open from menu',
-                icon: Icons.grid_view_rounded,
-              ),
-              SizedBox(height: 12.h),
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 12.w,
-                mainAxisSpacing: 12.h,
-                childAspectRatio: 1.45,
-                children: [
-                  _QuickCard(
-                    icon: Icons.event_rounded,
-                    title: 'Events',
-                    onTap: () => widget.onOpenDrawerItem(5),
-                  ),
-                  _QuickCard(
-                    icon: Icons.photo_library_outlined,
-                    title: 'Gallery',
-                    onTap: () => widget.onOpenDrawerItem(11),
-                  ),
-                  _QuickCard(
-                    icon: Icons.volunteer_activism_rounded,
-                    title: 'Donation',
-                    onTap: () => widget.onOpenDrawerItem(10),
-                  ),
-                  _QuickCard(
-                    icon: Icons.person_add_alt_1_rounded,
-                    title: 'Member',
-                    onTap: () => widget.onOpenDrawerItem(8),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 24.h),
-              const _CreamSection(
-                label: 'ABOUT US',
-                title: 'श्री चित्रगुप्त पीठ',
-                text:
-                    'श्री वृन्दावन धाम की पावन भूमि पर स्थापित श्री चित्रगुप्त पीठ भगवान श्री चित्रगुप्त जी की महिमा, सनातन धर्म के संरक्षण एवं भारतीय वैदिक संस्कृति के वैश्विक प्रचार-प्रसार हेतु समर्पित एक दिव्य आध्यात्मिक संस्थान है।',
-              ),
               SizedBox(height: 16.h),
               const _FooterSection(),
             ],

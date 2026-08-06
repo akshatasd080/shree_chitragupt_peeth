@@ -79,23 +79,29 @@ class _DonationScreenState extends State<DonationScreen> {
           Wrap(
             spacing: 8.w,
             runSpacing: 8.h,
-            children: _presets
-                .map(
-                  (p) => ChoiceChip(
-                    label: Text('₹$p'),
-                    selected: _amount.text == '$p',
-                    selectedColor: AppColors.saffron,
-                    labelStyle: TextStyle(
-                      color: _amount.text == '$p'
-                          ? Colors.white
-                          : Colors.white70,
-                    ),
-                    backgroundColor: Colors.white12,
-                    onSelected: (_) =>
-                        setState(() => _amount.text = '$p'),
-                  ),
-                )
-                .toList(),
+            children: _presets.map((p) {
+              final selected = _amount.text == '$p';
+              return ChoiceChip(
+                label: Text('₹$p'),
+                selected: selected,
+                showCheckmark: true,
+                checkmarkColor: Colors.white,
+                labelStyle: TextStyle(
+                  color: selected ? Colors.white : AppColors.dark,
+                  fontWeight: FontWeight.w700,
+                ),
+                side: BorderSide(
+                  color: selected ? AppColors.saffron : Colors.white54,
+                ),
+                color: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return AppColors.saffron;
+                  }
+                  return Colors.white;
+                }),
+                onSelected: (_) => setState(() => _amount.text = '$p'),
+              );
+            }).toList(),
           ),
           SizedBox(height: 16.h),
           Container(
