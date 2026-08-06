@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,20 +16,86 @@ class NewsLinksScreen extends StatefulWidget {
   State<NewsLinksScreen> createState() => _NewsLinksScreenState();
 }
 
-class _NewsLinksScreenState extends State<NewsLinksScreen> {
+class _NewsLinksScreenState extends State<NewsLinksScreen>
+    with WidgetsBindingObserver {
   final _service = ContentService();
   late Future<List<NewsLinkItem>> _future;
+
+  Timer? _pollTimer;
+  bool _isResumed = true;
+
+  static const _pollInterval = Duration(seconds: 30);
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _future = _service.fetchNewsLinks();
+    _startPolling();
   }
 
-  Future<void> _reload() async {
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _stopPolling();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _isResumed = state == AppLifecycleState.resumed;
+    if (_isResumed) {
+      reload();
+      _startPolling();
+    } else {
+      _stopPolling();
+    }
+  }
+
+  void _startPolling() {
+    _stopPolling();
+    _pollTimer = Timer.periodic(_pollInterval, (_) {
+      if (mounted && _isResumed) {
+        _backgroundRefresh();
+      }
+    });
+  }
+
+  void _stopPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = null;
+  }
+
+  Future<void> _backgroundRefresh() async {
+    try {
+      final fresh = await _service.fetchNewsLinks();
+      if (!mounted) return;
+      final current = await _future;
+      final changed = _listsDiffer(current, fresh);
+      if (changed) {
+        setState(() => _future = Future.value(fresh));
+      }
+    } catch (_) {}
+  }
+
+  static bool _listsDiffer(List<NewsLinkItem> a, List<NewsLinkItem> b) {
+    if (a.length != b.length) return true;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].id != b[i].id ||
+          a[i].title != b[i].title ||
+          a[i].url != b[i].url) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<void> reload() async {
     setState(() => _future = _service.fetchNewsLinks());
     await _future;
   }
+
+  Future<void> _reload() => reload();
 
   Future<void> _open(String url) async {
     final uri = Uri.tryParse(url);
@@ -73,10 +141,36 @@ class _NewsLinksScreenState extends State<NewsLinksScreen> {
                 if (index == 0) {
                   return Padding(
                     padding: EdgeInsets.only(bottom: 16.h),
-                    child: const SectionTitle(
-                      title: 'News Links',
-                      subtitle: 'Latest news & media links',
-                      icon: Icons.link_rounded,
+                    child: Row(
+                      children: [
+                        const Expanded(
+                          child: SectionTitle(
+                            title: 'News Links',
+                            subtitle: 'Latest news & media links',
+                            icon: Icons.link_rounded,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 12.h),
+                          child: Icon(
+                            Icons.sync_rounded,
+                            size: 18.sp,
+                            color: AppColors.goldLight.withOpacity(0.8),
+                          ),
+                        ),
+                        SizedBox(width: 4.w),
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 12.h),
+                          child: Text(
+                            'Auto-refresh',
+                            style: TextStyle(
+                              color: Colors.white60,
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 }

@@ -5,9 +5,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 /// Central API configuration
 class ApiConfig {
   ApiConfig._();
-  
+
   /// PC ka LAN IP (Real Android Device ke liye)
-  static const String customBaseUrl = 'http://192.168.1.39:3004/api';
+  static const String customBaseUrl = 'http://192.168.1.11:3004/api';
 
   static String get baseUrl {
     // Agar customBaseUrl diya hua hai to wahi use hoga
@@ -47,6 +47,12 @@ class ApiConfig {
   static const String donations = '/donations';
   static const String spiritualResources = '/spiritual-resources';
 
+  // ---------------- Auth Endpoints ----------------
+
+  static const String authLogin = '/auth/login';
+  static const String authRegister = '/auth/register';
+  static const String authMe = '/auth/me';
+
   // ---------------- Upload URLs ----------------
 
   static String uploadUrl(String folder, String? filename) {
@@ -54,23 +60,19 @@ class ApiConfig {
     return '$baseUrl/uploads/$folder/$filename';
   }
 
-  static String heroImage(String? filename) =>
-      uploadUrl('hero', filename);
+  static String heroImage(String? filename) => uploadUrl('hero', filename);
 
-  static String poojaImage(String? filename) =>
-      uploadUrl('pooja', filename);
+  static String poojaImage(String? filename) => uploadUrl('pooja', filename);
 
   static String thoughtImage(String? filename) =>
       uploadUrl('thoughts', filename);
 
-  static String newsImage(String? filename) =>
-      uploadUrl('news', filename);
+  static String newsImage(String? filename) => uploadUrl('news', filename);
 
   static String newsVideo(String? filename) =>
       uploadUrl('news-videos', filename);
 
-  static String eventImage(String? filename) =>
-      uploadUrl('events', filename);
+  static String eventImage(String? filename) => uploadUrl('events', filename);
 
   static String galleryImage(String? filename) =>
       uploadUrl('gallery', filename);

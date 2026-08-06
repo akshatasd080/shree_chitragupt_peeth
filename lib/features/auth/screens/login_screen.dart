@@ -2,9 +2,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/network/api_client.dart';
+import '../../../data/services/auth_service.dart';
 import '../../home/screens/home_screen.dart';
 import 'signup_screen.dart';
 
@@ -17,9 +18,16 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _mobileController = TextEditingController();
+  final _identifierController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  bool _hidePassword = true;
+  bool _isLoggingIn = false;
+
+  final AuthService _authService = AuthService();
 
   late AnimationController _glowController;
   late Animation<double> _glowAnimation;
@@ -53,26 +61,54 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   void dispose() {
     _glowController.dispose();
     _flickerController.dispose();
-    _mobileController.dispose();
+    _identifierController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
-  Future<void> _goToHome() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
-  }
-
   void _login() async {
-    if (_formKey.currentState!.validate()) {
+    if (_isLoggingIn) return;
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoggingIn = true);
+
+    try {
+      await _authService.login(
+        identifier: _identifierController.text,
+        password: _passwordController.text,
+      );
+
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login Successful')),
       );
-      await _goToHome();
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: Colors.redAccent,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login failed: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoggingIn = false);
     }
   }
 
@@ -93,7 +129,8 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
               animation: _flickerAnimation,
               builder: (context, child) {
                 return Container(
-                  color: Colors.black.withOpacity(0.65 * _flickerAnimation.value),
+                  color:
+                      Colors.black.withOpacity(0.65 * _flickerAnimation.value),
                 );
               },
             ),
@@ -176,21 +213,51 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         child: Column(
                           children: [
                             _LoginField(
-                              controller: _mobileController,
-                              hint: 'Mobile Number',
-                              icon: Icons.phone_outlined,
-                              keyboardType: TextInputType.phone,
-                              maxLength: 10,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(10),
-                              ],
+                              controller: _identifierController,
+                              hint: 'Email or Mobile Number',
+                              icon: Icons.person_outline,
+                              keyboardType: TextInputType.text,
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'Please enter mobile number';
+                                  return 'Please enter email or mobile';
                                 }
-                                if (value.trim().length != 10) {
+                                final trimmed = value.trim();
+                                final isDigitsOnly =
+                                    RegExp(r'^\d+$').hasMatch(trimmed);
+                                if (isDigitsOnly && trimmed.length != 10) {
                                   return 'Mobile number must be 10 digits';
+                                }
+                                if (!isDigitsOnly && !trimmed.contains('@')) {
+                                  return 'Enter valid email or 10-digit mobile';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 18.h),
+                            _LoginField(
+                              controller: _passwordController,
+                              hint: 'Password',
+                              icon: Icons.lock_outline,
+                              obscureText: _hidePassword,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _hidePassword
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: AppColors.goldLight,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _hidePassword = !_hidePassword;
+                                  });
+                                },
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter password';
+                                }
+                                if (value.length < 8) {
+                                  return 'Password must be at least 8 characters';
                                 }
                                 return null;
                               },
@@ -200,18 +267,27 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                               width: double.infinity,
                               height: 56.h,
                               child: ElevatedButton(
-                                onPressed: _login,
+                                onPressed: _isLoggingIn ? null : _login,
                                 style: ElevatedButton.styleFrom(
                                   elevation: 8,
                                   shadowColor: AppColors.gold.withOpacity(0.5),
                                 ),
-                                child: Text(
-                                  'Enter',
-                                  style: TextStyle(
-                                    fontSize: 18.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                child: _isLoggingIn
+                                    ? const SizedBox(
+                                        height: 22,
+                                        width: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : Text(
+                                        'Login',
+                                        style: TextStyle(
+                                          fontSize: 18.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
                             ),
                             SizedBox(height: 16.h),
@@ -363,6 +439,8 @@ class _LoginField extends StatelessWidget {
     this.validator,
     this.inputFormatters,
     this.maxLength,
+    this.obscureText = false,
+    this.suffixIcon,
   });
 
   final TextEditingController controller;
@@ -372,6 +450,8 @@ class _LoginField extends StatelessWidget {
   final String? Function(String?)? validator;
   final List<TextInputFormatter>? inputFormatters;
   final int? maxLength;
+  final bool obscureText;
+  final Widget? suffixIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -381,6 +461,7 @@ class _LoginField extends StatelessWidget {
       validator: validator,
       inputFormatters: inputFormatters,
       maxLength: maxLength,
+      obscureText: obscureText,
       style: const TextStyle(color: Colors.white),
       cursorColor: AppColors.goldLight,
       decoration: InputDecoration(
@@ -391,6 +472,7 @@ class _LoginField extends StatelessWidget {
           icon,
           color: AppColors.goldLight,
         ),
+        suffixIcon: suffixIcon,
         filled: true,
         fillColor: Colors.white.withOpacity(0.1),
         errorStyle: const TextStyle(color: Colors.redAccent),

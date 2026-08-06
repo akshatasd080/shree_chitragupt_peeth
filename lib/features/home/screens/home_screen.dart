@@ -16,7 +16,9 @@ import '../../donation/screens/donation_screen.dart';
 import '../../events/screens/events_screen.dart';
 import '../../gallery/screens/gallery_screens.dart';
 import '../../member/screens/member_screen.dart';
+import '../../news/screens/news_images_screen.dart';
 import '../../news/screens/news_links_screen.dart';
+import '../../news/screens/news_videos_screen.dart';
 import '../../pooja/screens/pooja_booking_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 import '../../videos/screens/videos_screen.dart';
@@ -32,24 +34,66 @@ class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _currentIndex = 0;
 
-  late final List<Widget> _pages = [
-    HomeTab(onOpenDrawerItem: _onSelect),
-    const VideosScreen(),
-    const NewsLinksScreen(),
-    const EventsScreen(),
-    const DailyThoughtScreen(),
-    const ContactScreen(),
-    const MemberScreen(),
-    const PoojaBookingScreen(),
-    const DonationScreen(),
-    const GalleryImagesScreen(),
-    const GalleryVideosScreen(),
-    const AartiScreen(),
-    const ProfileScreen(),
-  ];
+  final _newsImagesKey = GlobalKey(debugLabel: 'news_images');
+  final _newsVideosKey = GlobalKey(debugLabel: 'news_videos');
+  final _newsLinksKey = GlobalKey(debugLabel: 'news_links');
+  final _galleryImagesKey = GlobalKey(debugLabel: 'gallery_images');
+  final _galleryVideosKey = GlobalKey(debugLabel: 'gallery_videos');
+
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      HomeTab(onOpenDrawerItem: _onSelect),
+      const VideosScreen(),
+      NewsImagesScreen(key: _newsImagesKey),
+      NewsVideosScreen(key: _newsVideosKey),
+      NewsLinksScreen(key: _newsLinksKey),
+      const EventsScreen(),
+      const DailyThoughtScreen(),
+      const ContactScreen(),
+      const MemberScreen(),
+      const PoojaBookingScreen(),
+      const DonationScreen(),
+      GalleryImagesScreen(key: _galleryImagesKey),
+      GalleryVideosScreen(key: _galleryVideosKey),
+      const AartiScreen(),
+      const ProfileScreen(),
+    ];
+  }
 
   void _onSelect(int index) {
     setState(() => _currentIndex = index);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      switch (index) {
+        case 2:
+          _callReload(_newsImagesKey);
+          break;
+        case 3:
+          _callReload(_newsVideosKey);
+          break;
+        case 4:
+          _callReload(_newsLinksKey);
+          break;
+        case 11:
+          _callReload(_galleryImagesKey);
+          break;
+        case 12:
+          _callReload(_galleryVideosKey);
+          break;
+      }
+    });
+  }
+
+  static void _callReload(GlobalKey key) {
+    final state = key.currentState;
+    if (state == null) return;
+    try {
+      // ignore: avoid_dynamic_calls
+      (state as dynamic).reload();
+    } catch (_) {}
   }
 
   @override
@@ -213,7 +257,7 @@ class _HomeTabState extends State<HomeTab> {
                 onKnowMoreTap: () {
                   setState(() => _showKnowMore = !_showKnowMore);
                 },
-                onContactTap: () => widget.onOpenDrawerItem(5),
+                onContactTap: () => widget.onOpenDrawerItem(7),
               ),
               AnimatedSize(
                 duration: const Duration(milliseconds: 350),
@@ -299,7 +343,7 @@ class _HomeTabState extends State<HomeTab> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () => widget.onOpenDrawerItem(7),
+                    onPressed: () => widget.onOpenDrawerItem(9),
                     child: const Text(
                       'Book',
                       style: TextStyle(color: AppColors.goldLight),
@@ -339,22 +383,22 @@ class _HomeTabState extends State<HomeTab> {
                   _QuickCard(
                     icon: Icons.event_rounded,
                     title: 'Events',
-                    onTap: () => widget.onOpenDrawerItem(3),
+                    onTap: () => widget.onOpenDrawerItem(5),
                   ),
                   _QuickCard(
                     icon: Icons.photo_library_outlined,
                     title: 'Gallery',
-                    onTap: () => widget.onOpenDrawerItem(9),
+                    onTap: () => widget.onOpenDrawerItem(11),
                   ),
                   _QuickCard(
                     icon: Icons.volunteer_activism_rounded,
                     title: 'Donation',
-                    onTap: () => widget.onOpenDrawerItem(8),
+                    onTap: () => widget.onOpenDrawerItem(10),
                   ),
                   _QuickCard(
                     icon: Icons.person_add_alt_1_rounded,
                     title: 'Member',
-                    onTap: () => widget.onOpenDrawerItem(6),
+                    onTap: () => widget.onOpenDrawerItem(8),
                   ),
                 ],
               ),
@@ -488,8 +532,7 @@ class _HeroCarousel extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: IconButton(
                       onPressed: () {
-                        final next =
-                            index == 0 ? slides.length - 1 : index - 1;
+                        final next = index == 0 ? slides.length - 1 : index - 1;
                         onChanged(next);
                       },
                       icon: const Icon(Icons.chevron_left, color: Colors.white),
@@ -499,8 +542,7 @@ class _HeroCarousel extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: IconButton(
                       onPressed: () {
-                        final next =
-                            index == slides.length - 1 ? 0 : index + 1;
+                        final next = index == slides.length - 1 ? 0 : index + 1;
                         onChanged(next);
                       },
                       icon:
@@ -781,7 +823,8 @@ class _PoojaTile extends StatelessWidget {
                     width: 64.w,
                     height: 64.w,
                     color: Colors.white12,
-                    child: const Icon(Icons.temple_hindu, color: Colors.white54),
+                    child:
+                        const Icon(Icons.temple_hindu, color: Colors.white54),
                   )
                 : CachedNetworkImage(
                     imageUrl: imageUrl,

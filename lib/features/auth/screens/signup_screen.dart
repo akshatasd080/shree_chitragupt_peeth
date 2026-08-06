@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../home/screens/home_screen.dart';
+import '../../../core/network/api_client.dart';
+import '../../../data/services/auth_service.dart';
 import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -29,11 +29,13 @@ class _SignupScreenState extends State<SignupScreen> {
 
   bool _hidePassword = true;
   bool _hideConfirmPassword = true;
+  bool _isSigningUp = false;
+
+  final AuthService _authService = AuthService();
 
   final RegExp _nameRegex = RegExp(r'^[a-zA-Z ]+$');
 
-  final RegExp _gmailRegex =
-      RegExp(r'^[a-zA-Z0-9._%+-]+@gmail\.com$');
+  final RegExp _gmailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@gmail\.com$');
 
   final List<String> _cities = [
     'Agra',
@@ -73,26 +75,59 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   Future<void> _signUp() async {
-    if (_formKey.currentState!.validate()) {
+    if (_isSigningUp) return;
+    if (!_formKey.currentState!.validate()) return;
 
-      final prefs = await SharedPreferences.getInstance();
+    setState(() => _isSigningUp = true);
 
-      await prefs.setBool('isLoggedIn', true);
+    try {
+      await _authService.registerOnly(
+        name: _nameController.text,
+        email: _emailController.text,
+        mobileNumber: _mobileController.text,
+        password: _passwordController.text,
+        confirmPassword: _confirmPasswordController.text,
+      );
 
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Signup Successful'),
+          content: Text('Signup Successful! Please login.'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.green,
         ),
       );
 
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+
+      if (!mounted) return;
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: Colors.redAccent,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Signup failed: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSigningUp = false);
     }
   }
 
@@ -171,10 +206,8 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-
       body: Stack(
         children: [
-
           /// Background
           Positioned.fill(
             child: Image.asset(
@@ -197,10 +230,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 horizontal: 24.w,
                 vertical: 24.h,
               ),
-
               child: Column(
                 children: [
-
                   /// Back Button
                   Align(
                     alignment: Alignment.centerLeft,
@@ -248,7 +279,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       horizontal: 20.w,
                       vertical: 28.h,
                     ),
-
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.40),
                       borderRadius: BorderRadius.circular(24.r),
@@ -256,27 +286,21 @@ class _SignupScreenState extends State<SignupScreen> {
                         color: AppColors.gold.withOpacity(0.60),
                       ),
                     ),
-
                     child: Form(
                       key: _formKey,
-
                       child: Column(
                         children: [
-
                           /// Name
                           TextFormField(
                             controller: _nameController,
                             keyboardType: TextInputType.name,
-
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
                                 RegExp(r'[a-zA-Z ]'),
                               ),
                             ],
-
                             validator: (value) {
-                              if (value == null ||
-                                  value.trim().isEmpty) {
+                              if (value == null || value.trim().isEmpty) {
                                 return 'Please enter full name';
                               }
 
@@ -288,13 +312,10 @@ class _SignupScreenState extends State<SignupScreen> {
 
                               return null;
                             },
-
                             style: const TextStyle(
                               color: Colors.white,
                             ),
-
                             cursorColor: AppColors.goldLight,
-
                             decoration: _inputDecoration(
                               hintText: 'Full Name',
                               icon: Icons.person_outline,
@@ -308,15 +329,12 @@ class _SignupScreenState extends State<SignupScreen> {
                             controller: _mobileController,
                             keyboardType: TextInputType.phone,
                             maxLength: 10,
-
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
                               LengthLimitingTextInputFormatter(10),
                             ],
-
                             validator: (value) {
-                              if (value == null ||
-                                  value.trim().isEmpty) {
+                              if (value == null || value.trim().isEmpty) {
                                 return 'Please enter mobile number';
                               }
 
@@ -326,13 +344,10 @@ class _SignupScreenState extends State<SignupScreen> {
 
                               return null;
                             },
-
                             style: const TextStyle(
                               color: Colors.white,
                             ),
-
                             cursorColor: AppColors.goldLight,
-
                             decoration: _inputDecoration(
                               hintText: 'Mobile Number',
                               icon: Icons.phone_outlined,
@@ -344,17 +359,13 @@ class _SignupScreenState extends State<SignupScreen> {
                           /// Email
                           TextFormField(
                             controller: _emailController,
-                            keyboardType:
-                                TextInputType.emailAddress,
-
+                            keyboardType: TextInputType.emailAddress,
                             validator: (value) {
-                              if (value == null ||
-                                  value.trim().isEmpty) {
+                              if (value == null || value.trim().isEmpty) {
                                 return '@gmail is required';
                               }
 
-                              if (!value.trim()
-                                  .contains('@gmail.com')) {
+                              if (!value.trim().contains('@gmail.com')) {
                                 return '@gmail is required';
                               }
 
@@ -366,13 +377,10 @@ class _SignupScreenState extends State<SignupScreen> {
 
                               return null;
                             },
-
                             style: const TextStyle(
                               color: Colors.white,
                             ),
-
                             cursorColor: AppColors.goldLight,
-
                             decoration: _inputDecoration(
                               hintText: 'Email',
                               icon: Icons.email_outlined,
@@ -385,38 +393,26 @@ class _SignupScreenState extends State<SignupScreen> {
                           DropdownButtonFormField<String>(
                             value: _selectedCity,
                             dropdownColor: Colors.black87,
-                            iconEnabledColor:
-                                AppColors.goldLight,
-
+                            iconEnabledColor: AppColors.goldLight,
                             style: const TextStyle(
                               color: Colors.white,
                             ),
-
                             decoration: _inputDecoration(
                               hintText: 'Select City',
-                              icon:
-                                  Icons.location_city_outlined,
+                              icon: Icons.location_city_outlined,
                             ),
-
                             items: _cities.map((city) {
                               return DropdownMenuItem<String>(
                                 value: city,
                                 child: Text(city),
                               );
                             }).toList(),
-
                             onChanged: (value) {
                               setState(() {
                                 _selectedCity = value;
                               });
                             },
-
                             validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty) {
-                                return 'Please select city';
-                              }
-
                               return null;
                             },
                           ),
@@ -427,44 +423,34 @@ class _SignupScreenState extends State<SignupScreen> {
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _hidePassword,
-
                             validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty) {
+                              if (value == null || value.isEmpty) {
                                 return 'Please enter password';
                               }
 
-                              if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
+                              if (value.length < 8) {
+                                return 'Password must be at least 8 characters';
                               }
 
                               return null;
                             },
-
                             style: const TextStyle(
                               color: Colors.white,
                             ),
-
                             cursorColor: AppColors.goldLight,
-
                             decoration: _inputDecoration(
                               hintText: 'Password',
                               icon: Icons.lock_outline,
-
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _hidePassword
-                                      ? Icons
-                                          .visibility_off_outlined
-                                      : Icons
-                                          .visibility_outlined,
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
                                   color: AppColors.goldLight,
                                 ),
-
                                 onPressed: () {
                                   setState(() {
-                                    _hidePassword =
-                                        !_hidePassword;
+                                    _hidePassword = !_hidePassword;
                                   });
                                 },
                               ),
@@ -475,46 +461,33 @@ class _SignupScreenState extends State<SignupScreen> {
 
                           /// Confirm Password
                           TextFormField(
-                            controller:
-                                _confirmPasswordController,
-                            obscureText:
-                                _hideConfirmPassword,
-
+                            controller: _confirmPasswordController,
+                            obscureText: _hideConfirmPassword,
                             validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty) {
+                              if (value == null || value.isEmpty) {
                                 return 'Please confirm password';
                               }
 
-                              if (value !=
-                                  _passwordController.text) {
+                              if (value != _passwordController.text) {
                                 return 'Password not same';
                               }
 
                               return null;
                             },
-
                             style: const TextStyle(
                               color: Colors.white,
                             ),
-
                             cursorColor: AppColors.goldLight,
-
                             decoration: _inputDecoration(
                               hintText: 'Confirm Password',
-                              icon:
-                                  Icons.lock_reset_outlined,
-
+                              icon: Icons.lock_reset_outlined,
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _hideConfirmPassword
-                                      ? Icons
-                                          .visibility_off_outlined
-                                      : Icons
-                                          .visibility_outlined,
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
                                   color: AppColors.goldLight,
                                 ),
-
                                 onPressed: () {
                                   setState(() {
                                     _hideConfirmPassword =
@@ -531,30 +504,33 @@ class _SignupScreenState extends State<SignupScreen> {
                           SizedBox(
                             width: double.infinity,
                             height: 56.h,
-
                             child: ElevatedButton(
-                              onPressed: _signUp,
-
+                              onPressed: _isSigningUp ? null : _signUp,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    AppColors.saffron,
-
+                                backgroundColor: AppColors.saffron,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(
+                                  borderRadius: BorderRadius.circular(
                                     14.r,
                                   ),
                                 ),
                               ),
-
-                              child: Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
+                              child: _isSigningUp
+                                  ? const SizedBox(
+                                      height: 22,
+                                      width: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Sign Up',
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                             ),
                           ),
 
@@ -563,12 +539,10 @@ class _SignupScreenState extends State<SignupScreen> {
                           /// Login Button
                           TextButton(
                             onPressed: _goToLogin,
-
                             child: Text(
                               'Already have an account? Login',
                               style: TextStyle(
-                                color: Colors.white
-                                    .withOpacity(0.90),
+                                color: Colors.white.withOpacity(0.90),
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w700,
                               ),

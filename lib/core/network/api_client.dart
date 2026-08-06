@@ -25,8 +25,17 @@ class ApiClient {
         ? ApiConfig.baseUrl.substring(0, ApiConfig.baseUrl.length - 1)
         : ApiConfig.baseUrl;
     final normalized = path.startsWith('/') ? path : '/$path';
-    return Uri.parse('$base$normalized').replace(queryParameters: query);
+    final params = Map<String, String>.from(query ?? {});
+    params['_t'] = DateTime.now().millisecondsSinceEpoch.toString();
+    return Uri.parse('$base$normalized').replace(queryParameters: params);
   }
+
+  static const Map<String, String> _noCacheHeaders = {
+    'Accept': 'application/json',
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+  };
 
   Future<Map<String, dynamic>> get(
     String path, {
@@ -36,7 +45,7 @@ class ApiClient {
       final response = await _client
           .get(
             _uri(path, query),
-            headers: const {'Accept': 'application/json'},
+            headers: _noCacheHeaders,
           )
           .timeout(const Duration(seconds: 25));
 

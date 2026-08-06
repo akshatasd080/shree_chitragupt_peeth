@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../data/services/auth_service.dart';
 import '../../auth/screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -23,6 +23,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   bool isLoggingOut = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = await AuthService.getSavedUser();
+    if (!mounted) return;
+    setState(() {
+      final rawName = user['name'] ?? '';
+      final rawEmail = user['email'] ?? '';
+      final rawMobile = user['mobile'] ?? '';
+
+      name = rawName.isNotEmpty ? rawName : 'Guest User';
+      email = rawEmail.isNotEmpty ? rawEmail : 'user@example.com';
+      if (rawMobile.isNotEmpty && rawMobile.length == 10) {
+        mobile = '+91 ${rawMobile.substring(0, 5)} ${rawMobile.substring(5)}';
+      } else if (rawMobile.isNotEmpty) {
+        mobile = rawMobile;
+      }
+    });
+  }
+
   Future<void> _logout() async {
     if (isLoggingOut) return;
 
@@ -30,8 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       isLoggingOut = true;
     });
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', false);
+    await AuthService.clearAuthData();
 
     try {
       await FirebaseAuth.instance.signOut();

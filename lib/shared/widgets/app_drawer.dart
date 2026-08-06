@@ -18,15 +18,19 @@ class AppDrawer extends StatelessWidget {
   static const List<DrawerItemData> items = [
     DrawerItemData(label: 'Home', icon: Icons.home_rounded),
     DrawerItemData(label: 'YouTube Videos', icon: Icons.play_circle_outline),
-    DrawerItemData(label: 'News Links', icon: Icons.person_outline_rounded),
-    DrawerItemData(label: 'Events', icon: Icons.apartment_rounded),
-    DrawerItemData(label: 'Daily Thought', icon: Icons.account_circle_outlined),
+    DrawerItemData(label: 'News Images', icon: Icons.photo_outlined),
+    DrawerItemData(label: 'News Videos', icon: Icons.videocam_outlined),
+    DrawerItemData(label: 'News Links', icon: Icons.link_rounded),
+    DrawerItemData(label: 'Events', icon: Icons.event_rounded),
+    DrawerItemData(
+        label: 'Daily Thought', icon: Icons.lightbulb_outline_rounded),
     DrawerItemData(label: 'Contact', icon: Icons.phone_in_talk_rounded),
     DrawerItemData(label: 'Member', icon: Icons.person_add_alt_1_rounded),
-    DrawerItemData(label: 'Pooja Booking', icon: Icons.upload_rounded),
+    DrawerItemData(label: 'Pooja Booking', icon: Icons.temple_hindu_rounded),
     DrawerItemData(label: 'Donation', icon: Icons.volunteer_activism_rounded),
     DrawerItemData(label: 'Gallery Images', icon: Icons.photo_library_outlined),
-    DrawerItemData(label: 'Gallery Videos', icon: Icons.videocam_outlined),
+    DrawerItemData(
+        label: 'Gallery Videos', icon: Icons.ondemand_video_outlined),
     DrawerItemData(label: 'Aarti', icon: Icons.menu_book_rounded),
     DrawerItemData(label: 'Profile', icon: Icons.person_rounded),
   ];
