@@ -40,6 +40,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _currentIndex = 0;
+  String? _preselectedPoojaTitle;
 
   final _newsImagesKey = GlobalKey(debugLabel: 'news_images');
   final _newsVideosKey = GlobalKey(debugLabel: 'news_videos');
@@ -47,13 +48,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final _galleryImagesKey = GlobalKey(debugLabel: 'gallery_images');
   final _galleryVideosKey = GlobalKey(debugLabel: 'gallery_videos');
 
-  late final List<Widget> _pages;
-
-  @override
-  void initState() {
-    super.initState();
-    _pages = [
-      HomeTab(onOpenDrawerItem: _onSelect),
+  List<Widget> _buildPages(int activeIndex) {
+    return [
+      HomeTab(onOpenDrawerItem: _onSelect, onBookPooja: _onBookPooja),
       const VideosScreen(),
       NewsImagesScreen(key: _newsImagesKey),
       NewsVideosScreen(key: _newsVideosKey),
@@ -62,11 +59,11 @@ class _HomeScreenState extends State<HomeScreen> {
       const DailyThoughtScreen(),
       const ContactScreen(),
       const MemberScreen(),
-      const PoojaBookingScreen(),
+      PoojaBookingScreen(initialPoojaTitle: _preselectedPoojaTitle),
       const DonationScreen(),
       GalleryImagesScreen(key: _galleryImagesKey),
       GalleryVideosScreen(key: _galleryVideosKey),
-      const AartiScreen(),
+      AartiScreen(key: const ValueKey('aarti_screen'), isActive: activeIndex == 13),
       const ProfileScreen(),
     ];
   }
@@ -85,8 +82,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _onBookPooja(String title) {
+    setState(() {
+      _preselectedPoojaTitle = title;
+      _currentIndex = 9;
+    });
+  }
+
   void _onSelect(int index) {
-    setState(() => _currentIndex = index);
+    setState(() {
+      _currentIndex = index;
+      if (index == 9) _preselectedPoojaTitle = null;
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       switch (index) {
         case 2:
@@ -119,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final safeIndex = _currentIndex.clamp(0, _pages.length - 1);
+    final safeIndex = _currentIndex.clamp(0, 14);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -140,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Positioned.fill(
               child: IndexedStack(
                 index: safeIndex,
-                children: _pages,
+                children: _buildPages(safeIndex),
               ),
             ),
             Positioned(
@@ -222,9 +229,14 @@ class _StickyTopBar extends StatelessWidget {
 
 /// Home dashboard — loads hero, thought, YouTube & poojas from backend.
 class HomeTab extends StatefulWidget {
-  const HomeTab({super.key, required this.onOpenDrawerItem});
+  const HomeTab({
+    super.key,
+    required this.onOpenDrawerItem,
+    required this.onBookPooja,
+  });
 
   final ValueChanged<int> onOpenDrawerItem;
+  final ValueChanged<String> onBookPooja;
 
   @override
   State<HomeTab> createState() => _HomeTabState();
@@ -356,38 +368,22 @@ class _HomeTabState extends State<HomeTab> {
                 label: 'ABOUT US',
                 title: 'श्री चित्रगुप्त पीठ की स्थापना',
                 text:
-                    'समस्त प्राणियों को उनके कर्मों के आधार पर फल देने वाले देवता बुद्धि विधाता लेखनी दाता समस्त गृह नक्षत्रों के स्वामी धमराज भगवान श्री चित्रगुप्त की समस्त भूमंडल पर धार्मिक आध्यात्मिक नगर श्री वृन्दावन गोवर्धन धाम मथुरा ब्रज प्रांत के ब्रज शांतिकूज आश्रम में संसार की प्रथम श्री चित्रगुप्त पीठ की स्थापना हो रही है। जिसका मुख्य उद्देश्य भगवान श्री चित्रगुप्त जी की महिमा का वर्णन करने के साथ-साथ भारतीय वैदिक सनातनी गुरुकुल परंपरा को सम्पूर्ण जगत में स्थापित कर सनातन धर्म का प्रचार प्रसार करना है    प्रभु की पीठ की स्थापना का संकल्प बाल्‍य काल में माता श्रीमति शांति देवी जो की माँ भगवती की परम भक्त थीं और उन्नाव जिले में अस्सी के दशक में चरण वाली माता के नाम से विख्यात थीं तथा पिता श्री बृज बहादुर सक्सैना की प्रेरणा से लिया जिसको पूर्ण करने के लिए गुप्त नवरात्रि मई 204 में हरिशचंद घाट काशी के प्रमुख एवं श्री सत्य नाथ मठ कादीपुर सुल्तानपुर के पीठाधीश्वर परमपूज्य गुरुदेव अवधूत श्री कपाली जी महाराज द्वारा गोविंदपुरम गाजियाबाद में प्रभु की मूर्ति की स्थापना कर शीघ्र ही संसार की प्रथम पीठ की स्थापना किसी दिव्य स्थान पर भव्य रूप से स्थापित करने का संकल्प परम पूज्य गुरुदेव कपाली जी महाराज के साथ काशी से पधारे विद्वानों एवं संत समाज द्वारा पूर्ण विधि विधान से श्री संजीव सक्सैना को यह संकल्प दिलवाया गया। साथ समस्त पुज्य संतों और विद्वानों द्वारा श्री संजीव सक्सैना को श्री चित्रगुप्त पीठ का पीठाधीश्वर नियुक्त किया गया।',
+                    'भगवान श्री चित्रगुप्त जी, जिन्हें समस्त प्राणियों के कर्मों का निष्पक्ष लेखा-जोखा रखनेवाले, धर्मराज, बुद्धि-विधाता, लेखनी-दाता तथा न्याय के सर्वोच्च अधिष्ठाता देव के रूप में पूजा जाता है, उनकी दिव्य महिमा के प्रचार-प्रसार तथा सनातन धर्म के पुनर्जागरण के पावन उद्देश्य से श्री चित्रगुप्त पीठ की स्थापना का संकल्प चलाया गया।\n\n'
+                    'धार्मिक, आध्यात्मिक एवं सांस्कृतिक दृष्टि से परम पवित्र श्री वृन्दावन-गोवर्धन धाम, ब्रजभूमि स्थित ब्रज शांति कुंज आश्रम में स्थापित यह पीठ भगवान श्री चित्रगुप्त जी के समर्पित विश्व की प्रथम आध्यात्मिक एवं सांस्कृतिक पीठ के रूप में प्रतिष्ठित हो रही है।\n\n'
+                    'श्री चित्रगुप्त पीठ की स्थापना का मूल उद्देश्य केवल भगवान श्री चित्रगुप्त जी की आराधना तक सीमित नहीं है, बल्कि उनके न्याय, सत्य, धर्म और कर्तव्यनिष्ठा के दिव्य संदेश को सम्पूर्ण मानव समाज तक पहुँचाना है।\n\n'
+                    'यह पीठ भारतीय वैदिक एवं सनातन गुरुकुल परंपरा के संरक्षण, संवर्धन और वैश्विक प्रचार-प्रसार का भी एक सशक्त केंद्र है। इसके माध्यम से धर्म, अध्यात्म, संस्कार, शिक्षा, योग, ध्यान, पर्यावरण संरक्षण, सामाजिक समरसता तथा मानव सेवा जैसे मूल्यों को समाज में स्थापित करने का सतत प्रयास किया जा रहा है।',
               ),
 
               // Pooja Seva
-              SizedBox(height: 24.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Expanded(
-                    child: SectionTitle(
-                      title: 'Pooja Seva',
-                      subtitle: 'Book temple seva',
-                      icon: Icons.temple_hindu_rounded,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => widget.onOpenDrawerItem(9),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.goldLight,
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    ),
-                    child: Text(
-                      'Book',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
+              SizedBox(height: 28.h),
+              _HomeSectionHeader(
+                title: 'Pooja Seva',
+                subtitle: 'Book temple seva',
+                icon: Icons.temple_hindu_rounded,
+                actionLabel: 'Book',
+                onAction: () => widget.onOpenDrawerItem(9),
               ),
-              SizedBox(height: 10.h),
+              SizedBox(height: 14.h),
               if (_poojas.isEmpty)
                 const EmptyStateCard(
                   message: 'No poojas available yet.',
@@ -396,46 +392,30 @@ class _HomeTabState extends State<HomeTab> {
                 ..._poojas.take(4).map(
                       (p) => Padding(
                         padding: EdgeInsets.only(bottom: 10.h),
-                        child: _PoojaTile(pooja: p),
+                        child: _PoojaTile(
+                          pooja: p,
+                          onTap: () => widget.onBookPooja(p.title),
+                        ),
                       ),
                     ),
 
               // YouTube Videos (last)
-              SizedBox(height: 24.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Expanded(
-                    child: SectionTitle(
-                      title: 'YouTube Videos',
-                      subtitle: 'Latest darshan & pravachan',
-                      icon: Icons.play_circle_rounded,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => widget.onOpenDrawerItem(1),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.goldLight,
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    ),
-                    child: Text(
-                      'See All',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
+              SizedBox(height: 28.h),
+              _HomeSectionHeader(
+                title: 'YouTube Videos',
+                subtitle: 'Latest darshan & pravachan',
+                icon: Icons.play_circle_rounded,
+                actionLabel: 'See All',
+                onAction: () => widget.onOpenDrawerItem(1),
               ),
-              SizedBox(height: 10.h),
+              SizedBox(height: 14.h),
               if (_videos.isEmpty)
                 const EmptyStateCard(
                   message: 'No YouTube videos yet. Add them in Admin Panel.',
                 )
               else
                 SizedBox(
-                  height: 168.h,
+                  height: 188.h,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: _videos.length,
@@ -458,6 +438,180 @@ class _HomeTabState extends State<HomeTab> {
               const _FooterSection(),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shared section header with optional action chip.
+class _HomeSectionHeader extends StatelessWidget {
+  const _HomeSectionHeader({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.actionLabel,
+    required this.onAction,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final String actionLabel;
+  final VoidCallback onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 44.w,
+          height: 44.w,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.goldLight.withOpacity(0.22),
+                Colors.white.withOpacity(0.08),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(14.r),
+            border: Border.all(color: Colors.white.withOpacity(0.14)),
+          ),
+          child: Icon(icon, color: AppColors.goldLight, size: 22.sp),
+        ),
+        SizedBox(width: 12.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w900,
+                  height: 1.15,
+                ),
+              ),
+              SizedBox(height: 3.h),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.72),
+                  fontSize: 12.5.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Material(
+          color: AppColors.saffron.withOpacity(0.18),
+          borderRadius: BorderRadius.circular(20.r),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20.r),
+            onTap: onAction,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    actionLabel,
+                    style: TextStyle(
+                      color: AppColors.goldLight,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  SizedBox(width: 4.w),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    color: AppColors.goldLight,
+                    size: 14.sp,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Cream card shell with left accent — used for About / intro sections.
+class _CreamCardShell extends StatelessWidget {
+  const _CreamCardShell({
+    required this.child,
+    this.icon,
+  });
+
+  final Widget child;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF6DD).withOpacity(0.96),
+        borderRadius: BorderRadius.circular(22.r),
+        border: Border.all(color: Colors.white.withOpacity(0.65)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.14),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: AppColors.saffron.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22.r),
+        child: Stack(
+          children: [
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: Container(
+                width: 5.w,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppColors.saffron,
+                      AppColors.gold,
+                      AppColors.deepSaffron,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (icon != null)
+              Positioned(
+                right: -8.w,
+                top: -8.h,
+                child: Icon(
+                  icon,
+                  size: 72.sp,
+                  color: AppColors.saffron.withOpacity(0.06),
+                ),
+              ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(22.w, 20.h, 20.w, 20.h),
+              child: child,
+            ),
+          ],
         ),
       ),
     );
@@ -526,10 +680,10 @@ class _HeroCarouselState extends State<_HeroCarousel> {
 
     if (slides.isEmpty) {
       return Container(
-        height: 168.h,
+        height: 188.h,
         width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(22.r),
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -539,6 +693,13 @@ class _HeroCarouselState extends State<_HeroCarousel> {
               Color(0xFF5A1A00),
             ],
           ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.saffron.withOpacity(0.35),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
         alignment: Alignment.center,
         child: Padding(
@@ -561,114 +722,172 @@ class _HeroCarouselState extends State<_HeroCarousel> {
 
     return Column(
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(20.r),
-          child: SizedBox(
-            height: 188.h,
-            width: double.infinity,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (imageUrl.isNotEmpty)
-                  CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    fit: BoxFit.cover,
-                    errorWidget: (_, __, ___) => Container(
-                      color: AppColors.saffron,
-                    ),
-                  )
-                else
-                  Container(color: AppColors.saffron),
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.05),
-                        Colors.black.withOpacity(0.55),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: 14.w,
-                  right: 14.w,
-                  bottom: 14.h,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        slide.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w900,
-                          height: 1.25,
-                        ),
-                      ),
-                      if ((slide.subtitle ?? '').isNotEmpty) ...[
-                        SizedBox(height: 4.h),
-                        Text(
-                          slide.subtitle!,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.85),
-                            fontSize: 12.sp,
-                            height: 1.3,
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.32),
+                blurRadius: 22,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(22.r),
+            child: SizedBox(
+              height: 200.h,
+              width: double.infinity,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 450),
+                    switchInCurve: Curves.easeOut,
+                    switchOutCurve: Curves.easeIn,
+                    child: imageUrl.isNotEmpty
+                        ? CachedNetworkImage(
+                            key: ValueKey(imageUrl),
+                            imageUrl: imageUrl,
+                            fit: BoxFit.cover,
+                            errorWidget: (_, __, ___) => Container(
+                              color: AppColors.saffron,
+                            ),
+                          )
+                        : Container(
+                            key: const ValueKey('fallback'),
+                            color: AppColors.saffron,
                           ),
-                        ),
-                      ],
-                    ],
                   ),
-                ),
-                if (slides.length > 1) ...[
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: _CarouselArrow(
-                      icon: Icons.chevron_left_rounded,
-                      onTap: () {
-                        final next =
-                            index == 0 ? slides.length - 1 : index - 1;
-                        _goTo(next);
-                      },
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.08),
+                          Colors.black.withOpacity(0.62),
+                        ],
+                      ),
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: _CarouselArrow(
-                      icon: Icons.chevron_right_rounded,
-                      onTap: () {
-                        final next =
-                            index == slides.length - 1 ? 0 : index + 1;
-                        _goTo(next);
-                      },
+                  Positioned(
+                    left: 16.w,
+                    right: 16.w,
+                    bottom: 16.h,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: Column(
+                        key: ValueKey('${slide.title}-$index'),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10.w,
+                              vertical: 4.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.goldLight.withOpacity(0.92),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Text(
+                              'श्री चित्रगुप्त पीठ',
+                              style: TextStyle(
+                                color: const Color(0xFF4A1600),
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            slide.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 17.sp,
+                              fontWeight: FontWeight.w900,
+                              height: 1.25,
+                              shadows: const [
+                                Shadow(
+                                  color: Colors.black54,
+                                  blurRadius: 6,
+                                ),
+                              ],
+                            ),
+                          ),
+                          if ((slide.subtitle ?? '').isNotEmpty) ...[
+                            SizedBox(height: 4.h),
+                            Text(
+                              slide.subtitle!,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.88),
+                                fontSize: 12.sp,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
+                  if (slides.length > 1) ...[
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: _CarouselArrow(
+                        icon: Icons.chevron_left_rounded,
+                        onTap: () {
+                          final next =
+                              index == 0 ? slides.length - 1 : index - 1;
+                          _goTo(next);
+                        },
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: _CarouselArrow(
+                        icon: Icons.chevron_right_rounded,
+                        onTap: () {
+                          final next =
+                              index == slides.length - 1 ? 0 : index + 1;
+                          _goTo(next);
+                        },
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
         if (slides.length > 1) ...[
-          SizedBox(height: 10.h),
+          SizedBox(height: 12.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(slides.length, (i) {
               final active = i == index;
               return AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                width: active ? 18.w : 7.w,
-                height: 7.h,
-                margin: EdgeInsets.symmetric(horizontal: 3.w),
+                duration: const Duration(milliseconds: 280),
+                width: active ? 22.w : 8.w,
+                height: 8.h,
+                margin: EdgeInsets.symmetric(horizontal: 4.w),
                 decoration: BoxDecoration(
                   color: active
                       ? AppColors.goldLight
-                      : Colors.white.withOpacity(0.35),
+                      : Colors.white.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(20.r),
+                  boxShadow: active
+                      ? [
+                          BoxShadow(
+                            color: AppColors.goldLight.withOpacity(0.45),
+                            blurRadius: 6,
+                          ),
+                        ]
+                      : null,
                 ),
               );
             }),
@@ -690,15 +909,17 @@ class _CarouselArrow extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 6.w),
       child: Material(
-        color: Colors.black.withOpacity(0.28),
+        color: Colors.black.withOpacity(0.38),
         shape: const CircleBorder(),
+        elevation: 4,
+        shadowColor: Colors.black54,
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: onTap,
           child: SizedBox(
-            width: 34.w,
-            height: 34.w,
-            child: Icon(icon, color: Colors.white, size: 22.sp),
+            width: 38.w,
+            height: 38.w,
+            child: Icon(icon, color: Colors.white, size: 24.sp),
           ),
         ),
       ),
@@ -721,9 +942,8 @@ class _HomeIntroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(18.w, 20.h, 18.w, 18.h),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22.r),
+        borderRadius: BorderRadius.circular(24.r),
         gradient: const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -737,55 +957,97 @@ class _HomeIntroCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFFFF6B1A).withOpacity(0.28),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+            color: const Color(0xFFFF6B1A).withOpacity(0.32),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'श्री चित्रगुप्त पीठ वृंदावन',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22.sp,
-              fontWeight: FontWeight.w900,
-              height: 1.25,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'भगवान श्री चित्रगुप्त जी की विश्व की प्रथम दिव्य पीठ',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.95),
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w600,
-              height: 1.45,
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Row(
-            children: [
-              Expanded(
-                child: _HeroButton(
-                  text: isExpanded ? 'कम करें ↑' : 'जानें / Know More',
-                  filled: true,
-                  onTap: onKnowMoreTap,
-                ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24.r),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -20.w,
+              top: -20.h,
+              child: Icon(
+                Icons.temple_hindu_rounded,
+                size: 120.sp,
+                color: Colors.white.withOpacity(0.07),
               ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: _HeroButton(
-                  text: 'संपर्क करें',
-                  filled: false,
-                  onTap: onContactTap,
-                ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(20.w, 22.h, 20.w, 20.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 5.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.18),
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.28),
+                      ),
+                    ),
+                    child: Text(
+                      'ॐ  श्री चित्रगुप्त पीठ',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.95),
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 14.h),
+                  Text(
+                    'श्री चित्रगुप्त पीठ वृंदावन',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22.sp,
+                      fontWeight: FontWeight.w900,
+                      height: 1.25,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'भगवान श्री चित्रगुप्त जी की विश्व की प्रथम दिव्य पीठ',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.92),
+                      fontSize: 13.5.sp,
+                      fontWeight: FontWeight.w500,
+                      height: 1.5,
+                    ),
+                  ),
+                  SizedBox(height: 18.h),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _HeroButton(
+                          text: isExpanded ? 'कम करें ↑' : 'जानें / Know More',
+                          filled: true,
+                          onTap: onKnowMoreTap,
+                        ),
+                      ),
+                      SizedBox(width: 10.w),
+                      Expanded(
+                        child: _HeroButton(
+                          text: 'संपर्क करें',
+                          filled: false,
+                          onTap: onContactTap,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -805,18 +1067,18 @@ class _HeroButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 46.h,
+      height: 48.h,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          elevation: 0,
-          backgroundColor: filled ? Colors.white : Colors.transparent,
-          shadowColor: Colors.transparent,
+          elevation: filled ? 2 : 0,
+          backgroundColor: filled ? Colors.white : Colors.white.withOpacity(0.1),
+          shadowColor: Colors.black26,
           side: BorderSide(
-            color: Colors.white.withOpacity(filled ? 0 : 0.9),
-            width: 1.3,
+            color: Colors.white.withOpacity(filled ? 0 : 0.85),
+            width: 1.4,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
+            borderRadius: BorderRadius.circular(14.r),
           ),
         ),
         onPressed: onTap,
@@ -880,199 +1142,224 @@ class _DailyThoughtHomeCardState extends State<_DailyThoughtHomeCard> {
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22.r),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFFFF8F0),
-            Color(0xFFFFF0DC),
-            Color(0xFFFFE8CC),
-          ],
-        ),
-        border: Border.all(color: AppColors.saffron.withOpacity(0.18)),
+        color: const Color(0xFFFFF8F0),
+        border: Border.all(color: AppColors.saffron.withOpacity(0.2)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.saffron.withOpacity(0.12),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 0),
-            child: Row(
-              children: [
-                Container(
-                  width: 40.w,
-                  height: 40.w,
-                  decoration: BoxDecoration(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22.r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 14.h),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.saffron.withOpacity(0.12),
+                    AppColors.gold.withOpacity(0.06),
+                  ],
+                ),
+                border: Border(
+                  bottom: BorderSide(
                     color: AppColors.saffron.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: Icon(
-                    Icons.lightbulb_rounded,
-                    color: AppColors.saffron,
-                    size: 22.sp,
                   ),
                 ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Daily Thought',
-                        style: TextStyle(
-                          color: AppColors.saffron,
-                          fontSize: 11.sp,
-                          letterSpacing: 1.4,
-                          fontWeight: FontWeight.w800,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 42.w,
+                    height: 42.w,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(13.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.saffron.withOpacity(0.15),
+                          blurRadius: 8,
                         ),
-                      ),
-                      SizedBox(height: 2.h),
-                      Text(
-                        'आज का विचार',
-                        style: TextStyle(
-                          color: const Color(0xFF7A1E1E),
-                          fontSize: 17.sp,
-                          fontWeight: FontWeight.w900,
-                          height: 1.2,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.lightbulb_rounded,
+                      color: AppColors.saffron,
+                      size: 22.sp,
+                    ),
                   ),
-                ),
-                if (hasEnglish)
-                  Material(
-                    color: AppColors.saffron,
-                    borderRadius: BorderRadius.circular(20.r),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20.r),
-                      onTap: () => setState(() => _showEnglish = !_showEnglish),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.w,
-                          vertical: 6.h,
-                        ),
-                        child: Text(
-                          _showEnglish ? 'हिंदी' : 'English',
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Daily Thought',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AppColors.saffron,
                             fontSize: 11.sp,
+                            letterSpacing: 1.2,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          if (imageUrl.isNotEmpty) ...[
-            SizedBox(height: 14.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16.r),
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  height: 140.h,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => const SizedBox.shrink(),
-                ),
-              ),
-            ),
-          ],
-          Padding(
-            padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 12.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '“',
-                      style: TextStyle(
-                        color: AppColors.saffron.withOpacity(0.45),
-                        fontSize: 36.sp,
-                        fontWeight: FontWeight.w900,
-                        height: 0.9,
-                      ),
-                    ),
-                    SizedBox(width: 4.w),
-                    Expanded(
-                      child: Text(
-                        _displayText,
-                        style: TextStyle(
-                          color: const Color(0xFF2D1A00),
-                          fontSize: 15.sp,
-                          height: 1.65,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (_formattedDate != null) ...[
-                  SizedBox(height: 10.h),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 5.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.saffron.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.calendar_today_rounded,
-                          size: 12.sp,
-                          color: AppColors.saffron,
-                        ),
-                        SizedBox(width: 6.w),
                         Text(
-                          _formattedDate!,
+                          'आज का विचार',
                           style: TextStyle(
-                            color: AppColors.muted,
-                            fontSize: 11.sp,
-                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF7A1E1E),
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
-                SizedBox(height: 4.h),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton.icon(
-                    onPressed: widget.onSeeAll,
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.saffron,
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                  if (hasEnglish)
+                    Material(
+                      color: AppColors.saffron,
+                      borderRadius: BorderRadius.circular(20.r),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20.r),
+                        onTap: () =>
+                            setState(() => _showEnglish = !_showEnglish),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 7.h,
+                          ),
+                          child: Text(
+                            _showEnglish ? 'हिंदी' : 'English',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    icon: Icon(Icons.arrow_forward_rounded, size: 16.sp),
-                    label: Text(
-                      'View All',
+                ],
+              ),
+            ),
+            if (imageUrl.isNotEmpty) ...[
+              Padding(
+                padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16.r),
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    height: 150.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                  ),
+                ),
+              ),
+            ],
+            Padding(
+              padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 14.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.all(14.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.72),
+                      borderRadius: BorderRadius.circular(14.r),
+                      border: Border.all(
+                        color: AppColors.saffron.withOpacity(0.1),
+                      ),
+                    ),
+                    child: Text(
+                      _displayText,
                       style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF2D1A00),
+                        fontSize: 15.sp,
+                        height: 1.7,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                ),
-              ],
+                  if (_formattedDate != null) ...[
+                    SizedBox(height: 12.h),
+                    Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.w,
+                            vertical: 6.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.saffron.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.calendar_today_rounded,
+                                size: 12.sp,
+                                color: AppColors.saffron,
+                              ),
+                              SizedBox(width: 6.w),
+                              Text(
+                                _formattedDate!,
+                                style: TextStyle(
+                                  color: AppColors.muted,
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        TextButton.icon(
+                          onPressed: widget.onSeeAll,
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.saffron,
+                            padding: EdgeInsets.symmetric(horizontal: 8.w),
+                          ),
+                          icon: Icon(Icons.arrow_forward_rounded, size: 16.sp),
+                          label: Text(
+                            'View All',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ] else
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: widget.onSeeAll,
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.saffron,
+                        ),
+                        icon: Icon(Icons.arrow_forward_rounded, size: 16.sp),
+                        label: Text(
+                          'View All',
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1091,61 +1378,84 @@ class _HomeVideoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16.r),
-      child: SizedBox(
-        width: 200.w,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14.r),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  if (thumbnailUrl.isEmpty)
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18.r),
+        child: Container(
+          width: 210.w,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(18.r),
+            border: Border.all(color: Colors.white.withOpacity(0.14)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(18.r)),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (thumbnailUrl.isEmpty)
+                      Container(
+                        height: 118.h,
+                        width: 210.w,
+                        color: Colors.white12,
+                      )
+                    else
+                      CachedNetworkImage(
+                        imageUrl: thumbnailUrl,
+                        height: 118.h,
+                        width: 210.w,
+                        fit: BoxFit.cover,
+                      ),
                     Container(
-                      height: 112.h,
-                      width: 200.w,
-                      color: Colors.white12,
-                    )
-                  else
-                    CachedNetworkImage(
-                      imageUrl: thumbnailUrl,
-                      height: 112.h,
-                      width: 200.w,
-                      fit: BoxFit.cover,
+                      width: 44.w,
+                      height: 44.w,
+                      decoration: BoxDecoration(
+                        color: AppColors.saffron.withOpacity(0.88),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.play_arrow_rounded,
+                        color: Colors.white,
+                        size: 28.sp,
+                      ),
                     ),
-                  Container(
-                    width: 40.w,
-                    height: 40.w,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.35),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.play_arrow_rounded,
-                      color: Colors.white.withOpacity(0.95),
-                      size: 26.sp,
-                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 12.h),
+                child: Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12.5.sp,
+                    fontWeight: FontWeight.w700,
+                    height: 1.35,
                   ),
-                ],
+                ),
               ),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12.5.sp,
-                fontWeight: FontWeight.w700,
-                height: 1.3,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1153,66 +1463,133 @@ class _HomeVideoTile extends StatelessWidget {
 }
 
 class _PoojaTile extends StatelessWidget {
-  const _PoojaTile({required this.pooja});
+  const _PoojaTile({required this.pooja, required this.onTap});
 
   final PoojaItem pooja;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final imageUrl = ApiConfig.poojaImage(pooja.imageFilename);
-    return Container(
-      padding: EdgeInsets.all(12.w),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18.r),
+        child: Container(
+      padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(color: Colors.white24),
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10.r),
-            child: imageUrl.isEmpty
-                ? Container(
-                    width: 64.w,
-                    height: 64.w,
-                    color: Colors.white12,
-                    child:
-                        const Icon(Icons.temple_hindu, color: Colors.white54),
-                  )
-                : CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    width: 64.w,
-                    height: 64.w,
-                    fit: BoxFit.cover,
-                  ),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  pooja.title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                if ((pooja.day ?? '').isNotEmpty) ...[
-                  SizedBox(height: 4.h),
-                  Text(
-                    pooja.day == 'Everyday' ? 'Everyday' : 'Every ${pooja.day}',
-                    style: TextStyle(
-                      color: AppColors.goldLight,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ],
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.13),
+                Colors.white.withOpacity(0.06),
               ],
             ),
+            borderRadius: BorderRadius.circular(18.r),
+            border: Border.all(color: Colors.white.withOpacity(0.16)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
+          child: Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14.r),
+                  border: Border.all(
+                    color: AppColors.goldLight.withOpacity(0.35),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.goldLight.withOpacity(0.12),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: imageUrl.isEmpty
+                      ? Container(
+                          width: 68.w,
+                          height: 68.w,
+                          color: Colors.white12,
+                          child: Icon(
+                            Icons.temple_hindu,
+                            color: Colors.white54,
+                            size: 28.sp,
+                          ),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          width: 68.w,
+                          height: 68.w,
+                          fit: BoxFit.cover,
+                        ),
+                ),
+              ),
+              SizedBox(width: 14.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      pooja.title,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.5.sp,
+                        fontWeight: FontWeight.w800,
+                        height: 1.25,
+                      ),
+                    ),
+                    if ((pooja.day ?? '').isNotEmpty) ...[
+                      SizedBox(height: 6.h),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 3.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.goldLight.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(6.r),
+                        ),
+                        child: Text(
+                          pooja.day == 'Everyday'
+                              ? 'Everyday'
+                              : 'Every ${pooja.day}',
+                          style: TextStyle(
+                            color: AppColors.goldLight,
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Container(
+                width: 32.w,
+                height: 32.w,
+                decoration: BoxDecoration(
+                  color: AppColors.saffron.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: AppColors.goldLight,
+                  size: 14.sp,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1223,13 +1600,8 @@ class _WhoIsChitraguptSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF6DD).withOpacity(0.97),
-        borderRadius: BorderRadius.circular(22.r),
-      ),
+    return _CreamCardShell(
+      icon: Icons.auto_stories_rounded,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1237,9 +1609,9 @@ class _WhoIsChitraguptSection extends StatelessWidget {
             'WHO IS CHITRAGUPT',
             style: TextStyle(
               color: AppColors.saffron,
-              fontSize: 12.sp,
-              letterSpacing: 3,
-              fontWeight: FontWeight.w700,
+              fontSize: 11.sp,
+              letterSpacing: 2.5,
+              fontWeight: FontWeight.w800,
             ),
           ),
           SizedBox(height: 8.h),
@@ -1247,17 +1619,19 @@ class _WhoIsChitraguptSection extends StatelessWidget {
             'भगवान श्री चित्रगुप्त जी का परिचय',
             style: TextStyle(
               color: const Color(0xFF7A1E1E),
-              fontSize: 20.sp,
+              fontSize: 19.sp,
               fontWeight: FontWeight.w900,
+              height: 1.3,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 14.h),
           Text(
             'भगवान श्री चित्रगुप्त जी — बुद्धि विधाता, लेखनी दाता, समस्त ग्रह-नक्षत्रों के स्वामी हैं। वे संसार के समस्त प्राणियों के कर्मों का लेखा-जोखा रखते हैं और उनके कर्मों के आधार पर फल प्रदान करते हैं।',
             style: TextStyle(
               color: const Color(0xFF2D1A00),
               fontSize: 14.sp,
-              height: 1.7,
+              height: 1.75,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -1279,13 +1653,8 @@ class _CreamSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20.w),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF6DD).withOpacity(0.94),
-        borderRadius: BorderRadius.circular(22.r),
-      ),
+    return _CreamCardShell(
+      icon: Icons.temple_hindu_rounded,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1293,9 +1662,9 @@ class _CreamSection extends StatelessWidget {
             label,
             style: TextStyle(
               color: AppColors.saffron,
-              fontSize: 12.sp,
-              letterSpacing: 3,
-              fontWeight: FontWeight.w700,
+              fontSize: 11.sp,
+              letterSpacing: 2.5,
+              fontWeight: FontWeight.w800,
             ),
           ),
           SizedBox(height: 8.h),
@@ -1303,17 +1672,19 @@ class _CreamSection extends StatelessWidget {
             title,
             style: TextStyle(
               color: const Color(0xFF7A1E1E),
-              fontSize: 20.sp,
+              fontSize: 19.sp,
               fontWeight: FontWeight.w900,
+              height: 1.3,
             ),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 14.h),
           Text(
             text,
             style: TextStyle(
               color: const Color(0xFF2D1A00),
               fontSize: 14.sp,
-              height: 1.7,
+              height: 1.75,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -1329,26 +1700,77 @@ class _FooterSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(18.w),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16.r),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withOpacity(0.1),
+            Colors.white.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20.r),
+        border: Border.all(color: Colors.white.withOpacity(0.12)),
       ),
       child: Column(
         children: [
+          Container(
+            width: 44.w,
+            height: 44.w,
+            decoration: BoxDecoration(
+              color: AppColors.goldLight.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.temple_hindu_rounded,
+              color: AppColors.goldLight,
+              size: 24.sp,
+            ),
+          ),
+          SizedBox(height: 12.h),
           Text(
             'Shree Chitragupt Peeth',
             style: TextStyle(
               color: AppColors.goldLight,
-              fontSize: 16.sp,
+              fontSize: 17.sp,
               fontWeight: FontWeight.w900,
             ),
           ),
+          SizedBox(height: 10.h),
+          Container(
+            height: 1,
+            width: 60.w,
+            color: AppColors.goldLight.withOpacity(0.35),
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.phone_rounded, color: Colors.white70, size: 14.sp),
+              SizedBox(width: 6.w),
+              Flexible(
+                child: Text(
+                  '+91-7065013874',
+                  style: TextStyle(color: Colors.white70, fontSize: 12.sp),
+                ),
+              ),
+            ],
+          ),
           SizedBox(height: 6.h),
-          Text(
-            '+91-7065013874  ·  shreechitraguptpeeth@gmail.com',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white70, fontSize: 12.sp),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.email_outlined, color: Colors.white70, size: 14.sp),
+              SizedBox(width: 6.w),
+              Flexible(
+                child: Text(
+                  'shreechitraguptpeeth@gmail.com',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white70, fontSize: 11.sp),
+                ),
+              ),
+            ],
           ),
         ],
       ),

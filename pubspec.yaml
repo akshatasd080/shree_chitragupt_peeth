@@ -49,7 +49,6 @@ dependencies:
   path_provider: ^2.1.6
   dio: ^5.11.0
   permission_handler: ^12.0.2
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -67,6 +66,8 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/sounds/
+    - assets/sounds/temple_bell.mp3
 
 # ---------------- SPLASH SCREEN ---------------- #
 

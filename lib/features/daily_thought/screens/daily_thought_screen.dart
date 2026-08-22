@@ -18,7 +18,6 @@ class DailyThoughtScreen extends StatefulWidget {
 class _DailyThoughtScreenState extends State<DailyThoughtScreen> {
   final _service = ContentService();
   late Future<DailyThought?> _todayFuture;
-  late Future<List<DailyThought>> _listFuture;
   bool _showEnglish = false;
 
   @override
@@ -29,12 +28,11 @@ class _DailyThoughtScreenState extends State<DailyThoughtScreen> {
 
   void _load() {
     _todayFuture = _service.fetchTodayThought();
-    _listFuture = _service.fetchDailyThoughts();
   }
 
   Future<void> _reload() async {
     setState(_load);
-    await Future.wait([_todayFuture, _listFuture]);
+    await _todayFuture;
   }
 
   @override
@@ -131,54 +129,6 @@ class _DailyThoughtScreenState extends State<DailyThoughtScreen> {
                       ),
                     ],
                   ),
-                );
-              },
-            ),
-            SizedBox(height: 24.h),
-            Text(
-              'More Thoughts',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            SizedBox(height: 12.h),
-            FutureBuilder<List<DailyThought>>(
-              future: _listFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState != ConnectionState.done) {
-                  return const LoadingCard();
-                }
-                final items = snapshot.data ?? [];
-                if (items.isEmpty) {
-                  return const EmptyStateCard(
-                    message: 'No additional thoughts yet.',
-                  );
-                }
-                return Column(
-                  children: items.take(20).map((t) {
-                    return Padding(
-                      padding: EdgeInsets.only(bottom: 10.h),
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(14.w),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(14.r),
-                          border: Border.all(color: Colors.white24),
-                        ),
-                        child: Text(
-                          t.primaryText,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14.sp,
-                            height: 1.45,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
                 );
               },
             ),

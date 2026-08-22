@@ -7,7 +7,7 @@ class ApiConfig {
   ApiConfig._();
 
   /// PC ka LAN IP (Real Android Device ke liye)
-  static const String customBaseUrl = 'http://192.168.1.9:3004/api';
+  static const String customBaseUrl = 'http://192.168.1.11:3004/api';
 
   static String get baseUrl {
     // Agar customBaseUrl diya hua hai to wahi use hoga

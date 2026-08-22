@@ -8,7 +8,9 @@ import '../../../data/services/content_service.dart';
 import '../../../shared/widgets/page_background.dart';
 
 class PoojaBookingScreen extends StatefulWidget {
-  const PoojaBookingScreen({super.key});
+  const PoojaBookingScreen({super.key, this.initialPoojaTitle});
+
+  final String? initialPoojaTitle;
 
   @override
   State<PoojaBookingScreen> createState() => _PoojaBookingScreenState();
@@ -36,6 +38,25 @@ class _PoojaBookingScreenState extends State<PoojaBookingScreen> {
     _loadPoojas();
   }
 
+  @override
+  void didUpdateWidget(PoojaBookingScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialPoojaTitle == oldWidget.initialPoojaTitle ||
+        _poojas.isEmpty) {
+      return;
+    }
+    setState(() => _selectedPooja = _resolveInitialSelection(_poojas));
+  }
+
+  String? _resolveInitialSelection(List<PoojaItem> list) {
+    if (list.isEmpty) return null;
+    final initial = widget.initialPoojaTitle;
+    if (initial != null && list.any((p) => p.title == initial)) {
+      return initial;
+    }
+    return list.first.title;
+  }
+
   Future<void> _loadPoojas() async {
     try {
       final list = await _service.fetchPoojas();
@@ -43,7 +64,7 @@ class _PoojaBookingScreenState extends State<PoojaBookingScreen> {
       setState(() {
         _poojas = list;
         _loadingPoojas = false;
-        if (list.isNotEmpty) _selectedPooja = list.first.title;
+        _selectedPooja = _resolveInitialSelection(list);
       });
     } catch (_) {
       if (!mounted) return;
