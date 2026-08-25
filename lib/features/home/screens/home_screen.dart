@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const VideosScreen(),
       NewsImagesScreen(key: _newsImagesKey),
       NewsVideosScreen(key: _newsVideosKey),
-      NewsLinksScreen(key: _newsLinksKey),
+      NewsLinksScreen(key: _newsLinksKey, isActive: activeIndex == 4),
       const EventsScreen(),
       const DailyThoughtScreen(),
       const ContactScreen(),
@@ -362,16 +362,51 @@ class _HomeTabState extends State<HomeTab> {
                     : const SizedBox.shrink(),
               ),
 
-              // About Us section
+              // About Us section — preview + Know More
               SizedBox(height: 24.h),
               const _CreamSection(
                 label: 'ABOUT US',
+                labelEn: 'ABOUT US',
                 title: 'श्री चित्रगुप्त पीठ की स्थापना',
+                titleEn: 'Establishment of Shri Chitragupt Peeth',
                 text:
                     'भगवान श्री चित्रगुप्त जी, जिन्हें समस्त प्राणियों के कर्मों का निष्पक्ष लेखा-जोखा रखनेवाले, धर्मराज, बुद्धि-विधाता, लेखनी-दाता तथा न्याय के सर्वोच्च अधिष्ठाता देव के रूप में पूजा जाता है, उनकी दिव्य महिमा के प्रचार-प्रसार तथा सनातन धर्म के पुनर्जागरण के पावन उद्देश्य से श्री चित्रगुप्त पीठ की स्थापना का संकल्प चलाया गया।\n\n'
                     'धार्मिक, आध्यात्मिक एवं सांस्कृतिक दृष्टि से परम पवित्र श्री वृन्दावन-गोवर्धन धाम, ब्रजभूमि स्थित ब्रज शांति कुंज आश्रम में स्थापित यह पीठ भगवान श्री चित्रगुप्त जी के समर्पित विश्व की प्रथम आध्यात्मिक एवं सांस्कृतिक पीठ के रूप में प्रतिष्ठित हो रही है।\n\n'
                     'श्री चित्रगुप्त पीठ की स्थापना का मूल उद्देश्य केवल भगवान श्री चित्रगुप्त जी की आराधना तक सीमित नहीं है, बल्कि उनके न्याय, सत्य, धर्म और कर्तव्यनिष्ठा के दिव्य संदेश को सम्पूर्ण मानव समाज तक पहुँचाना है।\n\n'
                     'यह पीठ भारतीय वैदिक एवं सनातन गुरुकुल परंपरा के संरक्षण, संवर्धन और वैश्विक प्रचार-प्रसार का भी एक सशक्त केंद्र है। इसके माध्यम से धर्म, अध्यात्म, संस्कार, शिक्षा, योग, ध्यान, पर्यावरण संरक्षण, सामाजिक समरसता तथा मानव सेवा जैसे मूल्यों को समाज में स्थापित करने का सतत प्रयास किया जा रहा है।',
+                textEn:
+                    'Lord Shri Chitragupt Ji — worshipped as the impartial keeper of every being\'s karmic account, Dharmaraj, bestower of intellect and the pen, and the supreme deity of justice — inspired the resolve to establish Shri Chitragupt Peeth for spreading His divine glory and awakening Sanatan Dharma.\n\n'
+                    'Situated at Braj Shanti Kunj Ashram in the sacred Shri Vrindavan–Govardhan Dham of Brajbhoomi, this Peeth is being established as the world\'s first spiritual and cultural seat dedicated to Lord Shri Chitragupt Ji.\n\n'
+                    'The purpose of Shri Chitragupt Peeth is not limited to worship alone, but to carry His divine message of justice, truth, dharma, and duty to all of humanity.\n\n'
+                    'It is also a strong centre for preserving, nurturing, and globally promoting India\'s Vedic and Sanatan gurukul tradition — working continuously to establish values of dharma, spirituality, sanskar, education, yoga, meditation, environmental care, social harmony, and human service in society.',
+              ),
+
+              // About Swamiji — same cream card style
+              SizedBox(height: 14.h),
+              const _CreamSection(
+                icon: Icons.self_improvement_rounded,
+                label: 'स्वामी जी के बारे में',
+                labelEn: 'ABOUT SWAMIJI',
+                title: 'जगद्गुरु श्री चित्रगुप्ताचार्य डॉ. स्वामी सच्चिदानन्द जी महाराज',
+                titleEn:
+                    'Jagadguru Shri Chitraguptacharya Dr. Swami Sachchidanand Ji Maharaj',
+                subtitle: 'पीठाधीश्वर — श्री चित्रगुप्त पीठ, वृन्दावन',
+                subtitleEn:
+                    'Peethadheeshwar — Shri Chitragupt Peeth, Vrindavan',
+                text:
+                    'जगद्गुरु श्री चित्रगुप्ताचार्य डॉ. स्वामी सच्चिदानन्द चित्रगुप्त जी महाराज धर्म, अध्यात्म, संस्कृति एवं मानव सेवा के समर्पित संत एवं प्रेरणास्रोत हैं। 1 अप्रैल 1972 को उत्तर प्रदेश के रायबरेली जनपद में जन्मे स्वामी जी ने बाल्यकाल से ही धर्म, साधना और समाज सेवा के प्रति विशेष अनुराग रखा।\n\n'
+                    'पूज्य माताजी श्रीमती शान्ति देवी, जिन्हें समाज में “चरण वाली माता जी” के नाम से जाना जाता था, की गहन साधना एवं आध्यात्मिक संस्कारों का स्वामी जी के जीवन पर गहरा प्रभाव रहा। उच्च शिक्षा में विधि (Law) का अध्ययन करने के पश्चात उन्होंने आध्यात्मिक एवं धार्मिक जीवन को अपना प्रमुख ध्येय बनाया तथा अनेक महान संतों एवं आध्यात्मिक गुरुओं का सान्निध्य और मार्गदर्शन प्राप्त किया।\n\n'
+                    'स्वामी जी का जीवन भगवान श्री चित्रगुप्त जी की महिमा के प्रचार-प्रसार, सनातन धर्म के संरक्षण एवं समाज में आध्यात्मिक जागरण के लिए समर्पित है। योग, ध्यान, पर्यावरण संरक्षण, जल संरक्षण तथा सामाजिक समरसता के माध्यम से वे समाज में शांति, जागरूकता और सकारात्मक परिवर्तन का संदेश देते हैं।\n\n'
+                    'उनका पावन संकल्प “भारत शुद्धीकरण यात्रा” राष्ट्र, संस्कृति, प्रकृति एवं सनातन मूल्यों के संरक्षण और एक शुद्ध, समरस एवं सशक्त भारत के निर्माण की दिशा में समर्पित प्रयास है।',
+                textEn:
+                    'Jagadguru Shri Chitraguptacharya Dr. Swami Sachchidanand Chitragupt Ji Maharaj is a dedicated saint and source of inspiration in dharma, spirituality, culture, and humanitarian service. Born on 1 April 1972 in Raebareli district of Uttar Pradesh, Swamiji has from childhood held a deep devotion to religion, sadhana, and social service.\n\n'
+                    'The profound sadhana and spiritual values of his revered mother, Smt. Shanti Devi — known in society as “Charan Wali Mata Ji” — left a lasting imprint on his life. After studying Law in higher education, he made spiritual and religious life his primary purpose and received the association and guidance of many great saints and spiritual gurus.\n\n'
+                    'Swamiji\'s life is dedicated to spreading the glory of Lord Shri Chitragupt Ji, preserving Sanatan Dharma, and awakening spiritual awareness in society. Through yoga, meditation, environmental conservation, water conservation, and social harmony, he conveys a message of peace, awareness, and positive change.\n\n'
+                    'His sacred resolve, the “Bharat Shuddhikaran Yatra,” is devoted to protecting the nation, culture, nature, and Sanatan values — and to building a pure, harmonious, and strong India.',
+                quote:
+                    '“धर्म, अध्यात्म और मानव सेवा के माध्यम से राष्ट्र एवं सनातन संस्कृति के उत्थान का संकल्प।”',
+                quoteEn:
+                    '“A resolve for the upliftment of the nation and Sanatan culture through dharma, spirituality, and humanitarian service.”',
               ),
 
               // Pooja Seva
@@ -1640,36 +1675,127 @@ class _WhoIsChitraguptSection extends StatelessWidget {
   }
 }
 
-class _CreamSection extends StatelessWidget {
+class _CreamSection extends StatefulWidget {
   const _CreamSection({
     required this.label,
     required this.title,
     required this.text,
+    this.labelEn,
+    this.titleEn,
+    this.textEn,
+    this.subtitle,
+    this.subtitleEn,
+    this.quote,
+    this.quoteEn,
+    this.icon = Icons.temple_hindu_rounded,
   });
 
   final String label;
   final String title;
   final String text;
+  final String? labelEn;
+  final String? titleEn;
+  final String? textEn;
+  final String? subtitle;
+  final String? subtitleEn;
+  final String? quote;
+  final String? quoteEn;
+  final IconData icon;
+
+  @override
+  State<_CreamSection> createState() => _CreamSectionState();
+}
+
+class _CreamSectionState extends State<_CreamSection> {
+  bool _expanded = false;
+  bool _showEnglish = false;
+
+  static const int _previewMaxLines = 4;
+
+  bool get _hasEnglish =>
+      (widget.textEn?.trim().isNotEmpty ?? false);
+
+  String get _label =>
+      _showEnglish ? (widget.labelEn ?? widget.label) : widget.label;
+
+  String get _title =>
+      _showEnglish ? (widget.titleEn ?? widget.title) : widget.title;
+
+  String? get _subtitle {
+    if (_showEnglish) {
+      final en = widget.subtitleEn?.trim();
+      if (en != null && en.isNotEmpty) return en;
+    }
+    final hi = widget.subtitle?.trim();
+    return (hi != null && hi.isNotEmpty) ? hi : null;
+  }
+
+  String get _text =>
+      _showEnglish ? (widget.textEn ?? widget.text) : widget.text;
+
+  String? get _quote {
+    if (_showEnglish) {
+      final en = widget.quoteEn?.trim();
+      if (en != null && en.isNotEmpty) return en;
+    }
+    final hi = widget.quote?.trim();
+    return (hi != null && hi.isNotEmpty) ? hi : null;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final quote = _quote;
+
     return _CreamCardShell(
-      icon: Icons.temple_hindu_rounded,
+      icon: widget.icon,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: AppColors.saffron,
-              fontSize: 11.sp,
-              letterSpacing: 2.5,
-              fontWeight: FontWeight.w800,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  _label,
+                  style: TextStyle(
+                    color: AppColors.saffron,
+                    fontSize: 11.sp,
+                    letterSpacing: 2.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              if (_hasEnglish)
+                Material(
+                  color: AppColors.saffron,
+                  borderRadius: BorderRadius.circular(20.r),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20.r),
+                    onTap: () => setState(() {
+                      _showEnglish = !_showEnglish;
+                      _expanded = false;
+                    }),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 7.h,
+                      ),
+                      child: Text(
+                        _showEnglish ? 'हिंदी' : 'English',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
           SizedBox(height: 8.h),
           Text(
-            title,
+            _title,
             style: TextStyle(
               color: const Color(0xFF7A1E1E),
               fontSize: 19.sp,
@@ -1677,14 +1803,69 @@ class _CreamSection extends StatelessWidget {
               height: 1.3,
             ),
           ),
+          if (_subtitle != null) ...[
+            SizedBox(height: 6.h),
+            Text(
+              _subtitle!,
+              style: TextStyle(
+                color: AppColors.saffron,
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w700,
+                height: 1.4,
+              ),
+            ),
+          ],
           SizedBox(height: 14.h),
-          Text(
-            text,
-            style: TextStyle(
-              color: const Color(0xFF2D1A00),
-              fontSize: 14.sp,
-              height: 1.75,
-              fontWeight: FontWeight.w500,
+          AnimatedSize(
+            duration: const Duration(milliseconds: 280),
+            curve: Curves.easeInOut,
+            alignment: Alignment.topCenter,
+            child: Text(
+              _text,
+              maxLines: _expanded ? null : _previewMaxLines,
+              overflow:
+                  _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+              style: TextStyle(
+                color: const Color(0xFF2D1A00),
+                fontSize: 14.sp,
+                height: 1.75,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          if (_expanded && quote != null) ...[
+            SizedBox(height: 14.h),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(14.w),
+              decoration: BoxDecoration(
+                color: AppColors.saffron.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(
+                  color: AppColors.saffron.withOpacity(0.18),
+                ),
+              ),
+              child: Text(
+                quote,
+                style: TextStyle(
+                  color: const Color(0xFF7A1E1E),
+                  fontSize: 13.5.sp,
+                  height: 1.6,
+                  fontWeight: FontWeight.w700,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          ],
+          SizedBox(height: 16.h),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IntrinsicWidth(
+              child: _HeroButton(
+                text: _expanded ? 'कम करें ↑' : 'जानें / Know More',
+                filled: true,
+                onTap: () => setState(() => _expanded = !_expanded),
+              ),
             ),
           ),
         ],

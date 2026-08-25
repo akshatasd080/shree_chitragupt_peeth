@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../core/constants/api_config.dart';
 import '../../../core/constants/app_colors.dart';
@@ -148,26 +149,12 @@ class _NewsVideosScreenState extends State<NewsVideosScreen>
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              Container(
+                              SizedBox(
                                 height: 180.h,
                                 width: double.infinity,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      AppColors.saffron.withOpacity(0.85),
-                                      const Color(0xFF1A0A2E).withOpacity(0.9),
-                                    ],
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.movie_creation_rounded,
-                                    color: Colors.white.withOpacity(0.25),
-                                    size: 72.sp,
-                                  ),
-                                ),
+                                child: url.isEmpty
+                                    ? const _NewsVideoThumbFallback()
+                                    : _NewsVideoThumbnail(videoUrl: url),
                               ),
                               Container(
                                 width: 60.w,
@@ -320,6 +307,144 @@ class _NewsVideosScreenState extends State<NewsVideosScreen>
               },
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// Loads the first frame of an uploaded news video as a list thumbnail.
+class _NewsVideoThumbnail extends StatefulWidget {
+  const _NewsVideoThumbnail({required this.videoUrl});
+
+  final String videoUrl;
+
+  @override
+  State<_NewsVideoThumbnail> createState() => _NewsVideoThumbnailState();
+}
+
+class _NewsVideoThumbnailState extends State<_NewsVideoThumbnail> {
+  VideoPlayerController? _controller;
+  bool _ready = false;
+  bool _failed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant _NewsVideoThumbnail oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.videoUrl != widget.videoUrl) {
+      _disposeController();
+      _ready = false;
+      _failed = false;
+      _load();
+    }
+  }
+
+  Future<void> _load() async {
+    final controller = VideoPlayerController.networkUrl(
+      Uri.parse(widget.videoUrl),
+      httpHeaders: const {'Cache-Control': 'no-cache'},
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+    );
+    try {
+      await controller.initialize();
+      await controller.setVolume(0);
+      await controller.pause();
+      // Skip pure-black intros when possible so the preview is useful.
+      final duration = controller.value.duration;
+      if (duration > const Duration(milliseconds: 400)) {
+        await controller.seekTo(const Duration(milliseconds: 350));
+      }
+      if (!mounted) {
+        await controller.dispose();
+        return;
+      }
+      setState(() {
+        _controller = controller;
+        _ready = true;
+      });
+    } catch (_) {
+      await controller.dispose();
+      if (!mounted) return;
+      setState(() => _failed = true);
+    }
+  }
+
+  void _disposeController() {
+    _controller?.dispose();
+    _controller = null;
+  }
+
+  @override
+  void dispose() {
+    _disposeController();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_failed || !_ready || _controller == null) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          const _NewsVideoThumbFallback(),
+          if (!_failed && !_ready)
+            Center(
+              child: SizedBox(
+                width: 28.w,
+                height: 28.w,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  color: Colors.white.withOpacity(0.85),
+                ),
+              ),
+            ),
+        ],
+      );
+    }
+
+    final size = _controller!.value.size;
+    return ColoredBox(
+      color: Colors.black,
+      child: FittedBox(
+        fit: BoxFit.cover,
+        clipBehavior: Clip.hardEdge,
+        child: SizedBox(
+          width: size.width > 0 ? size.width : 16,
+          height: size.height > 0 ? size.height : 9,
+          child: VideoPlayer(_controller!),
+        ),
+      ),
+    );
+  }
+}
+
+class _NewsVideoThumbFallback extends StatelessWidget {
+  const _NewsVideoThumbFallback();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.saffron.withOpacity(0.85),
+            const Color(0xFF1A0A2E).withOpacity(0.9),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.movie_creation_rounded,
+          color: Colors.white.withOpacity(0.25),
+          size: 72.sp,
         ),
       ),
     );

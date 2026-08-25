@@ -8,16 +8,28 @@ class ContentService {
 
   final ApiClient _client;
 
+  /// Newest created/added content first across all sections.
+  static List<T> _newestFirst<T>(
+    List<T> items,
+    DateTime Function(T item) sortDate,
+  ) {
+    items.sort((a, b) => sortDate(b).compareTo(sortDate(a)));
+    return items;
+  }
+
   Future<List<HeroSlide>> fetchHeroSlides() async {
     final data = await _client.get(
       ApiConfig.heroSlides,
       query: {'active': 'true'},
     );
     final list = data['slides'] as List? ?? [];
-    return list
-        .whereType<Map>()
-        .map((e) => HeroSlide.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return _newestFirst(
+      list
+          .whereType<Map>()
+          .map((e) => HeroSlide.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      (e) => e.sortDate,
+    );
   }
 
   Future<List<YoutubeVideoItem>> fetchYoutubeVideos({
@@ -31,10 +43,13 @@ class ContentService {
     };
     final data = await _client.get(ApiConfig.youtubeVideos, query: query);
     final list = data['videos'] as List? ?? [];
-    return list
-        .whereType<Map>()
-        .map((e) => YoutubeVideoItem.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return _newestFirst(
+      list
+          .whereType<Map>()
+          .map((e) => YoutubeVideoItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      (e) => e.sortDate,
+    );
   }
 
   Future<DailyThought?> fetchTodayThought() async {
@@ -55,10 +70,13 @@ class ContentService {
       query: {'active': 'true'},
     );
     final list = data['thoughts'] as List? ?? [];
-    return list
-        .whereType<Map>()
-        .map((e) => DailyThought.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return _newestFirst(
+      list
+          .whereType<Map>()
+          .map((e) => DailyThought.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      (e) => e.sortDate,
+    );
   }
 
   Future<List<NewsLinkItem>> fetchNewsLinks() async {
@@ -67,10 +85,13 @@ class ContentService {
       query: {'active': 'true'},
     );
     final list = data['links'] as List? ?? [];
-    return list
-        .whereType<Map>()
-        .map((e) => NewsLinkItem.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return _newestFirst(
+      list
+          .whereType<Map>()
+          .map((e) => NewsLinkItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      (e) => e.sortDate,
+    );
   }
 
   Future<List<NewsImageItem>> fetchNewsImages({bool monthly = true}) async {
@@ -79,10 +100,13 @@ class ContentService {
       query: monthly ? {'monthly': 'true'} : {'active': 'true'},
     );
     final list = data['images'] as List? ?? [];
-    return list
-        .whereType<Map>()
-        .map((e) => NewsImageItem.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return _newestFirst(
+      list
+          .whereType<Map>()
+          .map((e) => NewsImageItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      (e) => e.sortDate,
+    );
   }
 
   Future<List<NewsVideoItem>> fetchNewsVideos({bool monthly = true}) async {
@@ -91,10 +115,13 @@ class ContentService {
       query: monthly ? {'monthly': 'true'} : {'active': 'true'},
     );
     final list = data['videos'] as List? ?? [];
-    return list
-        .whereType<Map>()
-        .map((e) => NewsVideoItem.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return _newestFirst(
+      list
+          .whereType<Map>()
+          .map((e) => NewsVideoItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      (e) => e.sortDate,
+    );
   }
 
   Future<List<EventItem>> fetchEvents({String type = 'upcoming'}) async {
@@ -103,10 +130,13 @@ class ContentService {
       query: {'active': 'true', 'type': type},
     );
     final list = data['events'] as List? ?? [];
-    return list
-        .whereType<Map>()
-        .map((e) => EventItem.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return _newestFirst(
+      list
+          .whereType<Map>()
+          .map((e) => EventItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      (e) => e.sortDate,
+    );
   }
 
   Future<List<GalleryImageItem>> fetchGalleryImages() async {
@@ -115,10 +145,13 @@ class ContentService {
       query: {'active': 'true'},
     );
     final list = data['images'] as List? ?? [];
-    return list
-        .whereType<Map>()
-        .map((e) => GalleryImageItem.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return _newestFirst(
+      list
+          .whereType<Map>()
+          .map((e) => GalleryImageItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      (e) => e.sortDate,
+    );
   }
 
   Future<List<GalleryVideoItem>> fetchGalleryVideos() async {
@@ -127,10 +160,13 @@ class ContentService {
       query: {'active': 'true'},
     );
     final list = data['videos'] as List? ?? [];
-    return list
-        .whereType<Map>()
-        .map((e) => GalleryVideoItem.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return _newestFirst(
+      list
+          .whereType<Map>()
+          .map((e) => GalleryVideoItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      (e) => e.sortDate,
+    );
   }
 
   Future<List<PoojaItem>> fetchPoojas() async {
@@ -139,10 +175,13 @@ class ContentService {
       query: {'active': 'true'},
     );
     final list = data['poojas'] as List? ?? [];
-    return list
-        .whereType<Map>()
-        .map((e) => PoojaItem.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return _newestFirst(
+      list
+          .whereType<Map>()
+          .map((e) => PoojaItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      (e) => e.sortDate,
+    );
   }
 
   Future<List<SpiritualResource>> fetchSpiritualResources({
@@ -155,10 +194,13 @@ class ContentService {
     final data =
         await _client.get(ApiConfig.spiritualResources, query: query);
     final list = data['resources'] as List? ?? [];
-    return list
-        .whereType<Map>()
-        .map((e) => SpiritualResource.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
+    return _newestFirst(
+      list
+          .whereType<Map>()
+          .map((e) => SpiritualResource.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      (e) => e.sortDate,
+    );
   }
 
   Future<String> submitContact({

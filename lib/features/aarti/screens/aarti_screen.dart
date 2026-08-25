@@ -40,40 +40,9 @@ class _AartiScreenState extends State<AartiScreen> with WidgetsBindingObserver {
   bool _bellBusy = false;
   StreamSubscription<bool>? _bellPlayingSub;
 
-  static const _aartiRefrain = 'ॐ जय चित्रगुप्त हरे...॥';
   static const _stutiRefrain = 'शरणागतम ,शरणागतम||';
 
   static const _sections = [
-    _AartiSectionData(
-      title: 'श्री चित्रगुप्त भगवान आरती',
-      subtitle: 'भक्ति भाव से पठन करें',
-      refrain: _aartiRefrain,
-      icon: Icons.local_fire_department_rounded,
-      stanzas: [
-        'ॐ जय चित्रगुप्त हरे, स्वामी जय चित्रगुप्त हरे।\n'
-            'भक्त जनों के इच्छित, फल को पूर्ण करे॥',
-        'विघ्न विनाशक मंगलकर्ता, सन्तन सुखदायी।\n'
-            'भक्तन के प्रतिपालक, त्रिभुवन यश छायी॥',
-        'रूप चतुर्भुज, श्यामल मूरति, पीताम्बर राजै।\n'
-            'मातु इरावती, दक्षिणा, वाम अङ्ग साजै॥',
-        'कष्ट निवारण, दुष्ट संहारण, प्रभु अन्तर्यामी।\n'
-            'सृष्टि संहारण, जन दु:ख हारण, प्रकट हुये स्वामी॥',
-        'कलम, दवात, तलवार, पत्रिका, कर में अति सोहै।\n'
-            'वैजयन्ती वनमाला, त्रिभुवन मन मोहै॥',
-        'सिंहासन का कार्य सम्भाला, ब्रह्मा हर्षाये।\n'
-            'तैंतीस कोटि देवता, चरणन में धाये॥',
-        'नृपति सौदास, भीष्म पितामह, याद तुम्हें कीन्हा।\n'
-            'वेगि विलम्ब न लायो, इच्छित फल दीन्हा॥',
-        'दारा, सुत, भगिनी, सब अपने स्वास्थ के कर्ता।\n'
-            'जाऊँ कहाँ शरण में किसकी, तुम तज मैं भर्ता॥',
-        'बन्धु, पिता तुम स्वामी, शरण गहूँ किसकी।\n'
-            'तुम बिन और न दूजा, आस करूँ जिसकी॥',
-        'जो जन चित्रगुप्त जी की आरती, प्रेम सहित गावैं।\n'
-            'चौरासी के छूटैं बंधन, इच्छित फल पावैं॥',
-        'न्यायाधीश बैकुण्ठ निवासी, पाप पुण्य लिखते।\n'
-            'हम हैं शरण तिहारी, आस न दूजी करते॥',
-      ],
-    ),
     _AartiSectionData(
       title: 'श्री चित्रगुप्त भगवान स्तुति',
       subtitle: 'प्रभु की शरण में',
@@ -199,7 +168,7 @@ class _AartiScreenState extends State<AartiScreen> with WidgetsBindingObserver {
           padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 40.h),
           children: [
             const SectionTitle(
-              title: 'भगवान चित्रगुप्त जी की आरती',
+              title: 'भगवान चित्रगुप्त जी की स्तुति',
               subtitle: 'Daily prayer & stuti',
               icon: Icons.menu_book_rounded,
             ),
@@ -433,7 +402,6 @@ class _SpiritualAartiCard extends StatelessWidget {
                         number: index + 1,
                         text: stanza,
                         refrain: section.refrain,
-                        isLast: index == section.stanzas.length - 1,
                       ),
                     );
                   }),
@@ -452,93 +420,73 @@ class _StanzaBlock extends StatelessWidget {
     required this.number,
     required this.text,
     required this.refrain,
-    required this.isLast,
   });
 
   final int number;
   final String text;
   final String refrain;
-  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 12.h),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.78),
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: AppColors.saffron.withOpacity(0.12)),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 12.h),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.78),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.saffron.withOpacity(0.12)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 26.w,
+            height: 26.w,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.saffron.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              '$number',
+              style: TextStyle(
+                color: AppColors.saffron,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 26.w,
-                height: 26.w,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.saffron.withOpacity(0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  '$number',
-                  style: TextStyle(
-                    color: AppColors.saffron,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-              SizedBox(height: 10.h),
-              Text(
-                text,
-                style: TextStyle(
-                  color: const Color(0xFF2D1A00),
-                  fontSize: 15.sp,
-                  height: 1.75,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 10.h),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
-                decoration: BoxDecoration(
-                  color: AppColors.saffron.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Text(
-                  refrain,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColors.deepSaffron,
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w800,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ],
+          SizedBox(height: 10.h),
+          Text(
+            text,
+            style: TextStyle(
+              color: const Color(0xFF2D1A00),
+              fontSize: 15.sp,
+              height: 1.75,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        if (!isLast) ...[
-          SizedBox(height: 4.h),
-          Center(
-            child: Container(
-              width: 40.w,
-              height: 3.h,
-              decoration: BoxDecoration(
-                color: AppColors.gold.withOpacity(0.35),
-                borderRadius: BorderRadius.circular(4.r),
+          SizedBox(height: 10.h),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 7.h),
+            decoration: BoxDecoration(
+              color: AppColors.saffron.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Text(
+              refrain,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.deepSaffron,
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w800,
+                height: 1.4,
               ),
             ),
           ),
         ],
-      ],
+      ),
     );
   }
 }
