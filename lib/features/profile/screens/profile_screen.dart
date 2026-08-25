@@ -1,8 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../shared/widgets/page_background.dart';
 import '../../auth/screens/login_screen.dart';
@@ -18,8 +19,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String name = 'Guest User';
-  String email = 'user@example.com';
-  String mobile = '+91 XXXXX XXXXX';
+  String email = 'Not signed in';
+  String mobile = '—';
   String accountType = 'Devotee Account';
 
   bool isLoggingOut = false;
@@ -39,13 +40,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final rawMobile = user['mobile'] ?? '';
 
       name = rawName.isNotEmpty ? rawName : 'Guest User';
-      email = rawEmail.isNotEmpty ? rawEmail : 'user@example.com';
+      email = rawEmail.isNotEmpty ? rawEmail : 'Not signed in';
       if (rawMobile.isNotEmpty && rawMobile.length == 10) {
         mobile = '+91 ${rawMobile.substring(0, 5)} ${rawMobile.substring(5)}';
       } else if (rawMobile.isNotEmpty) {
         mobile = rawMobile;
+      } else {
+        mobile = '—';
       }
     });
+  }
+
+  Future<void> _openPrivacyPolicy() async {
+    final uri = Uri.parse(AppStrings.privacyPolicyUrl);
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _logout() async {
@@ -56,12 +64,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
 
     await AuthService.clearAuthData();
-
-    try {
-      await FirebaseAuth.instance.signOut();
-    } catch (e) {
-      debugPrint('Logout error: $e');
-    }
 
     if (!mounted) return;
 
@@ -180,6 +182,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: 'Edit Profile',
               color: AppColors.saffron,
               onTap: _editProfile,
+            ),
+            SizedBox(height: 12.h),
+            _ProfileButton(
+              icon: Icons.privacy_tip_outlined,
+              title: 'Privacy Policy',
+              color: AppColors.gold,
+              onTap: _openPrivacyPolicy,
             ),
             SizedBox(height: 12.h),
             _ProfileButton(

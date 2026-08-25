@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -70,11 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _logout() async {
     await AuthService.clearAuthData();
-    try {
-      await FirebaseAuth.instance.signOut();
-    } catch (e) {
-      debugPrint('Logout error: $e');
-    }
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -1661,7 +1655,9 @@ class _WhoIsChitraguptSection extends StatelessWidget {
           ),
           SizedBox(height: 14.h),
           Text(
-            'भगवान श्री चित्रगुप्त जी — बुद्धि विधाता, लेखनी दाता, समस्त ग्रह-नक्षत्रों के स्वामी हैं। वे संसार के समस्त प्राणियों के कर्मों का लेखा-जोखा रखते हैं और उनके कर्मों के आधार पर फल प्रदान करते हैं।',
+            'भगवान श्री चित्रगुप्त जी को कर्मों के लेखा-जोखा एवं न्याय के देवता के रूप में माना जाता है। धार्मिक मान्यताओं के अनुसार, वे प्रत्येक जीव के कर्मों का लेखा रखते हैं और उसके कर्मों के आधार पर न्याय का विधान करते हैं।\n\n'
+            'भगवान श्री चित्रगुप्त जी ज्ञान, लेखनी, विवेक और न्याय के प्रतीक माने जाते हैं। उनका संदेश हमें यह प्रेरणा देता है कि मनुष्य को अपने जीवन में सदैव सत्य, धर्म और सद्कर्मों का मार्ग अपनाना चाहिए।\n\n'
+            'उनका स्मरण हमें अपने कर्मों के प्रति सजग रहने और समाज एवं मानवता के प्रति अपने कर्तव्यों को ईमानदारी से निभाने की प्रेरणा देता है।',
             style: TextStyle(
               color: const Color(0xFF2D1A00),
               fontSize: 14.sp,

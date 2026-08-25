@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../constants/api_config.dart';
+import '../../data/services/auth_service.dart';
 
 class ApiException implements Exception {
   ApiException(this.message, {this.statusCode});
@@ -30,12 +31,22 @@ class ApiClient {
     return Uri.parse('$base$normalized').replace(queryParameters: params);
   }
 
-  static const Map<String, String> _noCacheHeaders = {
-    'Accept': 'application/json',
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0',
-  };
+  Future<Map<String, String>> _headers({bool jsonBody = false}) async {
+    final headers = <String, String>{
+      'Accept': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    };
+    if (jsonBody) {
+      headers['Content-Type'] = 'application/json';
+    }
+    final token = await AuthService.getToken();
+    if (token != null && token.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
+  }
 
   Future<Map<String, dynamic>> get(
     String path, {
@@ -45,7 +56,7 @@ class ApiClient {
       final response = await _client
           .get(
             _uri(path, query),
-            headers: _noCacheHeaders,
+            headers: await _headers(),
           )
           .timeout(const Duration(seconds: 25));
 
@@ -65,10 +76,7 @@ class ApiClient {
       final response = await _client
           .post(
             _uri(path),
-            headers: const {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-            },
+            headers: await _headers(jsonBody: true),
             body: jsonEncode(body ?? {}),
           )
           .timeout(const Duration(seconds: 25));
@@ -90,6 +98,7 @@ class ApiClient {
   }) async {
     try {
       final request = http.MultipartRequest('POST', _uri(path));
+      request.headers.addAll(await _headers());
       request.fields.addAll(fields);
 
       if (fileField != null && filePath != null && filePath.isNotEmpty) {

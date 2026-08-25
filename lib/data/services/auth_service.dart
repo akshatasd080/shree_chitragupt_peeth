@@ -19,9 +19,9 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     return {
       'id': prefs.getString(_keyUserId) ?? '',
-      'name': prefs.getString(_keyUserName) ?? 'Guest User',
-      'email': prefs.getString(_keyUserEmail) ?? 'user@example.com',
-      'mobile': prefs.getString(_keyUserMobile) ?? '+91 XXXXX XXXXX',
+      'name': prefs.getString(_keyUserName) ?? '',
+      'email': prefs.getString(_keyUserEmail) ?? '',
+      'mobile': prefs.getString(_keyUserMobile) ?? '',
     };
   }
 

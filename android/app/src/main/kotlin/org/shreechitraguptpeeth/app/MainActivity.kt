@@ -1,4 +1,4 @@
-package com.example.shree_chitragupt_peeth
+package org.shreechitraguptpeeth.app
 
 import io.flutter.embedding.android.FlutterActivity
 

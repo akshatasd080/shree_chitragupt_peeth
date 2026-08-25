@@ -1,31 +1,44 @@
 import 'dart:io' show Platform;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 
-/// Central API configuration
+/// Central API configuration.
+///
+/// **Play Store / release builds must use HTTPS:**
+/// ```
+/// flutter build appbundle --dart-define=API_BASE_URL=https://YOUR_DOMAIN/api
+/// ```
 class ApiConfig {
   ApiConfig._();
 
-  /// PC ka LAN IP (Real Android Device ke liye)
-  static const String customBaseUrl = 'http://192.168.1.29:3004/api';
+  /// Production / staging URL injected at build time (preferred).
+  static const String apiBaseUrlFromEnv = String.fromEnvironment('API_BASE_URL');
+
+  /// Local LAN URL for debug development only (never used in release).
+  static const String debugLanBaseUrl = 'http://192.168.1.29:3004/api';
 
   static String get baseUrl {
-    // Agar customBaseUrl diya hua hai to wahi use hoga
-    if (customBaseUrl.isNotEmpty) {
-      return customBaseUrl;
+    if (apiBaseUrlFromEnv.isNotEmpty) {
+      return apiBaseUrlFromEnv;
     }
 
-    // Flutter Web
+    // Never ship a LAN / localhost URL to Play Store users.
+    if (kReleaseMode) {
+      throw StateError(
+        'Missing API_BASE_URL. Build with:\n'
+        'flutter build appbundle --dart-define=API_BASE_URL=https://YOUR_DOMAIN/api',
+      );
+    }
+
     if (kIsWeb) {
       return 'http://localhost:3004/api';
     }
 
-    // Android Emulator
     if (Platform.isAndroid) {
-      return 'http://10.0.2.2:3004/api';
+      // Prefer LAN device testing; emulator can use 10.0.2.2 via dart-define.
+      return debugLanBaseUrl;
     }
 
-    // iOS Simulator / Desktop
     return 'http://localhost:3004/api';
   }
 
