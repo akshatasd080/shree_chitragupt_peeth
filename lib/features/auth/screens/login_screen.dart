@@ -27,6 +27,11 @@ class _LoginScreenState extends State<LoginScreen>
   bool _hidePassword = true;
   bool _isLoggingIn = false;
 
+  static final _digitsOnlyRegex = RegExp(r'^\d+$');
+  static final _emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+  );
+
   final AuthService _authService = AuthService();
 
   late AnimationController _glowController;
@@ -64,6 +69,26 @@ class _LoginScreenState extends State<LoginScreen>
     _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  String? _validateIdentifier(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Please enter email or mobile';
+    }
+
+    final trimmed = value.trim();
+    if (_digitsOnlyRegex.hasMatch(trimmed)) {
+      if (trimmed.length != 10) {
+        return 'Mobile number must be 10 digits';
+      }
+      return null;
+    }
+
+    if (!_emailRegex.hasMatch(trimmed)) {
+      return 'Enter a valid email address';
+    }
+
+    return null;
   }
 
   void _login() async {
@@ -216,22 +241,13 @@ class _LoginScreenState extends State<LoginScreen>
                               controller: _identifierController,
                               hint: 'Email or Mobile Number',
                               icon: Icons.person_outline,
-                              keyboardType: TextInputType.text,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Please enter email or mobile';
-                                }
-                                final trimmed = value.trim();
-                                final isDigitsOnly =
-                                    RegExp(r'^\d+$').hasMatch(trimmed);
-                                if (isDigitsOnly && trimmed.length != 10) {
-                                  return 'Mobile number must be 10 digits';
-                                }
-                                if (!isDigitsOnly && !trimmed.contains('@')) {
-                                  return 'Enter valid email or 10-digit mobile';
-                                }
-                                return null;
-                              },
+                              keyboardType: TextInputType.emailAddress,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              inputFormatters: const [
+                                _IdentifierInputFormatter(),
+                              ],
+                              validator: _validateIdentifier,
                             ),
                             SizedBox(height: 18.h),
                             _LoginField(
@@ -430,6 +446,27 @@ class _SparkleState extends State<_Sparkle>
   }
 }
 
+class _IdentifierInputFormatter extends TextInputFormatter {
+  const _IdentifierInputFormatter();
+
+  static final _digitsOnly = RegExp(r'^\d*$');
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+    if (_digitsOnly.hasMatch(text) && text.length > 10) {
+      return TextEditingValue(
+        text: text.substring(0, 10),
+        selection: const TextSelection.collapsed(offset: 10),
+      );
+    }
+    return newValue;
+  }
+}
+
 class _LoginField extends StatelessWidget {
   const _LoginField({
     required this.controller,
@@ -441,6 +478,7 @@ class _LoginField extends StatelessWidget {
     this.maxLength,
     this.obscureText = false,
     this.suffixIcon,
+    this.autovalidateMode,
   });
 
   final TextEditingController controller;
@@ -452,6 +490,7 @@ class _LoginField extends StatelessWidget {
   final int? maxLength;
   final bool obscureText;
   final Widget? suffixIcon;
+  final AutovalidateMode? autovalidateMode;
 
   @override
   Widget build(BuildContext context) {
@@ -459,6 +498,7 @@ class _LoginField extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
       validator: validator,
+      autovalidateMode: autovalidateMode,
       inputFormatters: inputFormatters,
       maxLength: maxLength,
       obscureText: obscureText,
