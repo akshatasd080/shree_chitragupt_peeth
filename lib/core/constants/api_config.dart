@@ -1,48 +1,30 @@
-import 'dart:io' show Platform;
+enum Environment {
+  local,
+  prod,
+}
 
-import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
-
-/// Central API configuration.
-///
-/// **Play Store / release builds must use HTTPS:**
-/// ```
-/// flutter build appbundle --dart-define=API_BASE_URL=https://YOUR_DOMAIN/api
-/// ```
 class ApiConfig {
-  ApiConfig._();
-
-  /// Production / staging URL injected at build time (preferred).
-  static const String apiBaseUrlFromEnv = String.fromEnvironment('API_BASE_URL');
-
-  /// Local LAN URL for debug development only (never used in release).
-  static const String debugLanBaseUrl = 'http://192.168.1.29:3004/api';
+  /// Change only this value.
+  ///
+  /// local = Local development server
+  /// prod  = Production server
+  static const Environment current = Environment.prod;
 
   static String get baseUrl {
-    if (apiBaseUrlFromEnv.isNotEmpty) {
-      return apiBaseUrlFromEnv;
-    }
+    switch (current) {
+      case Environment.local:
+        return 'http://192.168.1.29:3004/api';
 
-    // Never ship a LAN / localhost URL to Play Store users.
-    if (kReleaseMode) {
-      throw StateError(
-        'Missing API_BASE_URL. Build with:\n'
-        'flutter build appbundle --dart-define=API_BASE_URL=https://YOUR_DOMAIN/api',
-      );
+      case Environment.prod:
+        return 'https://shreechitraguptpeeth.org/api';
     }
-
-    if (kIsWeb) {
-      return 'http://localhost:3004/api';
-    }
-
-    if (Platform.isAndroid) {
-      // Prefer LAN device testing; emulator can use 10.0.2.2 via dart-define.
-      return debugLanBaseUrl;
-    }
-
-    return 'http://localhost:3004/api';
   }
 
-  // ---------------- API Endpoints ----------------
+  // ============================================================
+  // API ENDPOINTS
+  // ============================================================
+
+  // ---------------- Content ----------------
 
   static const String heroSlides = '/hero-slides';
   static const String youtubeVideos = '/youtube-videos';
@@ -60,36 +42,56 @@ class ApiConfig {
   static const String donations = '/donations';
   static const String spiritualResources = '/spiritual-resources';
 
-  // ---------------- Auth Endpoints ----------------
+  // ---------------- Auth ----------------
 
   static const String authLogin = '/auth/login';
   static const String authRegister = '/auth/register';
   static const String authMe = '/auth/me';
 
-  // ---------------- Upload URLs ----------------
+  // ============================================================
+  // UPLOAD URLs
+  // ============================================================
 
-  static String uploadUrl(String folder, String? filename) {
-    if (filename == null || filename.isEmpty) return '';
+  static String uploadUrl(
+    String folder,
+    String? filename,
+  ) {
+    if (filename == null || filename.isEmpty) {
+      return '';
+    }
+
     return '$baseUrl/uploads/$folder/$filename';
   }
 
-  static String heroImage(String? filename) => uploadUrl('hero', filename);
+  static String heroImage(String? filename) {
+    return uploadUrl('hero', filename);
+  }
 
-  static String poojaImage(String? filename) => uploadUrl('pooja', filename);
+  static String poojaImage(String? filename) {
+    return uploadUrl('pooja', filename);
+  }
 
-  static String thoughtImage(String? filename) =>
-      uploadUrl('thoughts', filename);
+  static String thoughtImage(String? filename) {
+    return uploadUrl('thoughts', filename);
+  }
 
-  static String newsImage(String? filename) => uploadUrl('news', filename);
+  static String newsImage(String? filename) {
+    return uploadUrl('news', filename);
+  }
 
-  static String newsVideo(String? filename) =>
-      uploadUrl('news-videos', filename);
+  static String newsVideo(String? filename) {
+    return uploadUrl('news-videos', filename);
+  }
 
-  static String eventImage(String? filename) => uploadUrl('events', filename);
+  static String eventImage(String? filename) {
+    return uploadUrl('events', filename);
+  }
 
-  static String galleryImage(String? filename) =>
-      uploadUrl('gallery', filename);
+  static String galleryImage(String? filename) {
+    return uploadUrl('gallery', filename);
+  }
 
-  static String spiritualImage(String? filename) =>
-      uploadUrl('spiritual', filename);
+  static String spiritualImage(String? filename) {
+    return uploadUrl('spiritual', filename);
+  }
 }
