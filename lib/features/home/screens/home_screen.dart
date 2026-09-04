@@ -243,6 +243,7 @@ class _HomeTabState extends State<HomeTab> {
   DailyThought? _thought;
   List<YoutubeVideoItem> _videos = [];
   List<PoojaItem> _poojas = [];
+  List<EventItem> _upcomingEvents = [];
 
   bool _loading = true;
   String? _error;
@@ -267,6 +268,7 @@ class _HomeTabState extends State<HomeTab> {
         _service.fetchTodayThought(),
         _service.fetchYoutubeVideos(latest: true, limit: 6),
         _service.fetchPoojas(),
+        _service.fetchEvents(type: 'upcoming').onError((_, __) => <EventItem>[]),
       ]);
 
       if (!mounted) return;
@@ -275,6 +277,7 @@ class _HomeTabState extends State<HomeTab> {
         _thought = results[1] as DailyThought?;
         _videos = results[2] as List<YoutubeVideoItem>;
         _poojas = results[3] as List<PoojaItem>;
+        _upcomingEvents = results[4] as List<EventItem>;
         _slideIndex = 0;
         _loading = false;
       });
@@ -317,15 +320,23 @@ class _HomeTabState extends State<HomeTab> {
               if (_error != null && !_loading)
                 EmptyStateCard(message: _error!, onRetry: _load),
 
-              // HREP / hero carousel first
-              if (!_loading) ...[
+              // Upcoming events — same as website: only while events are upcoming
+              if (!_loading && _upcomingEvents.isNotEmpty) ...[
+                SizedBox(height: 8.h),
+                _UpcomingEventsHomeSection(
+                  onTap: () => widget.onOpenDrawerItem(5),
+                ),
+                SizedBox(height: 14.h),
+              ] else if (!_loading)
                 SizedBox(height: 18.h),
+
+              // HREP / hero carousel first
+              if (!_loading)
                 _HeroCarousel(
                   slides: _slides,
                   index: _slideIndex,
                   onChanged: (i) => setState(() => _slideIndex = i),
                 ),
-              ],
 
               // Daily Thought — right below hero, fetched from backend daily
               if (!_loading && _thought != null) ...[
@@ -1950,6 +1961,134 @@ class _FooterSection extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _UpcomingEventsHomeSection extends StatelessWidget {
+  const _UpcomingEventsHomeSection({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: GestureDetector(
+        onTap: onTap,
+        child: const _EventsUpcomingBadge(),
+      ),
+    );
+  }
+}
+
+class _EventsUpcomingBadge extends StatelessWidget {
+  const _EventsUpcomingBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFE8D6),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFFF0C4A0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.16),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const _UpcomingPulseDot(),
+          SizedBox(width: 8.w),
+          Icon(
+            Icons.calendar_today_rounded,
+            size: 13.sp,
+            color: const Color(0xFFE85D04),
+          ),
+          SizedBox(width: 6.w),
+          Text(
+            'UPCOMING',
+            style: TextStyle(
+              color: const Color(0xFFE85D04),
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UpcomingPulseDot extends StatefulWidget {
+  const _UpcomingPulseDot();
+
+  @override
+  State<_UpcomingPulseDot> createState() => _UpcomingPulseDotState();
+}
+
+class _UpcomingPulseDotState extends State<_UpcomingPulseDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 12.w,
+      height: 12.w,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, _) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              Transform.scale(
+                scale: 1 + _controller.value * 1.15,
+                child: Opacity(
+                  opacity: (1 - _controller.value) * 0.65,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFF8A3D),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                width: 8.w,
+                height: 8.w,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFEF4444), Color(0xFFF97316)],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
