@@ -108,4 +108,23 @@ class AuthService {
     await _saveAuthData(result);
     return result;
   }
+
+  /// Deletes the signed-in account on the server, then clears local auth.
+  ///
+  /// Tries DELETE `/auth/delete-account`, then POST as a fallback for older APIs.
+  /// Throws [ApiException] if the server rejects the request so the UI can
+  /// offer the web/email deletion path required by Google Play.
+  Future<void> deleteAccount() async {
+    try {
+      await _client.delete(ApiConfig.authDeleteAccount);
+    } on ApiException catch (e) {
+      // Some backends expose deletion as POST only.
+      if (e.statusCode == 404 || e.statusCode == 405) {
+        await _client.post(ApiConfig.authDeleteAccount);
+      } else {
+        rethrow;
+      }
+    }
+    await clearAuthData();
+  }
 }

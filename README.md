@@ -1,17 +1,31 @@
-# shree_chitragupt_peeth
+# Shree Chitragupt Peeth
 
-A new Flutter project.
+Official Flutter app for **Shree Chitragupt Peeth**, Vrindavan  
+Android package: `org.shreechitraguptpeeth.app`
 
-## Getting Started
+## Run locally
 
-This project is a starting point for a Flutter application.
+```bash
+flutter pub get
+flutter run
+```
 
-A few resources to get you started if this is your first Flutter project:
+API environment is controlled in `lib/core/constants/api_config.dart` (`Environment.prod` / `local`).
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Google Play release
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+See **[store/PLAY_STORE.md](store/PLAY_STORE.md)** for the full publishing checklist.
+
+Quick release build:
+
+```bash
+# 1) Create android/key.properties from android/key.properties.example
+# 2) Host store/legal/*.html on your website
+flutter build appbundle --release
+```
+
+## Legal pages to host
+
+- `store/legal/privacy-policy.html`
+- `store/legal/terms.html`
+- `store/legal/delete-account.html`

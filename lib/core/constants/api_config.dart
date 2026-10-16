@@ -47,6 +47,8 @@ class ApiConfig {
   static const String authLogin = '/auth/login';
   static const String authRegister = '/auth/register';
   static const String authMe = '/auth/me';
+  /// Server-side account deletion (Bearer token required).
+  static const String authDeleteAccount = '/auth/delete-account';
 
   // ============================================================
   // UPLOAD URLs

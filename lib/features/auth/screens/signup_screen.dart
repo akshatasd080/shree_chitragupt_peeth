@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../core/network/api_client.dart';
 import '../../../data/services/auth_service.dart';
 import 'login_screen.dart';
@@ -30,6 +32,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _hidePassword = true;
   bool _hideConfirmPassword = true;
   bool _isSigningUp = false;
+  bool _acceptedPolicies = false;
 
   final AuthService _authService = AuthService();
 
@@ -74,9 +77,23 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
+  Future<void> _openUrl(String url) async {
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
   Future<void> _signUp() async {
     if (_isSigningUp) return;
     if (!_formKey.currentState!.validate()) return;
+
+    if (!_acceptedPolicies) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please accept the Privacy Policy and Terms to continue'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isSigningUp = true);
 
@@ -498,7 +515,85 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                           ),
 
-                          SizedBox(height: 26.h),
+                          SizedBox(height: 18.h),
+
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 24.w,
+                                height: 24.w,
+                                child: Checkbox(
+                                  value: _acceptedPolicies,
+                                  activeColor: AppColors.saffron,
+                                  checkColor: Colors.white,
+                                  side: BorderSide(
+                                    color: AppColors.goldLight.withOpacity(0.7),
+                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _acceptedPolicies = value ?? false;
+                                    });
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: 10.w),
+                              Expanded(
+                                child: Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Text(
+                                      'I agree to the ',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.85),
+                                        fontSize: 12.5.sp,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () =>
+                                          _openUrl(AppStrings.privacyPolicyUrl),
+                                      child: Text(
+                                        'Privacy Policy',
+                                        style: TextStyle(
+                                          color: AppColors.goldLight,
+                                          fontSize: 12.5.sp,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      ' and ',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.85),
+                                        fontSize: 12.5.sp,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () =>
+                                          _openUrl(AppStrings.termsOfServiceUrl),
+                                      child: Text(
+                                        'Terms of Service',
+                                        style: TextStyle(
+                                          color: AppColors.goldLight,
+                                          fontSize: 12.5.sp,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      '.',
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.85),
+                                        fontSize: 12.5.sp,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: 22.h),
 
                           /// Signup Button
                           SizedBox(

@@ -5,7 +5,6 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   flutter_inappwebview_windows
   gal
-  permission_handler_windows
   url_launcher_windows
 )
 

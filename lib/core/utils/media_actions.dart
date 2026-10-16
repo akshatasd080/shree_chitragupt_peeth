@@ -4,54 +4,32 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class MediaActions {
   MediaActions._();
 
-  static Future<bool> _ensureStoragePermission(BuildContext context) async {
-    Permission permission;
-    if (Platform.isIOS) {
-      permission = Permission.photos;
-    } else if (Platform.isAndroid) {
-      permission = Permission.photos;
-    } else {
-      return true;
-    }
+  /// Uses Gal's write-only gallery access — no READ_MEDIA_* permissions.
+  static Future<bool> _ensureGalleryAccess(BuildContext context) async {
+    try {
+      final hasAccess = await Gal.hasAccess(toAlbum: true);
+      if (hasAccess) return true;
 
-    var status = await permission.status;
-    if (status.isGranted) return true;
-
-    if (status.isPermanentlyDenied) {
+      final granted = await Gal.requestAccess(toAlbum: true);
+      if (granted) return true;
+    } on GalException catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              Platform.isIOS
-                  ? 'Photo Library permission required. Enable in Settings.'
-                  : 'Photos permission required. Enable in Settings.',
-            ),
-            action: const SnackBarAction(
-              label: 'Open',
-              onPressed: openAppSettings,
-            ),
-          ),
+          SnackBar(content: Text('Gallery access error: ${e.type.name}')),
         );
       }
       return false;
     }
 
-    status = await permission.request();
-    if (status.isGranted) return true;
-
-    if (Platform.isAndroid) {
-      final fallbackStatus = await Permission.storage.request();
-      if (fallbackStatus.isGranted) return true;
-    }
-
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Permission denied. Cannot save file.')),
+        const SnackBar(
+          content: Text('Gallery permission required to save media.'),
+        ),
       );
     }
     return false;
@@ -73,7 +51,7 @@ class MediaActions {
 
     final messenger = ScaffoldMessenger.of(context);
 
-    final ok = await _ensureStoragePermission(context);
+    final ok = await _ensureGalleryAccess(context);
     if (!ok) return;
 
     messenger.showSnackBar(
@@ -139,7 +117,7 @@ class MediaActions {
 
     final messenger = ScaffoldMessenger.of(context);
 
-    final ok = await _ensureStoragePermission(context);
+    final ok = await _ensureGalleryAccess(context);
     if (!ok) return;
 
     messenger.showSnackBar(

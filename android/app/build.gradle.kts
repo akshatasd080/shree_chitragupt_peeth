@@ -49,8 +49,9 @@ android {
 
     buildTypes {
         release {
-            // Uses upload/release keystore when android/key.properties exists.
-            // Until then, debug signing keeps local --release builds working.
+            // Play uploads MUST use the upload keystore (android/key.properties).
+            // Without key.properties, release falls back to debug signing for local tests only —
+            // do not upload a debug-signed AAB to Play Console.
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
             } else {
@@ -62,6 +63,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+        }
+    }
+
+    // Required by Play for 16 KB page-size devices on newer Flutter/NDK toolchains.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
         }
     }
 }

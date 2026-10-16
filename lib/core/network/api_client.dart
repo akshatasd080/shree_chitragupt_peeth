@@ -89,6 +89,27 @@ class ApiClient {
     }
   }
 
+  Future<Map<String, dynamic>> delete(
+    String path, {
+    Map<String, dynamic>? body,
+  }) async {
+    try {
+      final response = await _client
+          .delete(
+            _uri(path),
+            headers: await _headers(jsonBody: body != null),
+            body: body == null ? null : jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 25));
+
+      return _decode(response);
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException('Network error: $e');
+    }
+  }
+
   Future<Map<String, dynamic>> postMultipart(
     String path, {
     required Map<String, String> fields,

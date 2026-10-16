@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/network/api_client.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../shared/widgets/page_background.dart';
 import '../../auth/screens/login_screen.dart';
@@ -24,6 +25,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String accountType = 'Devotee Account';
 
   bool isLoggingOut = false;
+  bool isDeletingAccount = false;
+
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -51,13 +55,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  Future<void> _openPrivacyPolicy() async {
-    final uri = Uri.parse(AppStrings.privacyPolicyUrl);
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _logout() async {
-    if (isLoggingOut) return;
+    if (isLoggingOut || isDeletingAccount) return;
 
     setState(() {
       isLoggingOut = true;
@@ -73,6 +77,109 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       (route) => false,
     );
+  }
+
+  Future<void> _confirmDeleteAccount() async {
+    if (isDeletingAccount || isLoggingOut) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1208),
+        title: Text(
+          'Delete account?',
+          style: TextStyle(color: AppColors.goldLight, fontSize: 18.sp),
+        ),
+        content: Text(
+          'This permanently deletes your Shree Chitragupt Peeth account and '
+          'associated personal data from our servers. This cannot be undone.\n\n'
+          'If in-app deletion is unavailable, you can also request deletion at '
+          'our website or by emailing ${AppStrings.supportEmail}.',
+          style: TextStyle(color: Colors.white70, fontSize: 14.sp, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+    await _deleteAccount();
+  }
+
+  Future<void> _deleteAccount() async {
+    setState(() => isDeletingAccount = true);
+
+    try {
+      await _authService.deleteAccount();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Account deleted successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      final useWeb = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: const Color(0xFF1A1208),
+          title: Text(
+            'Request deletion online',
+            style: TextStyle(color: AppColors.goldLight, fontSize: 18.sp),
+          ),
+          content: Text(
+            '${e.message}\n\n'
+            'Open our account deletion page, or email '
+            '${AppStrings.supportEmail} with subject “Delete my account” '
+            'and your registered email/mobile. We will process the request '
+            'and delete associated data.',
+            style: TextStyle(color: Colors.white70, fontSize: 14.sp, height: 1.4),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Close', style: TextStyle(color: Colors.white70)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(
+                'Open page',
+                style: TextStyle(color: AppColors.goldLight),
+              ),
+            ),
+          ],
+        ),
+      );
+      if (useWeb == true) {
+        await _openUrl(AppStrings.accountDeletionUrl);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not delete account: $e'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => isDeletingAccount = false);
+    }
   }
 
   Future<void> _editProfile() async {
@@ -188,7 +295,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icons.privacy_tip_outlined,
               title: 'Privacy Policy',
               color: AppColors.gold,
-              onTap: _openPrivacyPolicy,
+              onTap: () => _openUrl(AppStrings.privacyPolicyUrl),
+            ),
+            SizedBox(height: 12.h),
+            _ProfileButton(
+              icon: Icons.description_outlined,
+              title: 'Terms of Service',
+              color: AppColors.gold,
+              onTap: () => _openUrl(AppStrings.termsOfServiceUrl),
             ),
             SizedBox(height: 12.h),
             _ProfileButton(
@@ -196,6 +310,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: isLoggingOut ? 'Logging out...' : 'Logout',
               color: Colors.redAccent,
               onTap: _logout,
+            ),
+            SizedBox(height: 12.h),
+            _ProfileButton(
+              icon: Icons.delete_forever_rounded,
+              title: isDeletingAccount ? 'Deleting...' : 'Delete Account',
+              color: const Color(0xFF8B1E1E),
+              onTap: _confirmDeleteAccount,
             ),
           ],
         ),
