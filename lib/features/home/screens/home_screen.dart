@@ -18,7 +18,8 @@ import '../../aarti/screens/aarti_screen.dart';
 import '../../auth/screens/login_screen.dart';
 import '../../contact/screens/contact_screen.dart';
 import '../../daily_thought/screens/daily_thought_screen.dart';
-import '../../donation/screens/donation_screen.dart';
+// Temporarily disabled donation screen.
+// import '../../donation/screens/donation_screen.dart';
 import '../../events/screens/events_screen.dart';
 import '../../gallery/screens/gallery_screens.dart';
 import '../../member/screens/member_screen.dart';
@@ -59,10 +60,11 @@ class _HomeScreenState extends State<HomeScreen> {
       const ContactScreen(),
       const MemberScreen(),
       PoojaBookingScreen(initialPoojaTitle: _preselectedPoojaTitle),
-      const DonationScreen(),
+      // Temporarily disabled — keep index order aligned with AppDrawer.
+      // const DonationScreen(),
       GalleryImagesScreen(key: _galleryImagesKey),
       GalleryVideosScreen(key: _galleryVideosKey),
-      AartiScreen(key: const ValueKey('aarti_screen'), isActive: activeIndex == 13),
+      AartiScreen(key: const ValueKey('aarti_screen'), isActive: activeIndex == 12),
       const ProfileScreen(),
     ];
   }
@@ -99,10 +101,10 @@ class _HomeScreenState extends State<HomeScreen> {
         case 4:
           _callReload(_newsLinksKey);
           break;
-        case 11:
+        case 10:
           _callReload(_galleryImagesKey);
           break;
-        case 12:
+        case 11:
           _callReload(_galleryVideosKey);
           break;
       }
@@ -120,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final safeIndex = _currentIndex.clamp(0, 14);
+    final safeIndex = _currentIndex.clamp(0, 13);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(

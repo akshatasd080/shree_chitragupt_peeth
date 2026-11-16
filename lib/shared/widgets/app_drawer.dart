@@ -31,7 +31,8 @@ class AppDrawer extends StatelessWidget {
     DrawerItemData(label: 'Contact', icon: Icons.phone_in_talk_rounded),
     DrawerItemData(label: 'Member', icon: Icons.person_add_alt_1_rounded),
     DrawerItemData(label: 'Pooja Booking', icon: Icons.temple_hindu_rounded),
-    DrawerItemData(label: 'Donation', icon: Icons.volunteer_activism_rounded),
+    // Temporarily disabled — re-enable with DonationScreen in home_screen.
+    // DrawerItemData(label: 'Donation', icon: Icons.volunteer_activism_rounded),
     DrawerItemData(label: 'Gallery Images', icon: Icons.photo_library_outlined),
     DrawerItemData(
         label: 'Gallery Videos', icon: Icons.ondemand_video_outlined),
