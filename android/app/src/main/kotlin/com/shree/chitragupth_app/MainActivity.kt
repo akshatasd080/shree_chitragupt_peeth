@@ -1,4 +1,4 @@
-package org.shreechitraguptpeeth.app
+package com.shree.chitragupth_app
 
 import io.flutter.embedding.android.FlutterActivity
 
